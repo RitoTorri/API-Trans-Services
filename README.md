@@ -1,7 +1,37 @@
-# Proyecto-4to-Semestre
-Proyecto de 4to semestre de la universidad. API de Trans-Services
+# 🚚 API Trans-Services - Proyecto 4to Semestre
 
-## Instalación
+API para gestión de servicios de transporte desarrollada como proyecto universitario del cuarto semestre.
+
+---
+
+## ⚠️ IMPORTANTE
+
+**Si vas a realizar cambios, por favor hazlo en otra rama aparte de la principal.**
+
+```bash
+# Crear y cambiar a nueva rama
+git checkout -b nombre-de-tu-rama
+
+# Subir cambios a la nueva rama
+git push origin nombre-de-tu-rama
+```
+
+---
+
+## 🚀 Instalación y Configuración
+
+### Prerrequisitos
+<div align="center">
+
+**Tecnologías Requeridas**  
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Yarn](https://img.shields.io/badge/Yarn-2C8EBB?style=for-the-badge&logo=yarn&logoColor=white)
+![XAMPP](https://img.shields.io/badge/XAMPP-FB7A24?style=for-the-badge&logo=xampp&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+
+</div>
+
+### 📥 Instalación del Proyecto
 
 ```bash
 # Clonar el repositorio
@@ -12,38 +42,38 @@ cd API-Trans-Services
 
 # Instalar las dependencias
 yarn install
-
 ```
 
-# Configuración del Proyecto
+---
 
-**IMPORTANTE**: Es necesario tener instalado en su computadora:
+## ⚙️ Configuración del Entorno
 
-### 🔹 Node.js
-- Descargar e instalar desde: [https://nodejs.org/es/download/](https://nodejs.org/es/download/)
+### 1. Configuración de Base de Datos
+1. Iniciar Apache y MySQL en XAMPP
+2. Crear una base de datos MySQL con el nombre de tu preferencia
 
-### 🔹 Yarn
-- Instalar siguiendo las instrucciones: [https://classic.yarnpkg.com/lang/en/docs/install/#windows-stable](https://classic.yarnpkg.com/lang/en/docs/install/#windows-stable)
+### 2. Variables de Entorno
+Crear un archivo `.env` en la raíz del proyecto:
 
-## Configuración de Base de Datos
+```env
+# Conexión a la base de datos
+DATABASE_URL="mysql://root:@localhost:3306/trans_services"
 
-1. Crear la base de datos en XAMPP con el nombre que desee.
-
-2. Crear un archivo `.env` en la raíz del proyecto con el siguiente contenido:
-
-```bash
-# Conexion a la base de datos
-DATABASE_URL="mysql://root:password@localhost:3306/nombre_base_datos"
-
-# Llave secreta para el token de autenticación, puede ser cualquier cadena
+# Llave secreta para JWT
 SECRET_KEY=AJuanLeGustanLasTrans
 ```
 
-**Nota**: Ajustar el usuario y contraseña según tu configuración de XAMPP. Por defecto, usuario es `root` sin contraseña.
+**Nota:** Ajusta las credenciales según tu configuración de MySQL:
+- Usuario por defecto: `root`
+- Contraseña: (vacía por defecto en XAMPP)
+- Puerto: `3306`
+- Nombre de BD: `trans_services` (o el que hayas creado)
 
-## Comandos de Prisma
+---
 
-Ejecutar en orden después de configurar el archivo `.env`:
+## 🗃️ Configuración de la Base de Datos
+
+### Migraciones con Prisma
 
 ```bash
 # Generar el cliente de Prisma
@@ -51,28 +81,46 @@ npx prisma generate
 
 # Crear las tablas en la base de datos
 npx prisma migrate dev
+
+# (Opcional) Visualizar la BD con Prisma Studio
+npx prisma studio
 ```
 
-## Estructura de la Base de Datos
+### 🗂️ Estructura de la Base de Datos
 
-El sistema incluye las siguientes tablas principales:
-- users (Usuarios del sistema)
-- employees (Empleados)
-- roles (Roles de usuarios)
-- payrolls (Nóminas)
-- vehicles (Vehículos)
-- clients (Clientes)
-- providers (Proveedores)
-- invoices_providers (Facturas de proveedores)
+El sistema maneja las siguientes entidades principales:
 
-Todas las relaciones y constraints están definidas en el schema de Prisma.
+| Entidad | Descripción |
+|---------|-------------|
+| **users** | Usuarios del sistema |
+| **employees** | Empleados de la empresa |
+| **roles** | Roles de trabajadores |
+| **payrolls** | Sistema de nóminas |
+| **vehicles** | Flota vehicular |
+| **clients** | Clientes del servicio |
+| **providers** | Proveedores |
+| **invoices_providers** | Facturas de proveedores |
 
-## Ejecución del Servidor
+Todas las relaciones, constraints y validaciones están definidas en el schema de Prisma.
+
+---
+
+## 🎯 Ejecución del Servidor
 
 ```bash
-# Ejecutar el servidor de producción
+# Modo desarrollo (con hot-reload)
+yarn dev
+
+# Modo producción
 yarn start
 
-# Ejecutar el servidor de desarrollo
-yarn dev
 ```
+
+---
+
+## 📊 Estado del Proyecto
+
+![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-yellow)
+![Versión](https://img.shields.io/badge/Versión-1.0.0-blue)
+
+---
