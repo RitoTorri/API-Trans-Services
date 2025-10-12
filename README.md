@@ -1,7 +1,7 @@
 # Proyecto-4to-Semestre
 Proyecto de 4to semestre de la universidad. API de Trans-Services
 
-## Instalación y Ejecución
+## Instalación
 
 ```bash
 # Clonar el repositorio
@@ -15,8 +15,15 @@ yarn install
 
 ```
 
-# Configuración
-**IMPORTANTE**: Es necesario tener instalado [Node.js](https://nodejs.org/es/download/) y [Yarn](https://classic.yarnpkg.com/lang/en/docs/install/#windows-stable) en su computadora.
+# Configuración del Proyecto
+
+**IMPORTANTE**: Es necesario tener instalado en su computadora:
+
+### 🔹 Node.js
+- Descargar e instalar desde: [https://nodejs.org/es/download/](https://nodejs.org/es/download/)
+
+### 🔹 Yarn
+- Instalar siguiendo las instrucciones: [https://classic.yarnpkg.com/lang/en/docs/install/#windows-stable](https://classic.yarnpkg.com/lang/en/docs/install/#windows-stable)
 
 ## Configuración de Base de Datos
 
