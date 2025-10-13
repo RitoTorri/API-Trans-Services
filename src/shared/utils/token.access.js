@@ -12,8 +12,8 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') })
 const genToken = async (result) => {
     const token = jwt.sign({
         id: result.id,
-        email: result.email,
-    }, process.env.TOKEN_ACCESS, { expiresIn: '1h' })
+        username: result.user_name,
+    }, process.env.SECRET_KEY, { expiresIn: '3h' })
     return token
 }
 

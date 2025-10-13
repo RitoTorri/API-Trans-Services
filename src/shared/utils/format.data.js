@@ -4,7 +4,7 @@ const formatEmailInvalid = (email) => {
 }
 
 const formatPasswordInvalid = (password) => {
-    const allowedCharsRegex = /^[a-zA-Z0-9!@#$%&*()_+\-=\[\]{}|;:',.<>?]+$/
+    const allowedCharsRegex = /^[a-zA-Z0-9!@#$%&*()_+\-=\[\]{}|;:',.]+$/
     return !allowedCharsRegex.test(password) ? true : false
 }
 
