@@ -9,17 +9,56 @@ datasource db {
 
 model users {
   id          Int      @id @default(autoincrement())
-  id_employee Int
-  user_name   String   @db.VarChar(30)
+  employee_id Int
+  role_id     Int
+  username    String   @db.VarChar(30)
   password    String   @db.VarChar(60)
+  is_active   Boolean  @default(true)
   created_at  DateTime @default(now()) @map("created_at")
 
-  employees employees @relation(fields: [id_employee], references: [id], onDelete: Cascade)
+  employees   employees @relation(fields: [employee_id], references: [id])
+  user_roles  user_roles @relation(fields: [role_id], references: [id])
 
   @@map("users")
 }
 
-model roles {
+model user_roles {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(30)
+  description String   @db.VarChar(100)
+  created_at  DateTime @default(now()) @map("created_at")
+
+  users             users[]
+  role_permissions  role_permissions[]
+
+  @@map("user_roles")
+}
+
+model role_permissions {
+  id            Int      @id @default(autoincrement())
+  role_id       Int
+  permission_id Int
+  created_at    DateTime @default(now()) @map("created_at")
+
+  user_roles   user_roles   @relation(fields: [role_id], references: [id])
+  permissions  permissions  @relation(fields: [permission_id], references: [id])
+
+  @@unique([role_id, permission_id])
+  @@map("role_permissions")
+}
+
+model permissions {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(30)
+  description String   @db.VarChar(100)
+  created_at  DateTime @default(now()) @map("created_at")
+
+  role_permissions role_permissions[]
+
+  @@map("permissions")
+}
+
+model employee_roles {
   id          Int      @id @default(autoincrement())
   role_name   String   @db.VarChar(30)
   description String   @db.VarChar(100)
@@ -27,7 +66,7 @@ model roles {
 
   employees employees[]
 
-  @@map("roles")
+  @@map("employee_roles")
 }
 
 model employees {
@@ -35,60 +74,48 @@ model employees {
   name       String   @db.VarChar(40)
   lastname   String   @db.VarChar(40)
   ci         String   @db.VarChar(13) @unique
-  role       Int
-  active     Boolean  @default(true)
+  role_id    Int
+  is_active  Boolean  @default(true)
   created_at DateTime @default(now()) @map("created_at")
 
-  roles              roles               @relation(fields: [role], references: [id])
-  users              users[]
-  contacts_employees contacts_employees[]
-  payrolls           payrolls[]
-  vehicles           vehicles[]
+  employee_roles      employee_roles      @relation(fields: [role_id], references: [id])
+  users               users[]
+  employee_contacts   employee_contacts[]
+  payrolls            payrolls[]
+  vehicles            vehicles[]
+
   @@map("employees")
 }
 
-model contacts_employees {
-  id           Int      @id @default(autoincrement())
-  id_employee  Int
-  contact_info String   @db.VarChar(100)
-  created_at   DateTime @default(now()) @map("created_at")
+model employee_contacts {
+  id              Int      @id @default(autoincrement())
+  employee_id     Int
+  contact_type_id Int
+  contact_info    String   @db.VarChar(100)
+  created_at      DateTime @default(now()) @map("created_at")
 
-  employees employees @relation(fields: [id_employee], references: [id], onDelete: Cascade)
+  employees employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
-  @@map("contacts_employees")
+  @@map("employee_contacts")
 }
 
 model payrolls {
   id           Int       @id @default(autoincrement())
-  id_employee  Int
+  employee_id  Int
   base_salary  Decimal   @db.Decimal(10, 2)
   period_start DateTime
   period_end   DateTime
   payment_date DateTime
   created_at   DateTime  @default(now()) @map("created_at")
   updated_at   DateTime?
-  active       Boolean   @default(true)
+  is_active    Boolean   @default(true)
 
-  employees employees @relation(fields: [id_employee], references: [id], onDelete: Cascade)
+  employees employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   @@map("payrolls")
 }
 
-model vehicles {
-  id                Int      @id @default(autoincrement())
-  id_driver         Int
-  license_plate     String   @db.VarChar(10)
-  total_seats       Int
-  id_vehicle_types  Int
-  created_at        DateTime @default(now()) @map("created_at")
-
-  employees       employees       @relation(fields: [id_driver], references: [id], onDelete: Cascade)
-  vehicles_types  vehicles_types  @relation(fields: [id_vehicle_types], references: [id], onDelete: Cascade)
-
-  @@map("vehicles")
-}
-
-model vehicles_types {
+model vehicle_types {
   id          Int      @id @default(autoincrement())
   type_name   String   @db.VarChar(20)
   description String   @db.VarChar(100)
@@ -96,7 +123,23 @@ model vehicles_types {
 
   vehicles vehicles[]
 
-  @@map("vehicles_types")
+  @@map("vehicle_types")
+}
+
+model vehicles {
+  id               Int      @id @default(autoincrement())
+  driver_id        Int
+  license_plate    String   @db.VarChar(10)
+  total_seats      Int
+  vehicle_type_id  Int
+  is_active        Boolean  @default(true)
+  created_at       DateTime @default(now()) @map("created_at")
+
+  employees       employees       @relation(fields: [driver_id], references: [id], onDelete: Cascade)
+  vehicle_types   vehicle_types   @relation(fields: [vehicle_type_id], references: [id], onDelete: Cascade)
+  services        services[]
+
+  @@map("vehicles")
 }
 
 model clients {
@@ -105,36 +148,12 @@ model clients {
   name       String   @db.VarChar(30)
   contact    String   @db.VarChar(20)
   address    String   @db.VarChar(100)
-  active     Boolean  @default(true)
+  is_active  Boolean  @default(true)
   created_at DateTime @default(now()) @map("created_at")
 
+  services services[]
+
   @@map("clients")
-}
-
-model invoices_purchase {
-  id                    Int       @id @default(autoincrement())
-  id_invoice_provider   Int
-  id_type_expense       Int
-  date_purchase         DateTime
-  description           String    @db.Text
-  exempt                Decimal   @db.Decimal(10, 2)
-  total                 Decimal   @db.Decimal(10, 2)
-  created_at            DateTime  @default(now()) @map("created_at")
-
-  invoices_providers invoices_providers @relation(fields: [id_invoice_provider], references: [id], onDelete: Cascade)
-  types_expenses     types_expenses     @relation(fields: [id_type_expense], references: [id], onDelete: Cascade)
-
-  @@map("invoices_purchase")
-}
-
-model types_expenses {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(30)
-  created_at  DateTime @default(now()) @map("created_at")
-
-  invoices_purchase invoices_purchase[]
-
-  @@map("types_expenses")
 }
 
 model providers {
@@ -142,52 +161,86 @@ model providers {
   name       String    @db.VarChar(30)
   rif        String    @db.VarChar(30)
   balance    Decimal   @db.Decimal(10, 2)
-  active     Boolean   @default(true)
+  is_active  Boolean   @default(true)
   created_at DateTime  @default(now()) @map("created_at")
 
-  contacts_providers  contacts_providers[]
-  invoices_providers  invoices_providers[]
+  provider_contacts  provider_contacts[]
+  provider_invoices  provider_invoices[]
 
   @@map("providers")
 }
 
-model invoices_providers {
-  id            Int       @id @default(autoincrement())
-  id_provider   Int
-  n_control     String    @db.VarChar(30)
-  n_invoice     String    @db.VarChar(30)
-  date_invoice  DateTime
-  total         Decimal   @db.Decimal(10, 2)
-  created_at    DateTime  @default(now()) @map("created_at")
+model provider_contacts {
+  id              Int      @id @default(autoincrement())
+  provider_id     Int
+  contact_type_id Int
+  contact_info    String   @db.VarChar(100)
+  created_at      DateTime @default(now()) @map("created_at")
 
-  providers               providers               @relation(fields: [id_provider], references: [id], onDelete: Cascade)
-  invoices_purchase       invoices_purchase[]
-  details_invoice_provider details_invoice_provider[]
+  providers providers @relation(fields: [provider_id], references: [id], onDelete: Cascade)
 
-  @@map("invoices_providers")
+  @@map("provider_contacts")
 }
 
-model details_invoice_provider {
+model provider_invoices {
+  id              Int       @id @default(autoincrement())
+  provider_id     Int
+  control_number  String    @db.VarChar(30)
+  invoice_number  String    @db.VarChar(30)
+  invoice_date    DateTime
+  total_amount    Decimal   @db.Decimal(10, 2)
+  created_at      DateTime  @default(now()) @map("created_at")
+
+  providers           providers           @relation(fields: [provider_id], references: [id], onDelete: Cascade)
+  purchase_invoices   purchase_invoices[]
+
+  @@map("provider_invoices")
+}
+
+model expense_types {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(30)
+  description String   @db.VarChar(100)
+  created_at  DateTime @default(now()) @map("created_at")
+
+  purchase_invoices purchase_invoices[]
+
+  @@map("expense_types")
+}
+
+model purchase_invoices {
   id                    Int       @id @default(autoincrement())
-  id_invoice_provider   Int
+  provider_invoice_id   Int
+  expense_type_id       Int
+  purchase_date         DateTime
   description           String    @db.Text
-  count_items           Int
-  unit_price            Decimal   @db.Decimal(10, 2)
-  subtotal              Decimal   @db.Decimal(10, 2)
+  exempt_amount         Decimal   @db.Decimal(10, 2)
+  total_amount          Decimal   @db.Decimal(10, 2)
   created_at            DateTime  @default(now()) @map("created_at")
 
-  invoices_providers invoices_providers @relation(fields: [id_invoice_provider], references: [id], onDelete: Cascade)
+  provider_invoices provider_invoices @relation(fields: [provider_invoice_id], references: [id], onDelete: Cascade)
+  expense_types     expense_types     @relation(fields: [expense_type_id], references: [id], onDelete: Cascade)
 
-  @@map("details_invoice_provider")
+  @@map("purchase_invoices")
 }
 
-model contacts_providers {
-  id           Int      @id @default(autoincrement())
-  id_provider  Int
-  contact      String   @db.VarChar(100)
-  created_at   DateTime @default(now()) @map("created_at")
+model services {
+  id                Int       @id @default(autoincrement())
+  vehicle_id        Int
+  client_id         Int
+  price             Decimal   @db.Decimal(10, 2)
+  pickup_location   String    @db.VarChar(100)
+  dropoff_location  String    @db.VarChar(100)
+  number_of_people  Int
+  start_time        DateTime
+  end_time          DateTime
+  created_at        DateTime  @default(now()) @map("created_at")
 
-  providers providers @relation(fields: [id_provider], references: [id], onDelete: Cascade)
+  vehicles  vehicles  @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
+  clients   clients   @relation(fields: [client_id], references: [id], onDelete: Cascade)
 
-  @@map("contacts_providers")
+  @@map("services")
+  @@index([vehicle_id])
+  @@index([client_id])
+  @@index([start_time])
 }
