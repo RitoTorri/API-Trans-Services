@@ -76,11 +76,11 @@ SECRET_KEY=AJuanLeGustanLasTrans
 ### Migraciones con Prisma
 
 ```bash
-# Generar el cliente de Prisma
-npx prisma generate
+# Aplicar migraciones existentes
+npx prisma migrate deploy
 
-# Crear las tablas en la base de datos
-npx prisma migrate dev
+# Generar/actualizar cliente Prisma (por si hay cambios)
+npx prisma generate
 
 # (Opcional) Visualizar la BD con Prisma Studio
 npx prisma studio
