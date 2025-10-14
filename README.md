@@ -90,19 +90,6 @@ npx prisma studio
 
 El sistema maneja las siguientes entidades principales:
 
-| Entidad | Descripción |
-|---------|-------------|
-| **users** | Usuarios del sistema |
-| **employees** | Empleados de la empresa |
-| **roles** | Roles de trabajadores |
-| **payrolls** | Sistema de nóminas |
-| **vehicles** | Flota vehicular |
-| **clients** | Clientes del servicio |
-| **providers** | Proveedores |
-| **invoices_providers** | Facturas de proveedores |
-
-Todas las relaciones, constraints y validaciones están definidas en el schema de Prisma.
-
 ---
 
 ## 🎯 Ejecución del Servidor
