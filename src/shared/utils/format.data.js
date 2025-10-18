@@ -1,3 +1,9 @@
+/*
+    MIRA SI LE ENVIAS UN DATO A ESTAS FUNCIONES TE RETORNA LO SIGUIENTE:
+    1. SI EL FORMATO ES INVALIDO TE RETORNA TRUE
+    2. SI EL FORMATO ES VALIDO TE RETORNA FALSE
+*/
+
 const formatEmailInvalid = (email) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
     return !emailRegex.test(email) ? true : false
@@ -23,4 +29,9 @@ const formatTextInvalid = (data) => {
     return !expression.test(data) ? true : false
 }
 
-export default { formatEmailInvalid, formatPasswordInvalid, formatNamesInvalid, formatNumberInvalid, formatTextInvalid }
+const formatCiInvalid = (data) => {
+    const expression = /^[0-9]{7,}$/
+    return !expression.test(data) ? true : false
+}
+
+export default { formatEmailInvalid, formatPasswordInvalid, formatNamesInvalid, formatNumberInvalid, formatTextInvalid, formatCiInvalid }

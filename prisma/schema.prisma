@@ -3,82 +3,34 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model users {
   id          Int      @id @default(autoincrement())
   employee_id Int
-  role_id     Int
+  rol         String   @db.VarChar(30)
   username    String   @db.VarChar(30)
   password    String   @db.VarChar(60)
   is_active   Boolean  @default(true)
   created_at  DateTime @default(now()) @map("created_at")
 
   employees   employees @relation(fields: [employee_id], references: [id])
-  user_roles  user_roles @relation(fields: [role_id], references: [id])
 
   @@map("users")
 }
 
-model user_roles {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(30)
-  description String   @db.VarChar(100)
-  created_at  DateTime @default(now()) @map("created_at")
-
-  users             users[]
-  role_permissions  role_permissions[]
-
-  @@map("user_roles")
-}
-
-model role_permissions {
-  id            Int      @id @default(autoincrement())
-  role_id       Int
-  permission_id Int
-  created_at    DateTime @default(now()) @map("created_at")
-
-  user_roles   user_roles   @relation(fields: [role_id], references: [id])
-  permissions  permissions  @relation(fields: [permission_id], references: [id])
-
-  @@unique([role_id, permission_id])
-  @@map("role_permissions")
-}
-
-model permissions {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(30)
-  description String   @db.VarChar(100)
-  created_at  DateTime @default(now()) @map("created_at")
-
-  role_permissions role_permissions[]
-
-  @@map("permissions")
-}
-
-model employee_roles {
-  id          Int      @id @default(autoincrement())
-  role_name   String   @db.VarChar(30)
-  description String   @db.VarChar(100)
-  created_at  DateTime @default(now()) @map("created_at")
-
-  employees employees[]
-
-  @@map("employee_roles")
-}
 
 model employees {
   id         Int      @id @default(autoincrement())
   name       String   @db.VarChar(40)
   lastname   String   @db.VarChar(40)
   ci         String   @db.VarChar(13) @unique
-  role_id    Int
+  rol    String   @db.VarChar(30)
   is_active  Boolean  @default(true)
   created_at DateTime @default(now()) @map("created_at")
 
-  employee_roles      employee_roles      @relation(fields: [role_id], references: [id])
   users               users[]
   employee_contacts   employee_contacts[]
   payrolls            payrolls[]

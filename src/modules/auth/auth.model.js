@@ -10,8 +10,8 @@ class AuthModel {
     async login(object) {
         try {
             const result = await prisma.users.findFirst({
-                where: { user_name: object.username },
-                select: { id: true, user_name: true, password: true }
+                where: { username: object.username },
+                select: { id: true, username: true, password: true }
             })
             return result
         } catch (error) { throw error }

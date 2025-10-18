@@ -20,7 +20,7 @@ class ControllerAuth {
             if (error.message === 'User not found.' || error.message === 'Password not valid.') {
                 return response.ItemNotFound(res, "Password incorrect or username not exist.")
             }
-            return response.ErrorInternal(res, error.message)
+            return response.ErrorInternal(res, "Error Internal Server");
         }
     }
 }
