@@ -1,26 +1,44 @@
 // imports
 import express from 'express';
 import ControllerEmployee from './employee.controller.js';
-import middlewares from './employee.middleware.js';
+import middlewares from './employee.middleware.js';  // Valida el formato de los datos
+import validationToken from '../../shared/middlewares/validate.token.middleware.js'; // Valida el token
+import authorization from '../../shared/middlewares/authorization.middleware.js'; // Verifica roles de usuario
 
 // variables e instancias
 const router = express.Router();
-const controller = new ControllerEmployee();
+const controller = new ControllerEmployee(); // Llama al controlador
 
-/*
-    :active: true o false, buscas solo los empleados activos o inactivos
-    :filter: all, ci, name, busca solo los empleados con ci, nombre o todos
-    /employees/search/:active/:filter
-*/
-router.get('/employees/search/:active/:filter', middlewares.middlewareGetEmployee, controller.getAllEmployees);
+// Devuelve Epleados + Contactos
+router.get('/employees/search/:active/:filter', // Params: active = true o false, filter = all, ci o name
+    validationToken,
+    authorization(['Administrador']),
+    middlewares.middlewareGetEmployee,
+    controller.getAllEmployees
+);
 
-// crear un empleado
-router.post('/employee', middlewares.middlewareCreateEmployee, controller.createEmployee);
+// Eliminar empleado + Contactos
+router.delete('/employee/:id', // Params: id
+    validationToken,
+    authorization(['Administrador']),
+    middlewares.middlewareDeleteEmployee,
+    controller.deleteEmployee
+);
 
-// eliminar un empleado
-//router.delete('/emmployee/:id');
+// Crear empleado + Contactos
+router.post('/employee', // Body: name, lastname, ci, rol, Arreglo de contactos
+    validationToken,
+    authorization(['Administrador']),
+    middlewares.middlewareCreateEmployee,
+    controller.createEmployee
+);
 
-// actualizar un empleado
-//router.patch('/employee/:id');
+// me falta esta monda
+router.patch('/employee/:id', // Params: id, Body: name, lastname, ci, rol, is_active
+    validationToken,
+    authorization(['Administrador']),
+    middlewares.middlewareUpdateEmployee,
+    controller.updateEmployee
+);
 
 export default router;

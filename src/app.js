@@ -13,6 +13,7 @@ const swaggerSpec = require('../docs/swagger.json'); // ← Así funciona
 // import routes
 import authRoute from "./modules/auth/auth.route.js";
 import employeeRoute from "./modules/employee/employee.route.js";
+import employeeContactsRoute from "./modules/employee_contacts/employee.contacts.route.js";
 
 // initializations
 const app = express();
@@ -49,5 +50,7 @@ app.use(globalLimiter);
 app.use(`${urlApiBase}/docs`, swagger.serve, swagger.setup(swaggerSpec)); // swagger
 app.use(urlApiBase, authRoute);
 app.use(urlApiBase, employeeRoute);
+app.use(urlApiBase, employeeContactsRoute);
+
 
 export default app;

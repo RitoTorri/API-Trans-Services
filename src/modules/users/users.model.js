@@ -11,20 +11,20 @@ const createUser = async (object) => {
 
         const result = await prisma.users.create({
             data: {
-                id_employee: object.id_employee,
-                user_name: object.user_name,
+                employee_id: object.employee_id,
+                username: object.username,
                 password: passwordHash,
+                rol: object.rol
             }
         })
         return result
     } catch (error) { throw error }
 }
 
-/* 
-Primer usuario creado
+/* Primer usuario creado
 createUser({
-    id_employee: 1,
-    user_name: 'JesusCortez',
-    password: '12345'
-}) 
-*/
+    employee_id: 1,
+    username: 'JesusCortez',
+    password: '12345',
+    rol: 'administrador'
+}) */

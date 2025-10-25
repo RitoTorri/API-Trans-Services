@@ -1,5 +1,5 @@
 const QuerySuccess = (res, details) => {
-    res.status(200).json({
+    return res.status(200).json({
         success: true,
         code: 'REQUEST_SUCCESSFUL',
         message: 'The request was successful.',
@@ -8,7 +8,7 @@ const QuerySuccess = (res, details) => {
 }
 
 const ItemCreated = (res, details) => {
-    res.status(201).json({
+    return res.status(201).json({
         success: true,
         code: 'ITEM_CREATED',
         message: 'The item was created successfully.',
@@ -16,16 +16,8 @@ const ItemCreated = (res, details) => {
     })
 }
 
-const ItemDeleted = (res) => {
-    res.status(204).json({
-        success: true,
-        code: 'ITEM_DELETED',
-        message: 'The item was deleted successfully.',
-    })
-}
-
 const ResConflict = (res, details) => {
-    res.status(409).json({
+    return res.status(409).json({
         success: false,
         code: 'RESOURCE_CONFLICT', // Más específico
         message: 'The resource already exists or conflicts with existing data.',
@@ -34,7 +26,7 @@ const ResConflict = (res, details) => {
 }
 
 const BadRequest = (res, details) => {
-    res.status(400).json({
+    return res.status(400).json({
         success: false,
         code: 'BAD_REQUEST',
         message: 'The request was invalid.',
@@ -43,7 +35,7 @@ const BadRequest = (res, details) => {
 }
 
 const ParametersInvalid = (res, details) => {
-    res.status(422).json({
+    return res.status(422).json({
         success: false,
         code: 'VALIDATION_ERROR',
         message: 'Parameter validation failed.',
@@ -52,7 +44,7 @@ const ParametersInvalid = (res, details) => {
 }
 
 const ItemNotFound = (res, details) => {
-    res.status(404).json({
+    return res.status(404).json({
         success: false,
         code: 'ITEM_NOT_FOUND',
         message: 'The item was not found.',
@@ -61,7 +53,7 @@ const ItemNotFound = (res, details) => {
 }
 
 const ErrorAuthorization = (res, details) => {
-    res.status(401).json({
+    return res.status(401).json({
         success: false,
         code: 'ERROR_AUTHORIZATION',
         message: 'Authorization error.',
@@ -70,7 +62,7 @@ const ErrorAuthorization = (res, details) => {
 }
 
 const UnauthorizedEdit = (res, details) => {
-    res.status(403).json({
+    return res.status(403).json({
         success: false,
         code: 'UNAUTHORIZED_EDIT',
         message: 'You are not authorized to edit this resource.',
@@ -79,7 +71,7 @@ const UnauthorizedEdit = (res, details) => {
 }
 
 const ErrorInternal = (res, details) => {
-    res.status(500).json({
+    return res.status(500).json({
         success: false,
         code: 'ERROR_INTERNAL',
         message: 'Internal error.',
@@ -87,9 +79,7 @@ const ErrorInternal = (res, details) => {
     })
 }
 
-
-
 export default {
     BadRequest, ParametersInvalid, ItemNotFound, QuerySuccess, ResConflict, ItemCreated,
-    ErrorAuthorization, ErrorInternal, UnauthorizedEdit, ItemDeleted
+    ErrorAuthorization, ErrorInternal, UnauthorizedEdit
 }

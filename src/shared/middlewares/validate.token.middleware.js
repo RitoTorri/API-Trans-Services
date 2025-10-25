@@ -8,6 +8,7 @@ const validateTokenAccess = async (req, res, next) => {
     try {
         const decoded = await Token.verifyToken(authorization)
         req.user = decoded
+        console.log(req.user);
         next()
 
     } catch (error) {

@@ -1,7 +1,5 @@
-// Imports
+// Importaciones de clases
 import { PrismaClient } from '@prisma/client'
-
-// variable del prisma para las consultas
 const prisma = new PrismaClient()
 
 class AuthModel {
@@ -11,7 +9,7 @@ class AuthModel {
         try {
             const result = await prisma.users.findFirst({
                 where: { username: object.username },
-                select: { id: true, username: true, password: true }
+                select: { id: true, username: true, rol: true, password: true }
             })
             return result
         } catch (error) { throw error }
