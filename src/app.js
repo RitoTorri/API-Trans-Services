@@ -2,13 +2,8 @@
 import express from "express";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
-import swagger from 'swagger-ui-express';
-import { createRequire } from 'module'; // ← Importa createRequire
 import cors from "cors";
 
-// Importa swagger.json
-const require = createRequire(import.meta.url);
-const swaggerSpec = require('../docs/swagger.json'); // ← Así funciona
 
 // import routes
 import authRoute from "./modules/auth/auth.route.js";
@@ -47,7 +42,6 @@ const urlApiBase = '/api/trans/services';
 
 // ejemplo de ruta -> app.use(urlApiBase, router);
 app.use(globalLimiter);
-app.use(`${urlApiBase}/docs`, swagger.serve, swagger.setup(swaggerSpec)); // swagger
 app.use(urlApiBase, authRoute);
 app.use(urlApiBase, employeeRoute);
 app.use(urlApiBase, employeeContactsRoute);
