@@ -184,6 +184,8 @@ model services {
   pickup_location   String    @db.VarChar(100)
   dropoff_location  String    @db.VarChar(100)
   number_of_people  Int
+  payment_status    String    @db.VarChar(20) @default("pending") 
+
   start_time        DateTime
   end_time          DateTime
   created_at        DateTime  @default(now()) @map("created_at")
