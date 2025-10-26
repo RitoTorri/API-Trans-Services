@@ -85,14 +85,10 @@ Una vez configurado tu entorno de desarrollo, ejecuta los siguientes comandos en
 
 ### Migraciones con Prisma
 ```bash
-# Aplicar migraciones existentes
-npx prisma migrate deploy
-
 # Generar/actualizar cliente Prisma (por si hay cambios)
 npx prisma generate
 
-# (Opcional) Visualizar la BD con Prisma Studio
-npx prisma studio
+npx prisma db push
 ```
 
 ---
