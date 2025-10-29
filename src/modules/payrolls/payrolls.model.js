@@ -35,6 +35,11 @@ class PayrollsModel {
             return await prisma.payrolls.findMany({
                 where: { ...filter },
                 orderBy: { period_start: 'desc' },
+                include: {
+                    employees: {
+                        select: { name: true, ci: true }
+                    }
+                }
             });
         } catch (error) { throw error; }
     }
