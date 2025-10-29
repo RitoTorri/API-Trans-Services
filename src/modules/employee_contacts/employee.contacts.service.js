@@ -24,7 +24,7 @@ class ServiceEmployeeContacts {
 
     async deleteEmployeeContact(id) {
         try {
-            // Verificar si el registro existe ya existe
+            // Verificar si el registro existe
             const existContact = await model.getContactById(id);
             if (!existContact) throw new Error('Contact not found.');
 
@@ -34,11 +34,11 @@ class ServiceEmployeeContacts {
 
     async updateEmployeeContact(contacts) {
         try {
-            // Verificar si el registro existe ya existe
+            // Verificar si el registro existe
             const existContact = await model.getContactByIdAll(contacts);
             if (!existContact) throw new Error('Contact not found.');
 
-            // Verificar si el empleado ya existe
+            // Verificar si el info de contacto ya existe
             const existContactInfo = await model.getContactInfoAll(contacts);
             if (existContactInfo.length > 0) throw new Error('Contact info already exists.');
 
