@@ -4,11 +4,11 @@ import morgan from "morgan";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
 
-
 // import routes
 import authRoute from "./modules/auth/auth.route.js";
 import employeeRoute from "./modules/employee/employee.route.js";
 import employeeContactsRoute from "./modules/employee_contacts/employee.contacts.route.js";
+import payrollsRoute from "./modules/payrolls/payrolls.route.js";
 
 // initializations
 const app = express();
@@ -45,6 +45,6 @@ app.use(globalLimiter);
 app.use(urlApiBase, authRoute);
 app.use(urlApiBase, employeeRoute);
 app.use(urlApiBase, employeeContactsRoute);
-
+app.use(urlApiBase, payrollsRoute);
 
 export default app;

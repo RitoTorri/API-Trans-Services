@@ -43,7 +43,6 @@ model employee_contacts {
   id              Int      @id @default(autoincrement())
   employee_id     Int
   contact_info    String   @unique @db.VarChar(100)
-  is_active       Boolean  @default(true)
   created_at      DateTime @default(now()) @map("created_at")
 
   employees employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
@@ -54,14 +53,17 @@ model employee_contacts {
 
 model payrolls {
   id           Int       @id @default(autoincrement())
+  status String @default("draft") 
   employee_id  Int
   base_salary  Decimal   @db.Decimal(10, 2)
   period_start DateTime
   period_end   DateTime
   payment_date DateTime
-  created_at   DateTime  @default(now()) @map("created_at")
-  updated_at   DateTime?
-  is_active    Boolean   @default(true)
+  hours_worked Int
+  bonus                Decimal   @db.Decimal(10, 2) @default(0)
+  deductions           Decimal   @db.Decimal(10, 2) @default(0)
+  net_salary           Decimal   @db.Decimal(10, 2) 
+  created_at           DateTime  @default(now()) @map("created_at")
 
   employees employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 

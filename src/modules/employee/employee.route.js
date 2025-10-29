@@ -10,7 +10,7 @@ const router = express.Router();
 const controller = new ControllerEmployee(); // Llama al controlador
 
 // Devuelve Epleados + Contactos
-router.get('/employees/search/:active/:filter', // Params: active = true o false, filter = all, ci o name
+router.get('/employee/search/:active/:filter', // Params: active = true o false, filter = all, ci o name
     validationToken,
     authorization(['Administrador']),
     middlewares.middlewareGetEmployee,
@@ -33,12 +33,18 @@ router.post('/employee', // Body: name, lastname, ci, rol, Arreglo de contactos
     controller.createEmployee
 );
 
-// me falta esta monda
-router.patch('/employee/:id', // Params: id, Body: name, lastname, ci, rol, is_active
+router.patch('/employee/:id', // Params: id, Body: name, lastname, ci, rol
     validationToken,
     authorization(['Administrador']),
     middlewares.middlewareUpdateEmployee,
     controller.updateEmployee
+);
+
+router.patch('/employee/restore/:id',
+    validationToken,
+    authorization(['Administrador']),
+    middlewares.middlewareEmployeeRestore,
+    controller.restoreEmployee
 );
 
 export default router;

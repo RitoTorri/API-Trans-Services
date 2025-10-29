@@ -21,10 +21,10 @@ const createUser = async (object) => {
     } catch (error) { throw error }
 }
 
-/* Primer usuario creado
+
 createUser({
     employee_id: 1,
     username: 'JesusCortez',
     password: '12345',
     rol: 'administrador'
-}) */
+}) 

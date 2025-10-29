@@ -69,7 +69,18 @@ class ControllerEmployee {
     // Método para actualizar un empleado
     async updateEmployee(req, res) {
         try {
-            const result = await service.updateEmployee(req.dataUpdate, req.user.id);
+            // Destructurar los datos de la petición
+            const { id } = req.params;
+            const { name, lastname, ci, rol } = req.body;
+
+            let employee = { id: parseInt(id) }
+
+            if (name) employee.name = name;
+            if (lastname) employee.lastname = lastname;
+            if (ci) employee.ci = ci;
+            if (rol) employee.rol = rol;
+
+            const result = await service.updateEmployee(employee, req.user.id);
             return responses.QuerySuccess(res, result);
 
         } catch (error) {
@@ -79,6 +90,22 @@ class ControllerEmployee {
 
             if (error.message === 'You cannot update yourself.') {
                 return responses.UnauthorizedEdit(res, "You cannot update yourself.");
+            }
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+
+    async restoreEmployee(req, res) {
+        try {
+            // Destructurar los datos de la petición
+            const { id } = req.params;
+
+            const result = await service.restoreEmployee(parseInt(id));
+            return responses.QuerySuccess(res, result);
+
+        } catch (error) {
+            if (error.message === 'Employee not found.') {
+                return responses.ItemNotFound(res, "Not exist employee with this id.");
             }
             return responses.ErrorInternal(res, error.message);
         }

@@ -19,9 +19,7 @@ class ModelEmployee {
                 },
                 orderBy: { id: 'asc' },
                 include: {
-                    employee_contacts: {
-                        where: { is_active: data.is_active },
-                    }
+                    employee_contacts: true
                 }
             });
 
@@ -37,15 +35,6 @@ class ModelEmployee {
                         where: { is_active: data.is_active },
                     }
                 }
-            });
-        } catch (error) { throw error; }
-    }
-
-    // Método para consultar un empleado por su id
-    async getEmployeeById(id) {
-        try {
-            return await prisma.employees.findFirst({
-                where: { id: id, is_active: true }
             });
         } catch (error) { throw error; }
     }
@@ -85,24 +74,12 @@ class ModelEmployee {
     // Método para eliminar un empleado
     async deleteEmployee(object) {
         try {
-            return await prisma.$transaction(async (e) => {
-                // Eliminar empleados
-                const deleteEmployee = await e.employees.update({
-                    where: { id: object.id },
-                    data: { is_active: false }
-                });
-
-                // Eliminar los contactos
-                await e.employee_contacts.updateMany({
-                    where: { employee_id: object.id },
-                    data: { is_active: false }
-                });
-
-                return deleteEmployee;
-            })
+            return await prisma.employees.update({
+                where: { id: object.id },
+                data: { is_active: false }
+            });
         } catch (error) { throw error; }
     }
-
 
     // Método para actualizar un empleado
     async updateEmployee(object, idEmployee) {
@@ -110,6 +87,41 @@ class ModelEmployee {
             return await prisma.employees.update({
                 where: { id: idEmployee },
                 data: object
+            });
+        } catch (error) { throw error; }
+    }
+
+    // Método para restaurar un empleado
+    async restoreEmployee(id) {
+        try {
+            return await prisma.employees.update({
+                where: { id: id },
+                data: { is_active: true }
+            });
+        } catch (error) { throw error; }
+    }
+
+    // Método para consultar un empleado por su id
+    async getEmployeeById(id) {
+        try {
+            return await prisma.employees.findFirst({
+                where: { id: id, is_active: true }
+            });
+        } catch (error) { throw error; }
+    }
+
+    async getEmployeedDeletedById(id) {
+        try {
+            return await prisma.employees.findFirst({
+                where: { id: id, is_active: false }
+            });
+        } catch (error) { throw error; }
+    }
+
+    async getEmployeeByCi(ci) {
+        try {
+            return await prisma.employees.findFirst({
+                where: { ci: ci, is_active: true }
             });
         } catch (error) { throw error; }
     }

@@ -54,6 +54,32 @@ class ControllerEmployeeContacts {
             return responses.ErrorInternal(res, error.message);
         }
     }
+
+    async updateEmployeeContact(req, res) {
+        try {
+            let { contacts } = req.body;
+            let Parse = [];
+
+            contacts.forEach(contact => {
+                Parse.push({ id: parseInt(contact.id), contact_info: contact.contact_info });
+            });
+
+            // Llamar al servicio
+            const result = await service.updateEmployeeContact(Parse);
+            return responses.QuerySuccess(res, result);
+
+        } catch (error) {
+            if (error.message === 'Contact not found.') {
+                return responses.ItemNotFound(res, "Contact not found.");
+            }
+
+            if (error.message === 'Contact info already exists.') {
+                return responses.ResConflict(res, "Contact info already exists.");
+            }
+
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
 }
 
 export default ControllerEmployeeContacts;

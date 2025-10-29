@@ -17,19 +17,36 @@ class ModelEmployeeContacts {
     // Método para eliminar un contacto
     async deleteEmployeeContact(id) {
         try {
-            return await prisma.employee_contacts.update({
-                where: { id: id },
-                data: { is_active: false }
+            return await prisma.employee_contacts.delete({
+                where: { id: id }
+            });
+        } catch (error) { throw error; }
+    }
+
+    async updateEmployeeContact(object) {
+        try {
+            return await prisma.$transaction(async (prisma) => {
+                const updatePromises = object.map(contact =>
+                    prisma.employee_contacts.update({
+                        where: {
+                            id: contact.id  // Usamos el ID de cada contacto
+                        },
+                        data: {
+                            contact_info: contact.contact_info
+                        }
+                    })
+                );
+
+                return await Promise.all(updatePromises);
             });
         } catch (error) { throw error; }
     }
 
     // Método para consultar un contacto por su valor de contact_info
-    async getContactInfo(object) {
+    async getContactInfo(info) {
         try {
             return await prisma.employee_contacts.findFirst({
-                where: { contact_info: object.contact_info },
-                select: { contact_info: true }
+                where: { contact_info: info }
             });
         } catch (error) { throw error; }
     }
@@ -46,10 +63,22 @@ class ModelEmployeeContacts {
         } catch (error) { throw error; }
     }
 
+    async getContactByIdAll(array) {
+        try {
+            const maped = array.map(c => c.id);
+
+            return await prisma.employee_contacts.findMany({
+                where: { id: { in: maped } },
+                select: { contact_info: true }
+            });
+
+        } catch (error) { throw error; }
+    }
+
     async getContactById(id) {
         try {
             return await prisma.employee_contacts.findFirst({
-                where: { id: id, is_active: true }
+                where: { id: id }
             });
         } catch (error) { throw error; }
     }

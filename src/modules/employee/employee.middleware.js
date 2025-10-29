@@ -49,6 +49,8 @@ const middlewareCreateEmployee = (req, res, next) => {
 
     if (validators.formatCiInvalid(ci)) errors.push("Error: ci is invalid.");
 
+    if (validators.formatNamesInvalid(rol)) errors.push("Error: rol is invalid.");
+
     for (let i = 0; i < contacts.length; i++) {
         if (!validators.formatEmailInvalid(contacts[i].contact_info)) continue;
 
@@ -75,10 +77,9 @@ const middlewareDeleteEmployee = (req, res, next) => {
 
 
 const middlewareUpdateEmployee = (req, res, next) => {
-
     // Destructurar los datos de la petición
     const { id } = req.params;
-    const { name, lastname, ci, rol, is_active } = req.body;
+    const { name, lastname, ci, rol } = req.body;
 
     let object = { id: parseInt(id) };
     let errors = [];
@@ -106,17 +107,22 @@ const middlewareUpdateEmployee = (req, res, next) => {
         else object = { ...object, rol: rol };
     }
 
-    if (is_active !== undefined) {
-        if (is_active !== 'true' && is_active !== 'false') errors.push("Error: is_active is invalid.");
-        else object = { ...object, is_active: is_active === 'true' ? true : false };
-    }
-
-    req.dataUpdate = object; // Objeto para almacenar los datos a actualizar
-
     if (errors.length > 0) return responses.ParametersInvalid(res, errors);
     next();
 }
 
+const middlewareEmployeeRestore = (req, res, next) => {
+    const { id } = req.params;
+
+    if (!id) return responses.BadRequest(res, "Is required id.");
+
+    if (validators.formatNumberInvalid(id)) {
+        return responses.BadRequest(res, "Format id invalid. id must be number.");
+    }
+
+    next();
+}
+
 export default {
-    middlewareGetEmployee, middlewareCreateEmployee, middlewareDeleteEmployee, middlewareUpdateEmployee
+    middlewareGetEmployee, middlewareCreateEmployee, middlewareDeleteEmployee, middlewareUpdateEmployee, middlewareEmployeeRestore
 };

@@ -53,10 +53,23 @@ class ServiceEmployee {
             const exist = await model.getEmployeeById(object.id);
             if (!exist) throw new Error('Employee not found.');
 
+            const ciExist = await model.getEmployeeByCi(object.ci);
+            if (ciExist) throw new Error('Employee with this ci already exists.');
+
             const idEmployee = object.id; // Obtener el id del empleado a actualizar
             delete object.id; // Eliminar el id del objeto
 
             return await model.updateEmployee(object, idEmployee);
+        } catch (error) { throw error; }
+    }
+
+    async restoreEmployee(id) {
+        try {
+            // Verificar si el empleado a actualizar existe
+            const exist = await model.getEmployeedDeletedById(id);
+            if (!exist) throw new Error('Employee not found.');
+
+            return await model.restoreEmployee(id);
         } catch (error) { throw error; }
     }
 }

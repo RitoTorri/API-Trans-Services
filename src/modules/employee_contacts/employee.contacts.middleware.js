@@ -24,9 +24,31 @@ const middlewareDeleteEmployeeContact = (req, res, next) => {
     const { contact_id } = req.params;
 
     if (validators.formatNumberInvalid(contact_id)) {
-        return responses.BadRequest(res, "Parameters invalid. contact_id is required.");
+        return responses.BadRequest(res, "Parameters invalid. contact_id must be a number.");
     }
     return next();
 }
 
-export default { middlewareAddEmployeeContact, middlewareDeleteEmployeeContact };
+const middlewareUpdateEmployeeContact = (req, res, next) => {
+    const { contacts } = req.body;
+    let errors = [];
+
+    if (!contacts) {
+        return responses.BadRequest(res, "Parameters invalid. The contacts is required.");
+    }
+
+    for (let i = 0; i < contacts.length; i++) {
+        if (validators.formatNumberInvalid(contacts[i].id)) errors.push(`Error in position ${i + 1}: id is invalid.`);
+
+        if (!validators.formatNumberInvalid(contacts[i].contact_info)) continue;
+
+        if (!validators.formatEmailInvalid(contacts[i].contact_info)) continue;
+
+        errors.push(`Error in position ${i + 1}: contact_info is invalid.`);
+    }
+
+    if (errors.length > 0) return responses.ParametersInvalid(res, errors);
+    next();
+}
+
+export default { middlewareAddEmployeeContact, middlewareDeleteEmployeeContact, middlewareUpdateEmployeeContact };

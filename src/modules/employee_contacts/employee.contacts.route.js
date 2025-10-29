@@ -9,18 +9,29 @@ import authorization from '../../shared/middlewares/authorization.middleware.js'
 const router = express.Router();
 const controller = new ControllerEmployeeContacts();
 
-router.post('/employee/contact/:employee_id', // Body: contact_info y Params: employee_id
+router.post('/employees/contact/:employee_id', // Body: contact_info y Params: employee_id
     validationToken,
     authorization(['Administrador']),
     middlewares.middlewareAddEmployeeContact,
     controller.addEmployeeContact
 )
 
-router.delete('/employee/contact/:contact_id', // Params: contact_id
+router.delete('/employees/contact/:contact_id', // Params: contact_id
     validationToken,
     authorization(['Administrador']),
     middlewares.middlewareDeleteEmployeeContact,
     controller.deleteEmployeeContact
+);
+
+// contacts : [ {
+// "id": "1", 
+// "contact_info": "jesus@gail.com"
+// }]
+router.patch('/employees/contact',
+    validationToken,
+    authorization(['Administrador']),
+    middlewares.middlewareUpdateEmployeeContact,
+    controller.updateEmployeeContact
 );
 
 export default router;
