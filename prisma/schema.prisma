@@ -9,11 +9,10 @@ datasource db {
 
 model users {
   id          Int      @id @default(autoincrement())
-  employee_id Int
+  employee_id Int      @unique
   rol         String   @db.VarChar(30)
   username    String   @db.VarChar(30)
   password    String   @db.VarChar(60)
-  is_active   Boolean  @default(true)
   created_at  DateTime @default(now()) @map("created_at")
 
   employees   employees @relation(fields: [employee_id], references: [id])
