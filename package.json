@@ -1,5 +1,5 @@
 {
-  "name": "API-Trans-Services",
+  "name": "api-trans-services",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/RitoTorri/API-Trans-Services",
@@ -17,7 +17,8 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "morgan": "^1.10.1",
