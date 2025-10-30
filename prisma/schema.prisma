@@ -98,11 +98,10 @@ model vehicles {
 
 model clients {
   id         Int      @id @default(autoincrement())
-  code       String   @db.VarChar(20)
+  rif       String   @db.VarChar(20) @unique
   name       String   @db.VarChar(30)
-  contact    String   @db.VarChar(20)
+  contact    String   @db.VarChar(20) @unique
   address    String   @db.VarChar(100)
-  is_active  Boolean  @default(true)
   created_at DateTime @default(now()) @map("created_at")
 
   services services[]

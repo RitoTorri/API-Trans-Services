@@ -54,8 +54,14 @@ const formatMonthInvalid = (data) => {
     return !expression.test(data) ? true : false
 }
 
+const formatRifInvalid = (data) => {
+    const expression = /^[V,E,J,G]{1}-[0-9]{7,8}-[0-9]{1}$/
+    return !expression.test(data) ? true : false
+}
+
 export default {
     formatEmailInvalid, formatPasswordInvalid, formatNamesInvalid,
     formatNumberInvalid, formatTextInvalid, formatCiInvalid,
-    formatMoneyInvalid, formatDateInvalid, formatYearInvalid, formatMonthInvalid
+    formatMoneyInvalid, formatDateInvalid, formatYearInvalid, formatMonthInvalid,
+    formatRifInvalid
 }
