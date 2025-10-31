@@ -59,9 +59,14 @@ const formatRifInvalid = (data) => {
     return !expression.test(data) ? true : false
 }
 
+const formatUserNameInvalid = username => {
+    const expression = /^[a-zA-Z0-9áéíóúÁÉÍÓÚüÜ\s]+$/
+    return !expression.test(username) ? true : false
+}
+
 export default {
     formatEmailInvalid, formatPasswordInvalid, formatNamesInvalid,
     formatNumberInvalid, formatTextInvalid, formatCiInvalid,
     formatMoneyInvalid, formatDateInvalid, formatYearInvalid, formatMonthInvalid,
-    formatRifInvalid
+    formatRifInvalid, formatUserNameInvalid
 }

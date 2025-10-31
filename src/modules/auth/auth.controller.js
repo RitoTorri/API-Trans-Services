@@ -14,7 +14,7 @@ class ControllerAuth {
             const object = { username: username, password: password }
 
             const result = await authServices.login(object)
-            return response.QuerySuccess(res, { message: "Login successful.", token: result })
+            return response.QuerySuccess(res, result)
 
         } catch (error) {
             if (error.message === 'User not found.' || error.message === 'Password not valid.') {

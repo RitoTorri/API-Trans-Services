@@ -18,7 +18,9 @@ class AuthService {
 
             // Generar el token
             const token = await Token.genToken(result)
-            return token
+            delete result.password
+
+            return { token: token, user: result }
         } catch (error) { throw error }
     }
 }
