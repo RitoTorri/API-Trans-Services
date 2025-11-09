@@ -14,8 +14,6 @@ router.get('/users',
 );
 
 router.post('/users',
-    validationToken,
-    authorization(['SuperUser']),
     middlewares.addUserMiddleware,
     controller.addUser
 );
