@@ -8,17 +8,23 @@ const router = express.Router();
 const controller = new ServicesController();
 
 router.post('/offered/services',
+    validationToken,
+    authorization(['Administrador']),
     middlewares.addServiceMiddleware,
     controller.addService
 );
 
 router.get('/offered/services/search',
+    validationToken,
+    authorization(['Administrador']),
     middlewares.getServicesMiddleware,
     controller.getServices
 );
 
 // Actualiza el estado de pago de un servicio
 router.patch('/offered/services/payment/:id',
+    validationToken,
+    authorization(['Administrador']),
     middlewares.updatePaymentStatusMiddleware,
     controller.updatePaymentStatus
 );
