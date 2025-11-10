@@ -8,15 +8,19 @@ class AuthService {
 
     async login(object) {
         try {
+            // Verificar si el usuario existe
             const result = await authModel.login(object)
+            if (!result) throw new Error('User not found.')
 
-            if (!result || result === null) throw new Error('User not found.')
-
+            // Verificar si la contraseña es correcta
             const validationPassword = await bcrypt.compare(object.password, result.password)
             if (!validationPassword) throw new Error('Password not valid.')
 
+            // Generar el token
             const token = await Token.genToken(result)
-            return token
+            delete result.password
+
+            return { token: token, user: result }
         } catch (error) { throw error }
     }
 }

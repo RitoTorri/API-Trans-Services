@@ -12,7 +12,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') })
 const genToken = async (result) => {
     const token = jwt.sign({
         id: result.id,
-        username: result.user_name,
+        rol: result.rol,
     }, process.env.SECRET_KEY, { expiresIn: '3h' })
     return token
 }
@@ -26,18 +26,13 @@ const verifyToken = (authorization) => {
 
         const token = parts[1]
         if (!token) throw new Error('The token is invalid.')
-
-        const decoded = jwt.verify(token, process.env.TOKEN_ACCESS)
+        const decoded = jwt.verify(token, process.env.SECRET_KEY)
         return decoded
 
     } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            throw new Error('Token has expired')
-        }
-        if (error.name === 'JsonWebTokenError') {
-            throw new Error('Invalid token')
-        }
-        throw error
+        if (error.name === 'TokenExpiredError') throw new Error('Token has expired')
+        if (error.name === 'JsonWebTokenError') throw new Error('Invalid token')
+        throw error;
     }
 }
 

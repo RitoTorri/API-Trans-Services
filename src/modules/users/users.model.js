@@ -1,30 +1,69 @@
 // importacion del cliente de prisma
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt'
 
 // variable del prisma para las consultas
 const prisma = new PrismaClient()
 
-const createUser = async (object) => {
-    try {
-        const passwordHash = await bcrypt.hash(object.password, 10)
+class ModelUsers {
+    constructor() { }
 
-        const result = await prisma.users.create({
-            data: {
-                id_employee: object.id_employee,
-                user_name: object.user_name,
-                password: passwordHash,
-            }
-        })
-        return result
-    } catch (error) { throw error }
+    async addUser(object) {
+        try {
+            const result = await prisma.users.create({
+                data: object,
+                select: { id: true, username: true, rol: true }
+            })
+            return result;
+        } catch (error) { throw error; }
+    }
+
+    async getUsers(user) {
+        try {
+            return await prisma.users.findMany({
+                where: {
+                    id: { not: user.id },
+                },
+                select: { id: true, username: true, rol: true, created_at: true }
+            });
+        } catch (error) { throw error; }
+    }
+
+    async deleteUser(id) {
+        try {
+            return await prisma.users.delete({
+                where: { id: id }
+            })
+        } catch (error) { throw error; }
+    }
+
+    async updateUser(id, object) {
+        try {
+            return await prisma.users.update({
+                where: { id: id },
+                data: object,
+                select: { id: true, username: true, rol: true, created_at: true }
+            })
+        } catch (error) { throw error; }
+    }
+
+    // GETS
+    async getUserByUserName(username) {
+        try {
+            const result = await prisma.users.findFirst({
+                where: { username: username }
+            })
+            return result;
+        } catch (error) { throw error; }
+    }
+
+    async getUserById(id) {
+        try {
+            const result = await prisma.users.findFirst({
+                where: { id: id }
+            })
+            return result;
+        } catch (error) { throw error; }
+    }
 }
 
-/* 
-Primer usuario creado
-createUser({
-    id_employee: 1,
-    user_name: 'JesusCortez',
-    password: '12345'
-}) 
-*/
+export default ModelUsers;

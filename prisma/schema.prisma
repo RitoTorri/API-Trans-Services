@@ -9,15 +9,10 @@ datasource db {
 
 model users {
   id          Int      @id @default(autoincrement())
-  employee_id Int
   rol         String   @db.VarChar(30)
   username    String   @db.VarChar(30)
   password    String   @db.VarChar(60)
-  is_active   Boolean  @default(true)
   created_at  DateTime @default(now()) @map("created_at")
-
-  employees   employees @relation(fields: [employee_id], references: [id])
-
   @@map("users")
 }
 
@@ -31,7 +26,6 @@ model employees {
   is_active  Boolean  @default(true)
   created_at DateTime @default(now()) @map("created_at")
 
-  users               users[]
   employee_contacts   employee_contacts[]
   payrolls            payrolls[]
   vehicles            vehicles[]
@@ -42,8 +36,7 @@ model employees {
 model employee_contacts {
   id              Int      @id @default(autoincrement())
   employee_id     Int
-  contact_type_id Int
-  contact_info    String   @db.VarChar(100)
+  contact_info    String   @unique @db.VarChar(100)
   created_at      DateTime @default(now()) @map("created_at")
 
   employees employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
@@ -51,16 +44,20 @@ model employee_contacts {
   @@map("employee_contacts")
 }
 
+
 model payrolls {
   id           Int       @id @default(autoincrement())
+  status String @default("draft") 
   employee_id  Int
   base_salary  Decimal   @db.Decimal(10, 2)
   period_start DateTime
   period_end   DateTime
   payment_date DateTime
-  created_at   DateTime  @default(now()) @map("created_at")
-  updated_at   DateTime?
-  is_active    Boolean   @default(true)
+  hours_worked Int
+  bonus                Decimal   @db.Decimal(10, 2) @default(0)
+  deductions           Decimal   @db.Decimal(10, 2) @default(0)
+  net_salary           Decimal   @db.Decimal(10, 2) 
+  created_at           DateTime  @default(now()) @map("created_at")
 
   employees employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
@@ -96,11 +93,10 @@ model vehicles {
 
 model clients {
   id         Int      @id @default(autoincrement())
-  code       String   @db.VarChar(20)
+  rif       String   @db.VarChar(20) @unique
   name       String   @db.VarChar(30)
-  contact    String   @db.VarChar(20)
+  contact    String   @db.VarChar(20) @unique
   address    String   @db.VarChar(100)
-  is_active  Boolean  @default(true)
   created_at DateTime @default(now()) @map("created_at")
 
   services services[]
@@ -125,8 +121,7 @@ model providers {
 model provider_contacts {
   id              Int      @id @default(autoincrement())
   provider_id     Int
-  contact_type_id Int
-  contact_info    String   @db.VarChar(100)
+  contact_info    String   @unique@db.VarChar(100)
   created_at      DateTime @default(now()) @map("created_at")
 
   providers providers @relation(fields: [provider_id], references: [id], onDelete: Cascade)
@@ -181,11 +176,9 @@ model services {
   vehicle_id        Int
   client_id         Int
   price             Decimal   @db.Decimal(10, 2)
-  pickup_location   String    @db.VarChar(100)
   dropoff_location  String    @db.VarChar(100)
   number_of_people  Int
-  start_time        DateTime
-  end_time          DateTime
+  payment_status    String    @db.VarChar(20) @default("pending") 
   created_at        DateTime  @default(now()) @map("created_at")
 
   vehicles  vehicles  @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
@@ -194,5 +187,4 @@ model services {
   @@map("services")
   @@index([vehicle_id])
   @@index([client_id])
-  @@index([start_time])
 }

@@ -34,4 +34,39 @@ const formatCiInvalid = (data) => {
     return !expression.test(data) ? true : false
 }
 
-export default { formatEmailInvalid, formatPasswordInvalid, formatNamesInvalid, formatNumberInvalid, formatTextInvalid, formatCiInvalid }
+const formatMoneyInvalid = (data) => {
+    const expression = /^[0-9.,]+$/
+    return !expression.test(data) ? true : false
+}
+
+const formatDateInvalid = (data) => {
+    const expression = /^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/
+    return !expression.test(data) ? true : false
+}
+
+const formatYearInvalid = (data) => {
+    const expression = /^[0-9]{4}$/
+    return !expression.test(data) ? true : false
+}
+
+const formatMonthInvalid = (data) => {
+    const expression = /^[0-9]{1,2}$/
+    return !expression.test(data) ? true : false
+}
+
+const formatRifInvalid = (data) => {
+    const expression = /^[V,E,J,G]{1}-[0-9]{7,8}-[0-9]{1}$/
+    return !expression.test(data) ? true : false
+}
+
+const formatUserNameInvalid = username => {
+    const expression = /^[a-zA-Z0-9áéíóúÁÉÍÓÚüÜ\s]+$/
+    return !expression.test(username) ? true : false
+}
+
+export default {
+    formatEmailInvalid, formatPasswordInvalid, formatNamesInvalid,
+    formatNumberInvalid, formatTextInvalid, formatCiInvalid,
+    formatMoneyInvalid, formatDateInvalid, formatYearInvalid, formatMonthInvalid,
+    formatRifInvalid, formatUserNameInvalid
+}

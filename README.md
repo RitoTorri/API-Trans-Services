@@ -1,119 +1,70 @@
+# API Trans-Services - Proyecto 4to Semestre
 
-# 🚚 API Trans-Services - Proyecto 4to Semestre
+### IMPORTANTE  
 
-## 📋 Descripción del Proyecto
-API para gestión de servicios de transporte desarrollada como proyecto universitario del cuarto semestre. Esta solución proporciona un backend robusto para administrar operaciones logísticas y de transporte.
-
----
-
-## ⚠️ AVISO IMPORTANTE
-
-### Política de Ramas
-Si vas a realizar cambios, por favor hazlo en otra rama aparte de la main. Esto mantiene nuestro código organizado y estable. Si vas a hacer fusiones recuerda avisarle al team.
-
-### Comandos Esenciales de Git
-```bash
-# Crear una nueva rama
-git branch nombre-de-tu-rama
-
-# Cambiar a la nueva rama
-git checkout nombre-de-tu-rama
-
-# Subir cambios a la nueva rama
-git push origin nombre-de-tu-rama
-```
+1. Si vas a hacer cambios recuerda en hacerlo en ramas distintas. Si vas a fusionar avisale al team.
+2. Debes de tener instalado PostgreSQL, Yarn, Node.js.
+3. Si vas a hacer un nuevo modulo debes de seguir la misma arquitectura de archivos que los demas modulos.
 
 ---
 
-## 🚀 Instalación
+### INSTALACIÓN DEL PROYECTO
 
-<div align="center">
-
-### Tecnologías Requeridas
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![Yarn](https://img.shields.io/badge/Yarn-2C8EBB?style=for-the-badge&logo=yarn&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-
-</div>
-
-### Proceso de Instalación
+Ejecuta los siguentes comandos para instalar el proyecto:
 ```bash
-# Clonar el repositorio
+# Clonas el repositorio
 git clone https://github.com/RitoTorri/API-Trans-Services
 
-# Navegar al directorio del proyecto
-cd API-Trans-Services
-
-# Instalar las dependencias
-yarn install
+# instala las dependencias
+yarn install 
 ```
-
 ---
 
-## ⚙️ Configuración del Entorno
+### CONFIGURAR LA BASE DE DATOS
 
-### Configuración de Base de Datos
+AL ya haber instalado el proyecto debes de crear un archivo `.env` para guardar datos sensibles. El `.env` tendra:
+1. **DATABASE_URL:**  
+    `postgres`: El usuario de tu deb, por defecto es postgres.
+   
+    `password`: Va la contraseña que te pide postgre al ejecutar o abrir el server.
+   
+    `localhost`: Host de tu base de datos.
+   
+    `5432`: Puerto de la db.
+   
+    `nombre-de-la-base-de-datos`: Va el nombre que le colocaste a la bases de datos al crearla en PostgreSQL.
+   
+2. **SECRET_KEY:** Es la clave/llave que contienen los tokens de acceso.
 
-**Pasos a seguir:**
-1. **Crear Base de Datos**: Debes crear una base de datos en PostgreSQL sin tablas, solo la base de datos
-2. **Configurar Credenciales**: Asegúrate de tener acceso con usuario y contraseña
-
-### Variables de Entorno
-Crear un archivo `.env` en la raíz del proyecto con el siguiente contenido:
-
-```env
+```bash
 # Conexión a la base de datos
 DATABASE_URL="postgresql://postgres:password@localhost:5432/nombre-de-la-base-de-datos"
 
 # Llave secreta para JWT
 SECRET_KEY=AJuanLeGustanLasTrans
 ```
-
-### Notas de Configuración
-Ajusta las credenciales según tu configuración de PostgreSQL:
-
-- **Usuario por defecto**: Se utiliza `postgres` como usuario principal para la conexión
-- **Contraseña**: Debes ingresar la contraseña que estableciste durante la instalación de PostgreSQL
-- **Puerto**: El puerto predeterminado es `5432`, que es el estándar para conexiones PostgreSQL
-- **Nombre de BD**: Puedes usar `trans_services` o cualquier otro nombre que hayas definido para tu base de datos
-
 ---
 
-## 🗃️ Configuración de la Base de Datos
+### CONFIGURACIÓN DE PRISMA
 
-Una vez configurado tu entorno de desarrollo, ejecuta los siguientes comandos en la terminal, ubicándote en el directorio donde se encuentra la API.
-
-### Migraciones con Prisma
+Luego de crear el `.env` ejecuta los siguientes comandos para la configuracion de prisma:
 ```bash
-# Aplicar migraciones existentes
-npx prisma migrate deploy
-
-# Generar/actualizar cliente Prisma (por si hay cambios)
+# Genera el cliente de prisma
 npx prisma generate
 
-# (Opcional) Visualizar la BD con Prisma Studio
-npx prisma studio
+# Lleva el chema de prisma a la base de datos
+npx prisma db push
 ```
-
 ---
 
-## 🎯 Ejecución del Servidor
+### EJECUCIÓN DEL SERVIDOR
 
-### Comandos de Ejecución
+Para ejecutar el server usa los comandos:
 ```bash
-# Modo desarrollo (con hot-reload)
+# Desarrollo
 yarn dev
 
-# Modo producción
+# Producción
 yarn start
 ```
-
----
-
-## 📊 Estado del Proyecto
-
-### Metadatos del Proyecto
-![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-yellow)
-![Versión](https://img.shields.io/badge/Versión-1.0.0-blue)
-
 ---

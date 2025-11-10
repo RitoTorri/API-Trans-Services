@@ -1,8 +1,7 @@
-// imports
-import response from '../../shared/utils/responses.js';
-import AuthServices from './auth.service.js';
+import response from '../../shared/utils/responses.js'; // importaciones de utilidades
 
-// instacias
+// importaciones de clases
+import AuthServices from './auth.service.js';
 const authServices = new AuthServices();
 
 class ControllerAuth {
@@ -10,11 +9,12 @@ class ControllerAuth {
 
     async login(req, res) {
         try {
+            // Destructurar los datos de la petición y crear el objeto
             const { username, password } = req.body
             const object = { username: username, password: password }
 
             const result = await authServices.login(object)
-            return response.QuerySuccess(res, { message: "Login successful.", token: result })
+            return response.QuerySuccess(res, result)
 
         } catch (error) {
             if (error.message === 'User not found.' || error.message === 'Password not valid.') {

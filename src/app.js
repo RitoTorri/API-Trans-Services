@@ -2,18 +2,20 @@
 import express from "express";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
-import swagger from 'swagger-ui-express';
-import { createRequire } from 'module'; // ← Importa createRequire
 import cors from "cors";
-
-// Importa swagger.json
-const require = createRequire(import.meta.url);
-const swaggerSpec = require('../docs/swagger.json'); // ← Así funciona
 
 // import routes
 import authRoute from "./modules/auth/auth.route.js";
 import employeeRoute from "./modules/employee/employee.route.js";
+<<<<<<< HEAD
 import typeRoutes from './modules/types_of_vehicles/types_of_vehicles.route.js';
+=======
+import employeeContactsRoute from "./modules/employee_contacts/employee.contacts.route.js";
+import payrollsRoute from "./modules/payrolls/payrolls.route.js";
+import clientsRoute from "./modules/clients/clients.route.js";
+import usersRoute from "./modules/users/users.route.js";
+import servicesRoute from "./modules/services/services.route.js";
+>>>>>>> f4799d02787bc4071a25e87ff16375c905824f0b
 
 // initializations
 const app = express();
@@ -47,9 +49,14 @@ const urlApiBase = '/api/trans/services';
 
 // ejemplo de ruta -> app.use(urlApiBase, router);
 app.use(globalLimiter);
-app.use(`${urlApiBase}/docs`, swagger.serve, swagger.setup(swaggerSpec)); // swagger
 app.use(urlApiBase, authRoute);
 app.use(urlApiBase, employeeRoute);
 app.use(urlApiBase, typeRoutes);
+app.use(urlApiBase, employeeContactsRoute);
+app.use(urlApiBase, payrollsRoute);
+app.use(urlApiBase, clientsRoute);
+app.use(urlApiBase, usersRoute);
+app.use(urlApiBase, servicesRoute);
+
 
 export default app;
