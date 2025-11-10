@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import ControllerType from './type.controller.js';
-import { typesMiddleware } from 'types_of_vehicles.middleware.js';
+import ControllerType from './types_of_vehicles.controller.js';
+import { ValidateTypeData, validateTypeIdParam } from './types_of_vehicles.middleware.js';
 
 const router = Router();
 
@@ -10,15 +10,16 @@ const typeController = new ControllerType();
 // [GET] /api/v1/types - Listar todos
 router.get('/list', typeController.listAll);
 
+// [GET] /api/trans/services/list/:typeId - Obtener un solo registro por ID
+router.get('/list/:typeId', validateTypeIdParam, typeController.getTypeById);
 
 
-// [POST] /api/v1/types - Crear uno nuevo (REQUIERE autenticación)
-router.post('/create', typesMiddleware, typeController.create);
+router.post('/create', ValidateTypeData, typeController.create);
 
-// [PUT] /api/v1/types/:id - Actualizar uno (REQUIERE autenticación)
-router.put('/update/:typeId', typesMiddleware, typeController.update);
 
-// [DELETE] /api/v1/types/:id - Eliminar uno (REQUIERE autenticación)
-router.delete('/delete/:typeId', typesMiddleware, typeController.delete); 
+router.put('/update/:typeId', validateTypeIdParam, typeController.update);
+
+
+router.delete('/delete/:typeId', validateTypeIdParam, typeController.delete); 
 
 export default router;

@@ -18,7 +18,7 @@ class ControllerType {
         }
     }
 
-    async get(req, res) {
+    async getTypeById(req, res) {
         try {
             const { typeId } = req.params;
             const result = await typeServiceInstance.getTypeById(typeId);
@@ -41,6 +41,7 @@ class ControllerType {
             return response.QuerySuccess(res, { message: "Tipo creado con éxito.", data: result }, 201);
 
         } catch (error) {
+            
             if (error.message.includes('duplicado')) {
                 return response.ItemNotFound(res, "El nombre de tipo ya existe.");
             }

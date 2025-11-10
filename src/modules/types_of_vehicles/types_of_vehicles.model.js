@@ -57,5 +57,5 @@ class types_of_vehicles {
     }
 
 };
-export default new TypeModel();
+export default new types_of_vehicles();
 

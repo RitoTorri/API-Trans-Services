@@ -1,8 +1,8 @@
-import TypeModel from './types_of_vehicles.model.js';
+import types_of_vehicles from './types_of_vehicles.model.js';
 
 class typesServices {
     constructor(){
-        this.typeModel = new TypeModel();
+        this.types_of_vehicles = types_of_vehicles;
     }
 
     /**
@@ -11,7 +11,7 @@ class typesServices {
     async getTypes() {
         try {
             // Lógica de negocio: ninguna, solo llama al modelo
-            const types = await this.typeModel.findAllTypes();
+            const types = await this.types_of_vehicles.findAllTypes();
             
             // Lógica de negocio: Manejo de resultado vacío
             if (types.length === 0) {
@@ -35,7 +35,7 @@ class typesServices {
                 throw new Error('Information not valid.');
             }
             
-            const type = await this.typeModel.findTypeById(typeId);
+            const type = await this.types_of_vehicles.findTypeById(typeId);
 
             if (!type) {
                 throw new Error('vehicle type not found.');
@@ -58,7 +58,7 @@ class typesServices {
             
             // El modelo se encargará de la unicidad gracias a Prisma.
 
-            const newType = await this.typeModel.createType(typeData);
+            const newType = await this.types_of_vehicles.createType(typeData);
             return newType;
         } catch (error) {
             // Aquí puedes capturar errores específicos de la DB (ej. duplicidad)
@@ -75,13 +75,13 @@ class typesServices {
     async updateType(typeId, dataToUpdate) {
         try {
             // 1. Lógica de Negocio: Verificar que el registro exista antes de actualizar
-            const existingType = await this.typeModel.findTypeById(typeId);
+            const existingType = await this.types_of_vehicles.findTypeById(typeId);
             if (!existingType) {
                 throw new Error('vehicle type not found.');
             }
             
             // 2. Llamar al modelo para actualizar
-            const updatedType = await this.typeModel.updateType(typeId, dataToUpdate);
+            const updatedType = await this.types_of_vehicles.updateType(typeId, dataToUpdate);
             return updatedType;
         } catch (error) {
             throw error;
@@ -94,13 +94,13 @@ class typesServices {
     async removeType(typeId) {
         try {
             // 1. Lógica de Negocio: Verificar que el registro exista antes de eliminar
-            const existingType = await this.typeModel.findTypeById(typeId);
+            const existingType = await this.types_of_vehicles.findTypeById(typeId);
             if (!existingType) {
                 throw new Error('vehicle type not found.');
             }
 
             // 2. Llamar al modelo para eliminar
-            const deletedType = await this.typeModel.deleteType(typeId);
+            const deletedType = await this.types_of_vehicles.deleteType(typeId);
             return deletedType;
         } catch (error) {
             // Manejo de error de dependencia (ej. si el tipo está asignado a un vehículo)

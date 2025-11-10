@@ -13,7 +13,7 @@ const swaggerSpec = require('../docs/swagger.json'); // ← Así funciona
 // import routes
 import authRoute from "./modules/auth/auth.route.js";
 import employeeRoute from "./modules/employee/employee.route.js";
-import typeRoutes from './src/modules/types_of_vehicles/type.route.js';
+import typeRoutes from './modules/types_of_vehicles/types_of_vehicles.route.js';
 
 // initializations
 const app = express();
