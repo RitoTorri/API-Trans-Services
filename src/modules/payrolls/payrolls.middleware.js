@@ -45,16 +45,19 @@ const getPayrolls = async (req, res, next) => {
     // si recibe filterSearch: {} devolver todos los empleados
     if (Object.keys(filterSearch).length === 0) return next();
 
-    if (filterSearch.year) {
-        if (validators.formatYearInvalid(filterSearch.year)) errors.push("year is invalid. year must be a number and must have 4 digits.");
-        if (parseInt(filterSearch.year) > new Date().getFullYear()) errors.push("The year must be under to " + new Date().getFullYear());
+    if (!filterSearch.dateStart || !filterSearch.dateEnd) {
+        return responses.BadRequest(res, "Incomplete request. The following parameters are required: dateStart and dateEnd.");
+    }
 
-    } else return responses.BadRequest(res, "Need to specify a year.");
+    // Recibe fecha de inicio y fin
+    if (filterSearch.dateStart && filterSearch.dateEnd) {
+        if (validators.formatDateInvalid(filterSearch.dateStart)) {
+            errors.push("dateStart is invalid. dateStart must be a date.");
+        }
 
-
-    if (filterSearch.month) {
-        if (validators.formatMonthInvalid(filterSearch.month)) errors.push("month is invalid. month must be a number and must have 2 digits.");
-        if (parseInt(filterSearch.month) > 12 || parseInt(filterSearch.month) === 0) errors.push("Month must be between 1 and 12.");
+        if (validators.formatDateInvalid(filterSearch.dateEnd)) {
+            errors.push("dateEnd is invalid. dateEnd must be a date.");
+        }
     }
 
     if (errors.length > 0) return responses.BadRequest(res, errors);

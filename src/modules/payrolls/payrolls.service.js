@@ -38,27 +38,24 @@ class PayrollsService {
         try {
             let filter = {};
 
-            if (filterSearch.year && filterSearch.month) {
-                // CONVERTIR a números y ajustar meses (0-based)
-                const year = parseInt(filterSearch.year);
-                const month = parseInt(filterSearch.month);
+            /*
+                Recibimos esto:
+                {   
+                    dateStart: 2002-10-10,
+                    dateEnd: 2002-10-10
+                }
+            */
+
+            if (filterSearch.dateStart && filterSearch.dateEnd) {
+                const startDate = new Date(filterSearch.dateStart);
+                const endDate = new Date(filterSearch.dateEnd);
 
                 filter = {
                     period_start: {
-                        gte: new Date(year, month - 1, 1),
-                        lte: new Date(year, month, 0)
+                        gte: new Date(startDate),
+                        lte: new Date(endDate)
                     }
                 };
-
-            } else if (filterSearch.year) {
-                const year = parseInt(filterSearch.year);
-                filter = {
-                    period_start: {
-                        gte: new Date(year, 0, 1),
-                        lte: new Date(year, 11, 31)
-                    }
-                };
-
             } else filter = {};
 
             return await model.getPayrolls(filter);

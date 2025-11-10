@@ -17,7 +17,7 @@ router.post('/payrolls',
     controller.addPayrolls
 );
 
-// filterSearch: { year: 2022, month: 1 } o { year: 2022 } o {} desde del body
+// filterSearch: { dateStart: 2002-10-10, dateEnd: 2002-10-10  } o {} desde del body
 router.get('/payrolls/search',
     TokenValidation,
     authorization(['Administrador']),

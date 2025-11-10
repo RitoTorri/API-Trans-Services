@@ -54,6 +54,16 @@ class ModelClients {
             });
         } catch (error) { throw error; }
     }
+
+    async getClientsByName(name) {
+        try {
+            return await prisma.clients.findMany({
+                where: {
+                    name: { contains: name, mode: 'insensitive' }
+                }
+            });
+        } catch (error) { throw error; }
+    }
 }
 
 export default ModelClients;

@@ -11,6 +11,7 @@ import employeeContactsRoute from "./modules/employee_contacts/employee.contacts
 import payrollsRoute from "./modules/payrolls/payrolls.route.js";
 import clientsRoute from "./modules/clients/clients.route.js";
 import usersRoute from "./modules/users/users.route.js";
+import servicesRoute from "./modules/services/services.route.js";
 
 // initializations
 const app = express();
@@ -50,5 +51,6 @@ app.use(urlApiBase, employeeContactsRoute);
 app.use(urlApiBase, payrollsRoute);
 app.use(urlApiBase, clientsRoute);
 app.use(urlApiBase, usersRoute);
+app.use(urlApiBase, servicesRoute);
 
 export default app;

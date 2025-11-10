@@ -176,13 +176,9 @@ model services {
   vehicle_id        Int
   client_id         Int
   price             Decimal   @db.Decimal(10, 2)
-  pickup_location   String    @db.VarChar(100)
   dropoff_location  String    @db.VarChar(100)
   number_of_people  Int
   payment_status    String    @db.VarChar(20) @default("pending") 
-
-  start_time        DateTime
-  end_time          DateTime
   created_at        DateTime  @default(now()) @map("created_at")
 
   vehicles  vehicles  @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
@@ -191,5 +187,4 @@ model services {
   @@map("services")
   @@index([vehicle_id])
   @@index([client_id])
-  @@index([start_time])
 }
