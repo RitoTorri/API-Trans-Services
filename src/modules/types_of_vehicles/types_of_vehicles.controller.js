@@ -18,18 +18,23 @@ class ControllerType {
         }
     }
 
-    async getTypeById(req, res) {
-        try {
-            const { typeId } = req.params;
-            const result = await typeServiceInstance.getTypeById(typeId);
-            return response.QuerySuccess(res, result);
-        } catch (error) {
-            if (error.message.includes('not found')) {
-                return response.ItemNotFound(res, "Tipo de vehículo no encontrado.");
-            }
-            return response.ErrorInternal(res, "Error interno del servidor.");
+   async getTypeByName(req, res) {
+    try {
+        const { typeName } = req.params; // Capturamos el nombre
+        
+        // El servicio buscará el tipo por su nombre
+        const result = await typeServiceInstance.getTypeByName(typeName);
+
+        if (!result) {
+            // Si el servicio devuelve null o vacío
+            return response.ItemNotFound(res, "Tipo de vehículo no encontrado.");
         }
+        
+        return response.QuerySuccess(res, result);
+    } catch (error) {
+        // ... manejo de errores ...
     }
+}
 
     async create(req, res) {
         try {

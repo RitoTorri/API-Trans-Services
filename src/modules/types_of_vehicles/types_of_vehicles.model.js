@@ -14,10 +14,21 @@ class types_of_vehicles {
         }
     }
 
-    async findTypeById(id) {
+    async findTypeByName(typeName) {
         try {
-            return await prisma.vehicle_types.findUnique({
-                where: { id: parseInt(id) }
+            // Usamos findFirst en lugar de findUnique porque no es una búsqueda por @id
+            // e implementamos la búsqueda insensible a mayúsculas
+            return await prisma.vehicle_types.findFirst({
+                where: { 
+                    type_name: { 
+                        equals: typeName,
+                        mode: 'insensitive' // Permite que "Camion" y "camion" funcionen igual
+                    } 
+                },
+                // Incluir los vehículos relacionados (opcional, pero útil para listar)
+                /*include: {
+                    vehicles: true 
+                }*/
             });
         } catch (error) {
             throw error;

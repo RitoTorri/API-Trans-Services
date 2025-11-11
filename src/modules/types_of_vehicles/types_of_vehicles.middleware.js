@@ -45,3 +45,25 @@ export const validateTypeIdParam = (req, res, next) => {
     next();
 };
 
+export const validateTypeNameParam = (req, res, next) => {
+    const { typeName } = req.params;
+    let error = false;
+    let details = [];
+
+    // Verificación de existencia básica
+    if (!typeName) {
+        return response.BadRequest(res, 'The typeName is required and cannot be empty.');
+    }
+
+    // Validación de formato de texto (reutilizamos tu utilidad)
+    if (validator.formatTextInvalid(typeName)) {
+        error = true;
+        details.push('The typeName contains invalid characters or has an incorrect length.');
+    }
+
+    if (error) return response.ParametersInvalid(res, details);
+    
+    // Si todo es válido, continuamos
+    next(); // <--- ¡Asegúrate de que esta línea esté aquí!
+};
+

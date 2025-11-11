@@ -28,17 +28,21 @@ class typesServices {
     /**
      * Obtiene un tipo por su ID.
      */
-    async getTypeById(typeId) {
+    async getTypeByName(typeName) {
         try {
-            // Validar que el ID es válido antes de consultar la DB
-            if (!typeId || isNaN(parseInt(typeId))) {
-                throw new Error('Information not valid.');
+            // 1. Validar que el nombre no sea nulo o una cadena vacía
+            if (!typeName) {
+                throw new Error('Type name not provided.');
             }
             
-            const type = await this.types_of_vehicles.findTypeById(typeId);
+            // 2. Llamar al método del Modelo que busca por type_name
+            // ¡Asegúrate de que 'this.types_of_vehicles.findTypeByName' apunte a la nueva función!
+            const type = await this.types_of_vehicles.findTypeByName(typeName);
 
+            // 3. Verificar si Prisma encontró el registro
             if (!type) {
-                throw new Error('vehicle type not found.');
+                // Se lanza un error que será capturado por el Controlador
+                throw new Error('vehicle type not found.'); 
             }
             
             return type;
