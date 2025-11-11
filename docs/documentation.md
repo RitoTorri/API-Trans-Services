@@ -59,7 +59,7 @@ Content-Type: application/json
     "rol": "string",
     "contacts": [
         {
-            "contact_type": "string",
+            "contact_info": "string",
             "contact_info": "string"
         }
     ]
