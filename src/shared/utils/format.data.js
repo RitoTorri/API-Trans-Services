@@ -15,8 +15,8 @@ const formatPasswordInvalid = (password) => {
 }
 
 const formatNamesInvalid = (data) => {
-    const expression = /^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$/
-    return !expression.test(data) ? true : false
+    const expression = /^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s.\-]+$/;
+    return !expression.test(data) ? true : false;
 }
 
 const formatNumberInvalid = (data) => {
@@ -25,7 +25,7 @@ const formatNumberInvalid = (data) => {
 }
 
 const formatTextInvalid = (data) => {
-    const expression = /^[a-zA-Z0-9áéíóúÁÉÍÓÚüÜ$%&{}\[\]\.,:;\s]+$/
+    const expression = /^[a-zA-Z0-9áéíóúÁÉÍÓÚüÜ$%&{}\[\]\.,:;\s\-]+$/
     return !expression.test(data) ? true : false
 }
 

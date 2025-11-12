@@ -24,7 +24,11 @@ class ServiceEmployee {
 
             // verificar contactos
             const contactsExist = await modelContacts.getContactInfoAll(contacts);
-            if (contactsExist.length > 0) throw new Error('Contact info already exists.');
+            if (contactsExist.length > 0) {
+             const duplicados = contactsExist.map(c => c.contact_info);
+             throw new Error(`Contact info already exists: ${duplicados.join(', ')}`);
+            }
+
 
             // Crear empleado
             return await model.createEmployee(employee, contacts);
@@ -53,6 +57,17 @@ class ServiceEmployee {
             const exist = await model.getEmployeeById(object.id);
             if (!exist) throw new Error('Employee not found.');
 
+<<<<<<< Updated upstream
+=======
+            // Verificar si la cedula nueva ya existe en la db
+            if (object.ci) {
+             const ciExist = await model.getEmployeeByCi(object.ci);
+             if (ciExist && ciExist.id !== object.id) {
+              throw new Error('Employee with this ci already exists.');
+             }
+            }
+
+>>>>>>> Stashed changes
             const idEmployee = object.id; // Obtener el id del empleado a actualizar
             delete object.id; // Eliminar el id del objeto
 

@@ -13,7 +13,10 @@ class ControllerEmployeeContacts {
         try {
             // Destructurar los datos de la petición
             const { employee_id } = req.params;
-            const { contact_info } = req.body;
+            let { contact_info } = req.body;
+
+            // Normalizar el contacto
+            contact_info = contact_info.trim().toLowerCase();
 
             // Objeto con los datos del contacto
             const object = {
@@ -44,7 +47,10 @@ class ControllerEmployeeContacts {
             const { contact_id } = req.params;
 
             const result = await service.deleteEmployeeContact(parseInt(contact_id));
-            return responses.QuerySuccess(res, { message: "Contact deleted successfully.", data: result });
+            return responses.QuerySuccess(res, {
+                message: "Contact deleted successfully.",
+                data: result
+            });
 
         } catch (error) {
             if (error.message === 'Contact not found.') {
@@ -54,6 +60,45 @@ class ControllerEmployeeContacts {
             return responses.ErrorInternal(res, error.message);
         }
     }
+<<<<<<< Updated upstream
+=======
+
+    async updateEmployeeContact(req, res) {
+        try {
+            let { contacts } = req.body;
+            let Parse = [];
+
+            // Normalizar y parsear los datos
+            contacts.forEach(contact => {
+                Parse.push({
+                    id: parseInt(contact.id),
+                    contact_info: contact.contact_info.trim().toLowerCase()
+                });
+            });
+
+            // Llamar al servicio
+            const result = await service.updateEmployeeContact(Parse);
+
+            // Respuesta con actualizados y omitidos
+            return responses.QuerySuccess(res, {
+                message: "Contact update completed.",
+                updated: result.updated,
+                skipped: result.skipped
+            });
+
+        } catch (error) {
+            if (error.message === 'Contact not found.') {
+                return responses.ItemNotFound(res, "Contact not found.");
+            }
+
+            if (error.message === 'All contact_info values already exist.') {
+                return responses.ResConflict(res, "All contact_info values already exist.");
+            }
+
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+>>>>>>> Stashed changes
 }
 
 export default ControllerEmployeeContacts;

@@ -1,0 +1,763 @@
+📦 MÓDULO: AUTH
+Rama: compras/cristofer
+
+Este módulo gestiona la autenticación de usuarios. Permite validar credenciales y generar tokens de acceso seguros mediante JWT.
+
+────────────────────────────────────────────
+🔹 AUTH
+────────────────────────────────────────────
+
+📌 BASE URL:
+http://localhost:3000/api/trans/services
+
+📁 FUNCIONALIDAD:
+- Validar credenciales de usuario
+- Generar token JWT para sesiones autenticadas
+- Proteger rutas privadas mediante validación de token
+
+📍 ENDPOINTS:
+
+1. 🔑 Login
+POST /login  
+Body:
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+🔓 Ruta pública  
+🧠 Valida formato de username y password  
+🔐 Verifica existencia del usuario y contraseña válida  
+✅ Genera token JWT si las credenciales son correctas  
+📌 Devuelve:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6...",
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "rol": "SuperUser"
+  }
+}
+
+
+📦 MÓDULOS: PROVIDERS, PROVIDER_INVOICES Y PROVIDER_CONTACTS
+Rama: compras/cristofer
+
+Este módulo gestiona proveedores, sus facturas y contactos asociados. Incluye creación, edición, eliminación lógica (soft delete), restauración, búsqueda y validación.
+
+────────────────────────────────────────────
+🔹 PROVIDERS
+────────────────────────────────────────────
+
+📌 BASE URL:
+http://localhost:3000/api/trans/services
+
+📁 FUNCIONALIDAD:
+- Crear, listar, actualizar y eliminar proveedores
+- Restaurar proveedores eliminados
+- Buscar proveedores por nombre
+- Validar duplicados por RIF
+
+📍 ENDPOINTS:
+
+1. ➕ Crear proveedor
+POST /provider
+Body:
+{
+  "name": "Distribuidora Lara",
+  "rif": "J-11223344-5",
+  "balance": 18000
+}
+
+2. 📄 Listar proveedores activos
+GET /providers
+
+3. 🔍 Buscar proveedor por nombre
+GET /provider/search/:name
+Ejemplo: /provider/search/Lara
+
+4. ✏️ Actualizar proveedor
+PATCH /provider/:id
+Body:
+{
+  "name": "Distribuidora Lara Actualizada",
+  "rif": "J-11223344-5",
+  "balance": 20000
+}
+
+5. 🗑️ Eliminar proveedor (soft delete)
+DELETE /provider/:id
+
+6. ♻️ Restaurar proveedor eliminado
+PUT /provider/restore/:id
+Body:
+{
+  "rif": "J-11223344-5"
+}
+
+7. 👻 Listar proveedores eliminados
+GET /providers-deleted
+
+────────────────────────────────────────────
+🔹 PROVIDER_INVOICES
+────────────────────────────────────────────
+
+📁 FUNCIONALIDAD:
+- Crear, listar, buscar, eliminar y restaurar facturas de proveedores
+- Validación de formato para campos como control_number, invoice_number, fechas y montos
+- Soft delete con renombrado automático del control_number
+- Restauración con validación de duplicados
+
+📍 ENDPOINTS:
+
+1. ➕ Crear factura
+POST /provider-invoice/:provider_id
+Body:
+{
+  "control_number": "CN-0001",
+  "invoice_number": "INV-0001",
+  "invoice_date": "2025-11-03",
+  "total_amount": 1200
+}
+
+2. 📄 Listar todas las facturas activas
+GET /provider-invoices
+
+3. 📄 Listar facturas por proveedor
+GET /provider-invoices/:provider_id
+
+4. 🔍 Buscar por número fiscal o control
+GET /provider-invoices/search/:term
+Ejemplo: /provider-invoices/search/INV
+
+5. 📅 Filtrar por rango de fechas
+GET /provider-invoices-range?start=YYYY-MM-DD&end=YYYY-MM-DD
+Ejemplo: /provider-invoices-range?start=2025-11-01&end=2025-11-30
+
+6. 🗑️ Eliminar factura (soft delete)
+DELETE /provider-invoice/:id
+
+7. 👻 Listar facturas eliminadas
+GET /provider-invoices-deleted
+
+8. ♻️ Restaurar factura eliminada
+PUT /provider-invoice/restore/:id
+Body:
+{
+  "control_number": "CN-0001-R"
+}
+
+────────────────────────────────────────────
+🔹 PROVIDER_CONTACTS
+────────────────────────────────────────────
+
+📁 FUNCIONALIDAD:
+- Crear y eliminar contactos asociados a proveedores
+- Validación de formato (email o número)
+- Evita duplicados por proveedor
+- Listado por proveedor
+
+📍 ENDPOINTS:
+
+1. ➕ Crear contacto
+POST /provider-contact/:provider_id
+Body:
+{
+  "contact_info": "04141234567"
+}
+// También acepta correos: "contact_info": "correo@ejemplo.com"
+
+2. 🗑️ Eliminar contacto
+DELETE /provider-contact/:contact_id
+
+3. 📄 Listar contactos por proveedor
+GET /provider-contact/:provider_id
+
+────────────────────────────────────────────
+🔐 HEADERS REQUERIDOS PARA TODOS LOS ENDPOINTS:
+
+Authorization: Bearer <tu_token>
+Content-Type: application/json
+
+────────────────────────────────────────────
+🧪 VALIDACIONES DESTACADAS:
+
+- RIF: formato tipo J-12345678-9
+- control_number y invoice_number: sin caracteres especiales no permitidos
+- balance y total_amount: deben ser numéricos positivos
+- invoice_date: formato YYYY-MM-DD
+- contact_info: debe ser número válido o email válido
+
+────────────────────────────────────────────
+🧠 NOTAS:
+
+- Las eliminaciones son lógicas (soft delete), no se pierde la data.
+- Al eliminar una factura, su control_number se renombra como "deleted_<timestamp>".
+- Al restaurar, se valida que el nuevo control_number no esté duplicado.
+- Al restaurar un proveedor, se valida que su RIF no esté duplicado entre los activos.
+- Los contactos se validan por formato y se evita duplicación por proveedor.
+
+────────────────────────────────────────────
+📦 MÓDULO: USERS
+Rama: compras/cristofer
+
+Este módulo gestiona usuarios del sistema. Incluye creación, edición, eliminación, consulta y validación. Está protegido por token y roles.
+
+────────────────────────────────────────────
+🔹 USERS
+────────────────────────────────────────────
+
+📌 BASE URL:
+http://localhost:3000/api/trans/services
+
+📁 FUNCIONALIDAD:
+- Crear, listar, buscar, actualizar y eliminar usuarios
+- Validar duplicados por username
+- Evitar que un usuario se elimine o actualice a sí mismo
+- Validar formato de campos (username, password, rol)
+- Encriptar contraseñas con bcrypt
+
+📍 ENDPOINTS:
+
+1. ➕ Crear usuario
+POST /users  
+Body:
+{
+  "username": "admin",
+  "password": "admin123",
+  "rol": "SuperUser"
+}
+
+🔒 Requiere token y rol: SuperUser  
+🔐 La contraseña se encripta automáticamente con bcrypt
+
+2. 📄 Listar todos los usuarios (excepto el que hace la petición)
+GET /users
+
+🔒 Requiere token y rol: SuperUser  
+🧠 Excluye al usuario autenticado (`req.user.id`)
+
+3. 🔍 Buscar usuario por ID
+GET /users/:id  
+Ejemplo: /users/5
+
+🔒 Requiere token y rol: SuperUser
+
+4. ✏️ Actualizar usuario
+PATCH /users/:id  
+Body:
+{
+  "username": "admin_actualizado",
+  "rol": "Administrador"
+}
+
+🔒 Requiere token y rol: SuperUser  
+❗ No se permite que un usuario se actualice a sí mismo  
+🧠 Valida duplicado de username
+
+5. 🗑️ Eliminar usuario
+DELETE /users/:id
+
+🔒 Requiere token y rol: SuperUser  
+❗ No se permite que un usuario se elimine a sí mismo
+
+────────────────────────────────────────────
+🔐 HEADERS REQUERIDOS PARA TODOS LOS ENDPOINTS:
+
+Authorization: Bearer <tu_token>  
+Content-Type: application/json
+
+────────────────────────────────────────────
+🧪 VALIDACIONES DESTACADAS:
+
+- username: solo letras, números y espacios
+- password: texto válido (sin caracteres especiales inválidos)
+- rol: solo letras y espacios
+- id: debe ser numérico
+
+────────────────────────────────────────────
+🧠 LÓGICA DE NEGOCIO (Service Layer):
+
+- 🔐 Contraseñas encriptadas con bcrypt (10 salt rounds)
+- ❌ No se permite crear ni actualizar usuarios con username duplicado
+- ❌ No se permite eliminar ni actualizar al usuario autenticado
+- ✅ Validación de existencia previa del usuario antes de eliminar o actualizar
+- ✅ Middleware de validación para cada operación (crear, actualizar, eliminar)
+
+────────────────────────────────────────────
+📦 MÓDULO: PAYROLLS
+Rama: compras/cristofer
+
+Este módulo gestiona las nóminas del personal. Permite registrar, consultar, actualizar y cambiar el estado de las nóminas. Incluye validaciones de fechas, montos, solapamientos y estado.
+
+────────────────────────────────────────────
+🔹 PAYROLLS
+────────────────────────────────────────────
+
+📌 BASE URL:
+http://localhost:3000/api/trans/services
+
+📁 FUNCIONALIDAD:
+- Crear nóminas para empleados
+- Consultar nóminas por mes y año
+- Actualizar datos de una nómina
+- Cambiar el estado de una nómina (draft, paid, cancelled)
+- Validar fechas, montos, solapamientos y estados
+- Calcular salario neto con bonificaciones y deducciones
+- Asociar nóminas con empleados
+
+📍 ENDPOINTS:
+
+1. ➕ Crear nómina
+POST /payrolls  
+Body:
+{
+  "employee_id": 1,
+  "base_salary": 1000,
+  "period_start": "2025-11-01",
+  "period_end": "2025-11-15",
+  "payment_date": "2025-11-16",
+  "hours_worked": 80,
+  "bonus": 100,
+  "deductions": 50
+}
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Valida existencia del empleado y solapamiento de fechas  
+🧮 Calcula salario neto con bonificaciones y deducciones
+
+2. 📄 Consultar nóminas por mes y año
+GET /payrolls/search  
+Query o body:
+{
+  "year": 2025,
+  "month": 11
+}
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Permite enviar filtros por query o body (`filterSearch`)  
+📆 Ajusta fechas automáticamente para cubrir el mes o año completo
+
+3. ✏️ Actualizar nómina
+PUT /payrolls/:id  
+Body:
+{
+  "employee_id": 1,
+  "base_salary": 1100,
+  "period_start": "2025-11-01",
+  "period_end": "2025-11-15",
+  "payment_date": "2025-11-16",
+  "hours_worked": 85,
+  "bonus": 150,
+  "deductions": 30
+}
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Solo permite modificar nóminas en estado `draft`  
+❌ Valida que no haya solapamiento con otras nóminas del mismo empleado  
+🧮 Recalcula salario neto
+
+4. 🔄 Cambiar estado de nómina
+PATCH /payrolls/:id/:status  
+Ejemplo: /payrolls/3/paid
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Solo permite cambiar estado si la nómina está en `draft`  
+🎯 Estados válidos: `draft`, `paid`, `cancelled`
+
+────────────────────────────────────────────
+🔐 HEADERS REQUERIDOS PARA TODOS LOS ENDPOINTS:
+
+Authorization: Bearer <tu_token>  
+Content-Type: application/json
+
+────────────────────────────────────────────
+🧪 VALIDACIONES DESTACADAS:
+
+- employee_id, hours_worked: deben ser numéricos
+- base_salary, bonus, deductions: deben ser montos válidos
+- period_start, period_end, payment_date: deben ser fechas válidas
+- status: solo acepta "draft", "paid", "cancelled"
+- year: debe tener 4 dígitos y no ser mayor al año actual
+- month: debe estar entre 1 y 12
+
+────────────────────────────────────────────
+🧠 LÓGICA DE NEGOCIO (Service Layer):
+
+- ❌ No se permite modificar una nómina si ya está cerrada (`paid` o `cancelled`)
+- ❌ No se permite crear o actualizar una nómina si se solapa con otra del mismo empleado
+- ✅ Se valida que el empleado exista antes de crear o actualizar
+- ✅ Se permite enviar filtros por query o body para consultar nóminas
+- ✅ Se incluye información del empleado (nombre y cédula) en la respuesta
+- ✅ Se calcula el salario neto con bonificaciones y deducciones usando `isrCalculator`
+
+────────────────────────────────────────────
+📦 MÓDULO: USERS
+Rama: compras/cristofer
+
+Este módulo gestiona usuarios del sistema. Permite crear, consultar, actualizar y eliminar usuarios, con validaciones de formato, control de duplicados y protección contra acciones sobre uno mismo.
+
+────────────────────────────────────────────
+🔹 USERS
+────────────────────────────────────────────
+
+📌 BASE URL:
+http://localhost:3000/api/trans/services
+
+📁 FUNCIONALIDAD:
+- Crear usuarios con contraseña encriptada
+- Listar todos los usuarios (excepto el que hace la petición)
+- Buscar usuario por ID
+- Actualizar username o rol
+- Eliminar usuarios
+- Validar duplicados por username
+- Evitar que un usuario se elimine o actualice a sí mismo
+
+📍 ENDPOINTS:
+
+1. ➕ Crear usuario
+POST /users  
+Body:
+{
+  "username": "admin",
+  "password": "admin123",
+  "rol": "SuperUser"
+}
+
+🔒 Requiere token y rol: SuperUser  
+🔐 La contraseña se encripta automáticamente con bcrypt  
+❌ Valida que el username no exista
+
+2. 📄 Listar todos los usuarios (excepto el que hace la petición)
+GET /users
+
+🔒 Requiere token y rol: SuperUser  
+🧠 Excluye al usuario autenticado (`req.user.id`)
+
+3. 🔍 Buscar usuario por ID
+GET /users/:id  
+Ejemplo: /users/5
+
+🔒 Requiere token y rol: SuperUser  
+❌ Devuelve error si el usuario no existe
+
+4. ✏️ Actualizar usuario
+PATCH /users/:id  
+Body:
+{
+  "username": "admin_actualizado",
+  "rol": "Administrador"
+}
+
+🔒 Requiere token y rol: SuperUser  
+❌ No se permite que un usuario se actualice a sí mismo  
+❌ Valida duplicado de username
+
+5. 🗑️ Eliminar usuario
+DELETE /users/:id
+
+🔒 Requiere token y rol: SuperUser  
+❌ No se permite que un usuario se elimine a sí mismo  
+❌ Devuelve error si el usuario no existe
+
+────────────────────────────────────────────
+🔐 HEADERS REQUERIDOS PARA TODOS LOS ENDPOINTS:
+
+Authorization: Bearer <tu_token>  
+Content-Type: application/json
+
+────────────────────────────────────────────
+🧪 VALIDACIONES DESTACADAS (middlewares):
+
+- username: solo letras, números y espacios
+- password: texto válido (sin caracteres especiales inválidos)
+- rol: solo letras y espacios
+- id: debe ser numérico
+- username y rol son opcionales en update, pero al menos uno debe estar presente
+
+────────────────────────────────────────────
+🧠 LÓGICA DE NEGOCIO (Service Layer):
+
+- 🔐 Contraseñas encriptadas con bcrypt (10 salt rounds)
+- ❌ No se permite crear ni actualizar usuarios con username duplicado
+- ❌ No se permite eliminar ni actualizar al usuario autenticado
+- ✅ Validación de existencia previa del usuario antes de eliminar o actualizar
+- ✅ Middleware de validación para cada operación (crear, actualizar, eliminar)
+- ✅ Respuestas estandarizadas con códigos y mensajes claros
+
+────────────────────────────────────────────
+📦 MÓDULO: EMPLOYEE
+Rama: compras/cristofer
+
+Este módulo gestiona empleados del sistema. Permite crear, consultar, actualizar, eliminar y restaurar empleados, con validaciones de formato, control de duplicados y protección contra acciones sobre uno mismo.
+
+────────────────────────────────────────────
+🔹 EMPLOYEE
+────────────────────────────────────────────
+
+📌 BASE URL:
+http://localhost:3000/api/trans/services
+
+📁 FUNCIONALIDAD:
+- Crear empleados con múltiples contactos
+- Consultar empleados activos/inactivos por nombre o cédula
+- Actualizar datos del empleado
+- Eliminar empleados (soft delete)
+- Restaurar empleados eliminados
+- Validar duplicados por cédula y contactos
+- Excluir al usuario autenticado en consultas
+
+📍 ENDPOINTS:
+
+1. ➕ Crear empleado
+POST /employee  
+Body:
+{
+  "name": "Carlos",
+  "lastname": "Pérez",
+  "ci": "V-12345678",
+  "rol": "Operador",
+  "contacts": [
+    { "contact_info": "04141234567" },
+    { "contact_info": "correo@ejemplo.com" }
+  ]
+}
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Valida formato de nombre, apellido, cédula, rol y contactos  
+❌ Verifica duplicado de cédula y contactos  
+🔁 Usa transacción para crear empleado y contactos juntos
+
+2. 📄 Consultar empleados por estado y filtro
+GET /employee/search/:active/:filter  
+Ejemplos:
+- /employee/search/true/all → todos los activos
+- /employee/search/false/all → todos los inactivos
+- /employee/search/true/Carlos → búsqueda por nombre
+- /employee/search/true/V-12345678 → búsqueda por cédula
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Filtra por estado (`is_active`) y por nombre o cédula  
+❌ Excluye al usuario autenticado (`req.user.id`)
+
+3. ✏️ Actualizar empleado
+PATCH /employee/:id  
+Body:
+{
+  "name": "Carlos Actualizado",
+  "lastname": "Pérez",
+  "ci": "V-87654321",
+  "rol": "Supervisor"
+}
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+❌ No se permite que un usuario se actualice a sí mismo  
+❌ Valida duplicado de cédula  
+🧠 Valida existencia del empleado
+
+4. 🗑️ Eliminar empleado
+DELETE /employee/:id
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+❌ No se permite que un usuario se elimine a sí mismo  
+🧠 Valida existencia del empleado  
+🧹 Soft delete: actualiza `is_active` a false
+
+5. ♻️ Restaurar empleado eliminado
+PATCH /employee/restore/:id
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Valida existencia del empleado eliminado  
+🔁 Actualiza `is_active` a true
+
+────────────────────────────────────────────
+🔐 HEADERS REQUERIDOS PARA TODOS LOS ENDPOINTS:
+
+Authorization: Bearer <tu_token>  
+Content-Type: application/json
+
+────────────────────────────────────────────
+🧪 VALIDACIONES DESTACADAS (middlewares):
+
+- name, lastname, rol: solo letras y espacios
+- ci: formato válido tipo V-12345678
+- contacts: debe contener al menos un email o número válido
+- id: debe ser numérico
+- En update: al menos un campo debe estar presente
+
+────────────────────────────────────────────
+🧠 LÓGICA DE NEGOCIO (Service Layer):
+
+- ❌ No se permite eliminar ni actualizar al usuario autenticado
+- ❌ No se permite crear empleados con cédula o contacto duplicado
+- ✅ Validación de existencia previa del empleado antes de eliminar, actualizar o restaurar
+- ✅ Middleware de validación para cada operación (crear, actualizar, eliminar, restaurar)
+- ✅ Respuestas estandarizadas con códigos y mensajes claros
+- 🔁 Uso de transacciones para garantizar consistencia entre empleado y contactos
+
+────────────────────────────────────────────
+📦 MÓDULO: EMPLOYEE_CONTACTS
+Rama: compras/cristofer
+
+Este módulo gestiona los contactos asociados a empleados. Permite crear, actualizar y eliminar contactos, con validaciones de formato y control de duplicados.
+
+────────────────────────────────────────────
+🔹 EMPLOYEE_CONTACTS
+────────────────────────────────────────────
+
+📌 BASE URL:
+http://localhost:3000/api/trans/services
+
+📁 FUNCIONALIDAD:
+- Crear contactos para empleados
+- Eliminar contactos por ID
+- Actualizar múltiples contactos en lote
+- Validar formato de email o número telefónico
+- Evitar duplicados de contact_info
+
+📍 ENDPOINTS:
+
+1. ➕ Crear contacto
+POST /employees/contact/:employee_id  
+Body:
+{
+  "contact_info": "04141234567"
+}
+// También acepta correos: "contact_info": "correo@ejemplo.com"
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Valida que el contacto no exista y que el empleado sea válido  
+📌 Normaliza el contacto (trim + lowercase)
+
+2. 🗑️ Eliminar contacto
+DELETE /employees/contact/:contact_id
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Valida que el contacto exista  
+🧹 Elimina el contacto permanentemente
+
+3. ✏️ Actualizar múltiples contactos
+PATCH /employees/contact  
+Body:
+{
+  "contacts": [
+    { "id": 1, "contact_info": "nuevo@correo.com" },
+    { "id": 2, "contact_info": "04141234567" }
+  ]
+}
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Valida formato de cada contacto  
+🔁 Actualiza en transacción  
+📌 Devuelve contactos actualizados y omitidos
+
+────────────────────────────────────────────
+🔐 HEADERS REQUERIDOS PARA TODOS LOS ENDPOINTS:
+
+Authorization: Bearer <tu_token>  
+Content-Type: application/json
+
+────────────────────────────────────────────
+🧪 VALIDACIONES DESTACADAS (middlewares):
+
+- contact_info: debe ser un número válido o un email válido
+- id: debe ser numérico
+- En update: se requiere un arreglo de contactos con id y contact_info válidos
+
+────────────────────────────────────────────
+🧠 LÓGICA DE NEGOCIO (Service Layer):
+
+- ❌ No se permite crear contactos duplicados
+- ❌ No se permite actualizar si todos los contact_info ya existen
+- ✅ Validación de existencia del empleado antes de crear
+- ✅ Validación de existencia del contacto antes de eliminar o actualizar
+- ✅ Normalización de datos (trim y lowercase)
+- 🔁 Uso de transacciones para actualizaciones múltiples
+- ✅ Respuestas estandarizadas con códigos y mensajes claros
+
+────────────────────────────────────────────
+📦 MÓDULO: CLIENTS
+Rama: compras/cristofer
+
+Este módulo gestiona clientes del sistema. Permite crear, consultar y actualizar clientes, con validaciones de formato y control de duplicados por RIF y contacto.
+
+────────────────────────────────────────────
+🔹 CLIENTS
+────────────────────────────────────────────
+
+📌 BASE URL:
+http://localhost:3000/api/trans/services
+
+📁 FUNCIONALIDAD:
+- Crear clientes con RIF, nombre, contacto y dirección
+- Consultar clientes por nombre o RIF
+- Actualizar datos del cliente
+- Validar duplicados por RIF y contacto
+
+📍 ENDPOINTS:
+
+1. ➕ Crear cliente
+POST /clients  
+Body:
+{
+  "rif": "J-12345678-9",
+  "name": "Distribuidora Lara",
+  "contact": "04141234567",
+  "address": "Av. Principal, Barquisimeto"
+}
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Valida formato de RIF, nombre, contacto y dirección  
+❌ Verifica duplicado por RIF y contacto
+
+2. 📄 Consultar clientes por filtro
+GET /clients/:filter  
+Ejemplos:
+- /clients/all → todos los clientes
+- /clients/J-12345678-9 → búsqueda por RIF
+- /clients/Lara → búsqueda por nombre
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Filtra por RIF exacto o nombre que comienza con el texto
+
+3. ✏️ Actualizar cliente
+PATCH /clients/:id  
+Body:
+{
+  "rif": "J-98765432-1",
+  "name": "Distribuidora Lara Actualizada",
+  "contact": "04141234567",
+  "address": "Av. Nueva, Barquisimeto"
+}
+
+🔒 Requiere token y rol: Administrador o SuperUser  
+🧠 Valida existencia del cliente  
+❌ Verifica duplicado por RIF y contacto  
+📌 Permite actualizar uno o más campos
+
+────────────────────────────────────────────
+🔐 HEADERS REQUERIDOS PARA TODOS LOS ENDPOINTS:
+
+Authorization: Bearer <tu_token>  
+Content-Type: application/json
+
+────────────────────────────────────────────
+🧪 VALIDACIONES DESTACADAS (middlewares):
+
+- rif: formato tipo J-12345678-9
+- name: solo letras y espacios
+- contact: debe ser numérico
+- address: debe ser texto válido
+- id: debe ser numérico
+- En update: al menos un campo debe estar presente
+
+────────────────────────────────────────────
+🧠 LÓGICA DE NEGOCIO (Service Layer):
+
+- ❌ No se permite crear ni actualizar clientes con RIF o contacto duplicado
+- ✅ Validación de existencia previa del cliente antes de actualizar
+- ✅ Middleware de validación para cada operación (crear, consultar, actualizar)
+- ✅ Respuestas estandarizadas con códigos y mensajes claros
+
+────────────────────────────────────────────

@@ -1,26 +1,57 @@
-import bcrypt from 'bcrypt'
-import Token from '../../shared/utils/token.access.js'
-import AuthModel from './auth.model.js'
-const authModel = new AuthModel()
+import AuthModel from './auth.model.js';
+import Token from '../../shared/utils/token.access.js';
+import bcrypt from 'bcrypt';
+
+const model = new AuthModel();
 
 class AuthService {
-    constructor() { }
+  async login(object) {
+    try {
+      console.log('🟡 Intentando login con:', object);
 
-    async login(object) {
-        try {
-            // Verificar si el usuario existe
-            const result = await authModel.login(object)
-            if (!result) throw new Error('User not found.')
+      const result = await model.login(object);
+      console.log('🟢 Usuario encontrado:', result);
 
-            // Verificar si la contraseña es correcta
-            const validationPassword = await bcrypt.compare(object.password, result.password)
-            if (!validationPassword) throw new Error('Password not valid.')
+      if (!result) {
+        throw {
+          code: 'ITEM_NOT_FOUND',
+          message: 'The item was not found.',
+          details: 'Usuario no encontrado o inactivo.'
+        };
+      }
 
+<<<<<<< Updated upstream
             // Generar el token
             const token = await Token.genToken(result)
             return token
         } catch (error) { throw error }
+=======
+      const validationPassword = await bcrypt.compare(object.password, result.password);
+      console.log('🔍 ¿Contraseña válida?', validationPassword);
+
+      if (!validationPassword) {
+        throw {
+          code: 'ITEM_NOT_FOUND',
+          message: 'The item was not found.',
+          details: 'Password incorrect or username not exist.'
+        };
+      }
+
+      const token = await Token.genToken(result);
+      console.log('✅ Token generado:', token);
+
+      return { token, user: result };
+
+    } catch (error) {
+      console.error('❌ Error en login:', error);
+      throw {
+        code: 'ERROR_INTERNAL',
+        message: 'Internal error.',
+        details: error.message || 'Error Internal Server'
+      };
+>>>>>>> Stashed changes
     }
+  }
 }
 
-export default AuthService
+export default AuthService;

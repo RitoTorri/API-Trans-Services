@@ -9,6 +9,16 @@ import cors from "cors";
 import authRoute from "./modules/auth/auth.route.js";
 import employeeRoute from "./modules/employee/employee.route.js";
 import employeeContactsRoute from "./modules/employee_contacts/employee.contacts.route.js";
+<<<<<<< Updated upstream
+=======
+import payrollsRoute from "./modules/payrolls/payrolls.route.js";
+import clientsRoute from "./modules/clients/clients.route.js";
+import usersRoute from "./modules/users/users.route.js";
+import providerRoute from './modules/provider/provider.route.js';
+import providerContactsRoute from './modules/provider_contacts/provider.contacts.route.js';
+import providerInvoicesRoute from './modules/provider_invoices/provider.invoices.route.js';
+
+>>>>>>> Stashed changes
 
 // initializations
 const app = express();
@@ -45,6 +55,15 @@ app.use(globalLimiter);
 app.use(urlApiBase, authRoute);
 app.use(urlApiBase, employeeRoute);
 app.use(urlApiBase, employeeContactsRoute);
+<<<<<<< Updated upstream
 
+=======
+app.use(urlApiBase, payrollsRoute);
+app.use(urlApiBase, clientsRoute);
+app.use(urlApiBase, usersRoute);
+app.use(urlApiBase, providerRoute);
+app.use(urlApiBase, providerContactsRoute);
+app.use(urlApiBase, providerInvoicesRoute);
+>>>>>>> Stashed changes
 
 export default app;
