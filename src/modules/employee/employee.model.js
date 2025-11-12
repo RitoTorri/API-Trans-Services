@@ -14,7 +14,6 @@ class ModelEmployee {
             // si el filtro es "all" devolver todos los empleados
             if (data.filterSearch === 'all') return await prisma.employees.findMany({
                 where: {
-                    id: { not: idMyself },
                     is_active: data.is_active,
                 },
                 orderBy: { id: 'asc' },

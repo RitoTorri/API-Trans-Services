@@ -9,9 +9,9 @@ class ServiceEmployee {
     constructor() { }
 
     // Método para consultar todos los empleados
-    async getAllEmployees(data, idMyself) {
+    async getAllEmployees(data) {
         try {
-            return await model.getAllEmployees(data, idMyself);
+            return await model.getAllEmployees(data);
         } catch (error) { throw error; }
     }
 

@@ -10,7 +10,7 @@ class ControllerEmployee {
     // Método para consultar todos los empleados
     async getAllEmployees(req, res) {
         try {
-            const result = await service.getAllEmployees(req.filter, req.user.id);
+            const result = await service.getAllEmployees(req.filter);
             return responses.QuerySuccess(res, result);
 
         } catch (error) {
