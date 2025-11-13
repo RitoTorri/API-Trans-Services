@@ -175,11 +175,14 @@ model services {
   id                Int       @id @default(autoincrement())
   vehicle_id        Int
   client_id         Int
-  price             Decimal   @db.Decimal(10, 2)
-  dropoff_location  String    @db.VarChar(100)
-  number_of_people  Int
-  payment_status    String    @db.VarChar(20) @default("pending") 
-  created_at        DateTime  @default(now()) @map("created_at")
+  service_code      String    @unique @db.VarChar(13)   // Codigo de servicio similar al de una factura
+  period_start      DateTime
+  period_end        DateTime
+  subtotal             Decimal   @db.Decimal(10, 2) 
+  retention         Int
+  total             Decimal   @db.Decimal(10, 2) 
+  payment_status    String    @db.VarChar(20) @default("pending")
+  created_at        DateTime  @default(now())
 
   vehicles  vehicles  @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
   clients   clients   @relation(fields: [client_id], references: [id], onDelete: Cascade)
@@ -187,4 +190,6 @@ model services {
   @@map("services")
   @@index([vehicle_id])
   @@index([client_id])
+  @@index([period_start, period_end]) 
+  @@index([service_code])
 }

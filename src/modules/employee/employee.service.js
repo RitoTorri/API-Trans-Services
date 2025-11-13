@@ -31,11 +31,8 @@ class ServiceEmployee {
         } catch (error) { throw error; }
     }
 
-    async deleteEmployee(object, idMyself) {
+    async deleteEmployee(object) {
         try {
-            // Verificar si el empleado a eliminar es mismo
-            if (object.id === idMyself) throw new Error('You cannot delete yourself.');
-
             // Verificar si el empleado a eliminar existe
             const exist = await model.getEmployeeById(object.id);
             if (!exist) throw new Error('Employee not found.');
@@ -44,18 +41,17 @@ class ServiceEmployee {
         } catch (error) { throw error; }
     }
 
-    async updateEmployee(object, idMyself) {
+    async updateEmployee(object) {
         try {
-            // Verificar si el empleado a actualizar es uno mismo
-            if (object.id === idMyself) throw new Error('You cannot update yourself.');
-
             // Verificar si el empleado a actualizar existe
             const exist = await model.getEmployeeById(object.id);
             if (!exist) throw new Error('Employee not found.');
 
             // Verificar si la cedula nueva ya existe en la db
-            const ciExist = await model.getEmployeeByCi(object.ci);
-            if (ciExist) throw new Error('Employee with this ci already exists.');
+            if (object.ci) {
+                const ciExist = await model.getEmployeeByCi(object.ci);
+                if (ciExist) throw new Error('Employee with this ci already exists.');
+            }
 
             const idEmployee = object.id; // Obtener el id del empleado a actualizar
             delete object.id; // Eliminar el id del objeto
