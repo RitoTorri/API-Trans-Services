@@ -41,7 +41,7 @@ AL ya haber instalado el proyecto debes de crear un archivo `.env` para guardar 
 DATABASE_URL="postgresql://postgres:password@localhost:5432/nombre-de-la-base-de-datos"
 
 # Llave secreta para JWT
-SECRET_KEY=AJuanLeGustanLasTrans
+secret_key=LlaveSecreta
 ```
 ---
 
