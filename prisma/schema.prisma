@@ -46,23 +46,30 @@ model employee_contacts {
 
 
 model payrolls {
-  id           Int       @id @default(autoincrement())
-  status String @default("draft") 
-  employee_id  Int
-  base_salary  Decimal   @db.Decimal(10, 2)
-  period_start DateTime
-  period_end   DateTime
-  payment_date DateTime
-  hours_worked Int
-  bonus                Decimal   @db.Decimal(10, 2) @default(0)
-  deductions           Decimal   @db.Decimal(10, 2) @default(0)
-  net_salary           Decimal   @db.Decimal(10, 2) 
-  created_at           DateTime  @default(now()) @map("created_at")
+  id                Int      @id @default(autoincrement())
+  status            String   @default("draft") // Estado de la nómina: draft, cancelled or paid
+  employee_id       Int      // ID del empleado asociado a esta nómina
+  period_start      DateTime // Fecha de inicio del período de nómina
+  period_end        DateTime // Fecha de fin del período de nómina
+  daily_salary           Decimal @db.Decimal(10, 2) // Salario base diario
+  total_days_paid        Decimal @db.Decimal(10, 2) // Total de días pagados en el período
+  monthly_salary         Decimal @db.Decimal(10, 2) // Salario mensual base = (total de días pagados * salario diario) * 2
+  integral_salary        Decimal @db.Decimal(10, 2) // Salario integral 
+  annual_earnings        Decimal @db.Decimal(10, 2) // Devengado anual
 
-  employees employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  assements   Decimal @db.Decimal(10, 2) // Salario quincenal = daily_salary * total_days_paid
+  social_security        Decimal @db.Decimal(10, 2) // Deducción por seguro social (IVSS)
+  unemployment_fund      Decimal @db.Decimal(10, 2) // Deducción por paro forzoso
+  savings_fund           Decimal @db.Decimal(10, 2) // Aporte al fondo de ahorro
+  total_deductions       Decimal @db.Decimal(10, 2) // Total de deducciones aplicadas
+  net_salary             Decimal @db.Decimal(10, 2) // Salario neto final después de deducciones
+
+  created_at             DateTime @default(now()) @map("created_at") // Fecha de creación del registro
+  employees              employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   @@map("payrolls")
 }
+
 
 model vehicle_types {
   id          Int      @id @default(autoincrement())
@@ -176,12 +183,12 @@ model services {
   vehicle_id        Int
   client_id         Int
   service_code      String    @unique @db.VarChar(13)   // Codigo de servicio similar al de una factura
-  period_start      DateTime
-  period_end        DateTime
-  subtotal             Decimal   @db.Decimal(10, 2) 
-  retention         Int
-  total             Decimal   @db.Decimal(10, 2) 
-  payment_status    String    @db.VarChar(20) @default("pending")
+  period_start      DateTime                             // Fecha de inicio del período de servicio
+  period_end        DateTime                             // Fecha de fin del período de servicio
+  subtotal             Decimal   @db.Decimal(10, 2) @default(0)         // Subtotal de servicio
+  retention         Int                                  // Retención de servicio obligatoria ISLR
+  total             Decimal   @db.Decimal(10, 2)          // Total de servicio + retención
+  payment_status    String    @db.VarChar(20) @default("pending") // Estado de pago: pending, paid, cancelled
   created_at        DateTime  @default(now())
 
   vehicles  vehicles  @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
