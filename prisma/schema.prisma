@@ -58,9 +58,9 @@ model payrolls {
   annual_earnings        Decimal @db.Decimal(10, 2) // Devengado anual
 
   assements   Decimal @db.Decimal(10, 2) // Salario quincenal = daily_salary * total_days_paid
-  social_security        Decimal @db.Decimal(10, 2) // Deducción por seguro social (IVSS)
-  unemployment_fund      Decimal @db.Decimal(10, 2) // Deducción por paro forzoso
-  savings_fund           Decimal @db.Decimal(10, 2) // Aporte al fondo de ahorro
+  ivss        Decimal @db.Decimal(10, 2) // Deducción por seguro social 
+  pie      Decimal @db.Decimal(10, 2) // Deducción por paro forzoso
+  faov           Decimal @db.Decimal(10, 2) // Aporte al fondo de ahorro
   total_deductions       Decimal @db.Decimal(10, 2) // Total de deducciones aplicadas
   net_salary             Decimal @db.Decimal(10, 2) // Salario neto final después de deducciones
 
@@ -198,7 +198,7 @@ model services {
   period_start      DateTime                             // Fecha de inicio del período de servicio
   period_end        DateTime                             // Fecha de fin del período de servicio
   subtotal             Decimal   @db.Decimal(10, 2) @default(0)         // Subtotal de servicio
-  retention         Int                                  // Retención de servicio obligatoria ISLR
+  isrl         Int                                  // Retención de servicio obligatoria ISLR
   total             Decimal   @db.Decimal(10, 2)          // Total de servicio + retención
   payment_status    String    @db.VarChar(20) @default("pending") // Estado de pago: pending, paid, cancelled
   created_at        DateTime  @default(now())
