@@ -25,7 +25,6 @@ class ModelEmployee {
             // devuelve los empleados que cumplen con los filtros
             return await prisma.employees.findMany({
                 where: {
-                    id: { not: idMyself }, // excluir el empleado actual
                     ...data,
                 },
                 orderBy: { id: 'asc' },

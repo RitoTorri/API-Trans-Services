@@ -49,17 +49,13 @@ class ControllerEmployee {
         try {
             // Destructurar los datos de la petición
             const { id } = req.params;
-            const result = await service.deleteEmployee({ id: parseInt(id) }, req.user.id);
+            const result = await service.deleteEmployee({ id: parseInt(id) });
 
             return responses.QuerySuccess(res, { message: 'Employee deleted successfully.', result: result });
 
         } catch (error) {
             if (error.message === 'Employee not found.') {
                 return responses.ItemNotFound(res, "Not exist employee with this id.");
-            }
-
-            if (error.message === 'You cannot delete yourself.') {
-                return responses.UnauthorizedEdit(res, "You cannot delete yourself.");
             }
 
             return responses.ErrorInternal(res, error.message);
@@ -80,16 +76,12 @@ class ControllerEmployee {
             if (ci) employee.ci = ci;
             if (rol) employee.rol = rol;
 
-            const result = await service.updateEmployee(employee, req.user.id);
+            const result = await service.updateEmployee(employee);
             return responses.QuerySuccess(res, result);
 
         } catch (error) {
             if (error.message === 'Employee not found.') {
                 return responses.ItemNotFound(res, "Not exist employee with this id.");
-            }
-
-            if (error.message === 'You cannot update yourself.') {
-                return responses.UnauthorizedEdit(res, "You cannot update yourself.");
             }
             return responses.ErrorInternal(res, error.message);
         }
