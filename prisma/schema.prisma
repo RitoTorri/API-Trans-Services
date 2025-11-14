@@ -76,17 +76,29 @@ model vehicle_types {
 }
 
 model vehicles {
-  id               Int      @id @default(autoincrement())
-  driver_id        Int
-  license_plate    String   @db.VarChar(10)
-  total_seats      Int
-  vehicle_type_id  Int
-  is_active        Boolean  @default(true)
-  created_at       DateTime @default(now()) @map("created_at")
+  id                Int           @id @default(autoincrement())
+  driver_id         Int
+  
+  // Campo AÑADIDO/REVISADO
+  model             String        @db.VarChar(50) // Nuevo campo para el modelo comercial
+  
+  // Campo REVISADO (Matrícula)
+  license_plate     String        @db.VarChar(10) @unique // Placa (Matrícula) - es único
+  
+  total_seats       Int
+  
+  // Campo REVISADO (Tipo de Vehículo - Llave Foránea)
+  vehicle_type_id   Int
+  
+  // Campo REVISADO (Activo)
+  is_active         Boolean       @default(true) // Estado (Activo o Inactivo)
+  
+  created_at        DateTime @default(now()) @map("created_at")
 
-  employees       employees       @relation(fields: [driver_id], references: [id], onDelete: Cascade)
-  vehicle_types   vehicle_types   @relation(fields: [vehicle_type_id], references: [id], onDelete: Cascade)
-  services        services[]
+  // Relaciones
+  employees         employees     @relation(fields: [driver_id], references: [id], onDelete: Cascade)
+  vehicle_types     vehicle_types @relation(fields: [vehicle_type_id], references: [id], onDelete: Cascade)
+  services          services[]
 
   @@map("vehicles")
 }

@@ -7,11 +7,13 @@ import cors from "cors";
 // import routes
 import authRoute from "./modules/auth/auth.route.js";
 import employeeRoute from "./modules/employee/employee.route.js";
+import typeRoutes from './modules/types_of_vehicles/types_of_vehicles.route.js';
 import employeeContactsRoute from "./modules/employee_contacts/employee.contacts.route.js";
 import payrollsRoute from "./modules/payrolls/payrolls.route.js";
 import clientsRoute from "./modules/clients/clients.route.js";
 import usersRoute from "./modules/users/users.route.js";
 import servicesRoute from "./modules/services/services.route.js";
+
 
 // initializations
 const app = express();
@@ -47,10 +49,12 @@ const urlApiBase = '/api/trans/services';
 app.use(globalLimiter);
 app.use(urlApiBase, authRoute);
 app.use(urlApiBase, employeeRoute);
+app.use(urlApiBase, typeRoutes);
 app.use(urlApiBase, employeeContactsRoute);
 app.use(urlApiBase, payrollsRoute);
 app.use(urlApiBase, clientsRoute);
 app.use(urlApiBase, usersRoute);
 app.use(urlApiBase, servicesRoute);
+
 
 export default app;
