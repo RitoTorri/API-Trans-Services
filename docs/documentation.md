@@ -690,7 +690,7 @@ Busqueda por estado:
 ---
 
 ### 3. Actualizar el estado de una Nomina
-** IMPORTANTE: Solo puedes actualizar el estado de una nomina si está en estado "draft".**
+** IMPORTANTE **: Solo puedes actualizar el estado de una nomina si está en estado "draft".
 **Método:** `PATCH`  
 **Endpoint:** `http://localhost:3000/api/trans/services/payrolls/:id/:status`
 **Headers:**
@@ -740,7 +740,7 @@ PATCH http://localhost:3000/api/trans/services/payrolls/1/paid
 ---
 
 ### 4. Actualizar los datos de una Nomina
-** IMPORTANTE **: Solo puedes actualizar los datos de una nomina si está en estado "draft". No se pueden actualizar los datos de una persona que esta en la nomina, solo se cambia las retenciones, salarios, etc. REVISE LOS OBJETOS QUE SE PUEDEN ENVIAR EN EL BODY DE LA REQUEST.
+** IMPORTANTE **: Solo puedes actualizar los datos de una nomina si está en estado "draft". No se pueden actualizar los datos de una persona que esta en la nomina, solo se cambia las retenciones, salarios, etc. Envie el objeto completo como en el ejemplo de abajo, aunque los datos no se vayan a actualizar envie el objeto tal cual en la explicación de los parametros del body.
 **Método:** `PATCH`  
 **Endpoint:** `http://localhost:3000/api/trans/services/payrolls/:id`
 **Headers:**
