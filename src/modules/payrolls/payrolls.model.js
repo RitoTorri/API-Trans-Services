@@ -7,7 +7,10 @@ class PayrollsModel {
     async addPayrolls(payroll) {
         try {
             return await prisma.payrolls.create({
-                data: payroll
+                data: payroll,
+                include: {
+                    employees: true
+                }
             });
         } catch (error) { throw error; }
     }
@@ -37,7 +40,7 @@ class PayrollsModel {
                 orderBy: { period_start: 'desc' },
                 include: {
                     employees: {
-                        select: { name: true, ci: true }
+                        select: { name: true, ci: true, rol: true, created_at: true }
                     }
                 }
             });

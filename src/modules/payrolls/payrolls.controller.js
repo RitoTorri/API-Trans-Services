@@ -11,20 +11,19 @@ class PayrollsController {
     async addPayrolls(req, res) {
         try {
             // Destructuracion de los parametros
-            const { employee_id, base_salary, period_start, period_end, payment_date, hours_worked, bonus, deductions } = req.body;
+            const { employee_id, period_start, period_end, daily_salary, total_days_paid, ivss, pie, faov } = req.body;
 
             // Contruccion de nuevo objeto
             const payroll = {
-                employee_id: parseInt(employee_id),
-                base_salary: parseFloat(base_salary),
-                period_start: new Date(period_start),
-                period_end: new Date(period_end),
-                payment_date: new Date(payment_date),
-                hours_worked: parseInt(hours_worked),
+                employee_id: parseInt(employee_id), // ID del empleado asociado a esta nómina
+                period_start: new Date(period_start), // Fecha de inicio del período de nómina
+                period_end: new Date(period_end), // Fecha de fin del período de nómina
+                daily_salary: parseFloat(daily_salary), // Salario base diario
+                total_days_paid: parseInt(total_days_paid), // Total de días pagados en el período
+                ivss: parseFloat(ivss), // Deducción por seguro social 
+                pie: parseFloat(pie), // Deducción por paro forzoso
+                faov: parseFloat(faov), // Aporte al fondo de ahorro
             };
-
-            if (bonus) payroll.bonus = parseFloat(bonus);
-            if (deductions) payroll.deductions = parseFloat(deductions);
 
             // Guardamos el objeto en la base de datos
             const result = await service.addPayrolls(payroll);
@@ -63,7 +62,7 @@ class PayrollsController {
             }
 
             if (error.message === "This payroll can not modify.") {
-                return responses.ResConflict(res, "This payroll can not modify. ");
+                return responses.ResConflict(res, "This payroll can not modify. Becaise it is not draft.");
             }
 
             return responses.ErrorInternal(res, error.message);
@@ -74,21 +73,20 @@ class PayrollsController {
         try {
             // Destructuracion de los parametros
             const { id } = req.params;
-            const { employee_id, base_salary, period_start, period_end, payment_date, hours_worked, bonus, deductions } = req.body;
+            const { period_start, period_end, daily_salary, total_days_paid, ivss, pie, faov, status } = req.body;
 
             // Contruccion de nuevo objeto
             const payroll = {
-                id: parseInt(id),
-                employee_id: parseInt(employee_id),
-                base_salary: parseFloat(base_salary),
-                period_start: new Date(period_start),
-                period_end: new Date(period_end),
-                payment_date: new Date(payment_date),
-                hours_worked: parseInt(hours_worked),
+                id: parseInt(id), // ID de la nomina
+                status: status,
+                period_start: new Date(period_start), // Fecha de inicio del período de nómina
+                period_end: new Date(period_end), // Fecha de fin del período de nómina
+                daily_salary: parseFloat(daily_salary), // Salario base diario
+                total_days_paid: parseInt(total_days_paid), // Total de días pagados en el período
+                ivss: parseFloat(ivss), // Deducción por seguro social 
+                pie: parseFloat(pie), // Deducción por paro forzoso
+                faov: parseFloat(faov), // Aporte al fondo de ahorro
             };
-
-            if (bonus) payroll.bonus = parseFloat(bonus);
-            if (deductions) payroll.deductions = parseFloat(deductions);
 
             const result = await service.updatePayrolls(payroll);
             return responses.QuerySuccess(res, { message: "payroll update succefully.", data: result });
