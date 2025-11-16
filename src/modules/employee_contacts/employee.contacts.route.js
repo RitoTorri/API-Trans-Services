@@ -11,14 +11,14 @@ const controller = new ControllerEmployeeContacts();
 
 router.post('/employees/contact/:employee_id', // Body: contact_info y Params: employee_id
     validationToken,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.middlewareAddEmployeeContact,
     controller.addEmployeeContact
 )
 
 router.delete('/employees/contact/:contact_id', // Params: contact_id
     validationToken,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.middlewareDeleteEmployeeContact,
     controller.deleteEmployeeContact
 );
@@ -29,7 +29,7 @@ router.delete('/employees/contact/:contact_id', // Params: contact_id
 // }]
 router.patch('/employees/contact',
     validationToken,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.middlewareUpdateEmployeeContact,
     controller.updateEmployeeContact
 );

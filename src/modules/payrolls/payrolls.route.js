@@ -12,7 +12,7 @@ const controller = new PayrollsController();
 // employee_id, period_start, period_end, daily_salary, total_days_paid, integral_salary, annual_earnings, assements, ivss, pie, faov, total_deductions, net_salary
 router.post('/payrolls',
     TokenValidation,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.addPayrolls,
     controller.addPayrolls
 );
@@ -20,7 +20,7 @@ router.post('/payrolls',
 // filterSearch: { dateStart: 2002-10-10, dateEnd: 2002-10-10  } o {} desde del body
 router.get('/payrolls/search',
     TokenValidation,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.getPayrolls,
     controller.getPayrolls
 );
@@ -28,13 +28,15 @@ router.get('/payrolls/search',
 // status: draft, cancelled, paid
 router.patch('/payrolls/:id/:status',
     TokenValidation,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.updatePayrollState,
     controller.updatePayrollState
 );
 
 // Actualiza Datos de la nomina
 router.patch('/payrolls/:id',
+    TokenValidation,
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.updatePayrolls,
     controller.updatePayrolls
 );

@@ -9,7 +9,7 @@ const controller = new ControllerUsers();
 
 router.get('/users',
     validationToken,
-    authorization(['SuperUser']),
+    authorization(['SuperUsuario']),
     controller.getUsers
 );
 
@@ -20,14 +20,14 @@ router.post('/users',
 
 router.delete('/users/:id',
     validationToken,
-    authorization(['SuperUser']),
+    authorization(['SuperUsuario']),
     middlewares.deleteUserMiddleware,
     controller.deleteUser
 );
 
 router.patch('/users/:id',
     validationToken,
-    authorization(['SuperUser']),
+    authorization(['SuperUsuario']),
     middlewares.updateUserMiddleware,
     controller.updateUser
 );

@@ -9,21 +9,21 @@ const controller = new ControllerClients();
 
 router.post('/clients',
     validationToken,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.addClientMiddleware,
     controller.addClient
 );
 
 router.get('/clients/:filter',
     validationToken,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.getClientsMiddleware,
     controller.getClients
 );
 
 router.patch('/clients/:id',
     validationToken,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.updateClientMiddleware,
     controller.updateClient
 );
