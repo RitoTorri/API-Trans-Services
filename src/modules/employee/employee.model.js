@@ -9,7 +9,7 @@ class ModelEmployee {
     constructor() { }
 
     // Método para consultar todos los empleados
-    async getAllEmployees(data, idMyself) {
+    async getAllEmployees(data) {
         try {
             // si el filtro es "all" devolver todos los empleados
             if (data.filterSearch === 'all') return await prisma.employees.findMany({
@@ -29,9 +29,7 @@ class ModelEmployee {
                 },
                 orderBy: { id: 'asc' },
                 include: {
-                    employee_contacts: {
-                        where: { is_active: data.is_active },
-                    }
+                    employee_contacts: true
                 }
             });
         } catch (error) { throw error; }

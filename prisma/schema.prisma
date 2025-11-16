@@ -194,7 +194,6 @@ model services {
   id                Int       @id @default(autoincrement())
   vehicle_id        Int
   client_id         Int
-  service_code      String    @unique @db.VarChar(13)   // Codigo de servicio similar al de una factura
   period_start      DateTime                             // Fecha de inicio del período de servicio
   period_end        DateTime                             // Fecha de fin del período de servicio
   subtotal             Decimal   @db.Decimal(10, 2) @default(0)         // Subtotal de servicio
@@ -210,5 +209,4 @@ model services {
   @@index([vehicle_id])
   @@index([client_id])
   @@index([period_start, period_end]) 
-  @@index([service_code])
 }
