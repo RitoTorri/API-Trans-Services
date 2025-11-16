@@ -54,8 +54,8 @@ model payrolls {
   daily_salary           Decimal @db.Decimal(10, 2) // Salario base diario
   total_days_paid        Decimal @db.Decimal(10, 2) // Total de días pagados en el período
   monthly_salary         Decimal @db.Decimal(10, 2) // Salario mensual base = (total de días pagados * salario diario) * 2
-  integral_salary        Decimal @db.Decimal(10, 2) // Salario integral 
-  annual_earnings        Decimal @db.Decimal(10, 2) // Devengado anual
+  integral_salary        Decimal @db.Decimal(10, 2) @default(0) // Salario integral 
+  annual_earnings        Decimal @db.Decimal(10, 2) @default(0) // Devengado anual
 
   assements   Decimal @db.Decimal(10, 2) // Salario quincenal = daily_salary * total_days_paid
   ivss        Decimal @db.Decimal(10, 2) // Deducción por seguro social 

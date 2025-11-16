@@ -1,11 +1,3 @@
-const salaryBonus = (salary, bonus) => {
-    return salary + bonus; // bonus = Bolivares
-}
+const Porcentaje = (salary, deductions) => salary * (deductions / 100);
 
-const salaryDeductions = (salary, deductions) => {
-    return salary - (salary * (deductions / 100));
-}
-
-export default {
-    salaryBonus, salaryDeductions
-}
+export default Porcentaje
