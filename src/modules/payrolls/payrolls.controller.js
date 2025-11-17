@@ -73,12 +73,11 @@ class PayrollsController {
         try {
             // Destructuracion de los parametros
             const { id } = req.params;
-            const { period_start, period_end, daily_salary, total_days_paid, ivss, pie, faov, status } = req.body;
+            const { period_start, period_end, daily_salary, total_days_paid, ivss, pie, faov } = req.body;
 
             // Contruccion de nuevo objeto
             const payroll = {
                 id: parseInt(id), // ID de la nomina
-                status: status,
                 period_start: new Date(period_start), // Fecha de inicio del período de nómina
                 period_end: new Date(period_end), // Fecha de fin del período de nómina
                 daily_salary: parseFloat(daily_salary), // Salario base diario

@@ -813,3 +813,45 @@ Las retenciones de seguro social, paro forzoso y aporte al fondo de... pueden es
 ```
 
 ---
+
+# Modulo de Reportes
+
+## 1. Reporte de Gastos Anuales
+**Rol requerido:**  Administrador o 
+
+### 1. Obtener reporte de gastos anuales
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/expenses/annual`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros del Body:**
+- `year` (integer): Año a consultar
+
+**Ejemplo de Body:**
+```json
+{
+    "year": "2025"
+}
+
+```
+
+**Respuesta:**
+```json
+{
+    "success": true,
+    "code": "REQUEST_SUCCESSFUL",
+    "message": "The request was successful.",
+    "details": [
+        {
+            "Fecha": "2025-11",
+            "Gasto Mensual": "61.64"
+        },
+        {
+            "Fecha": "2025-12",
+            "Gasto Mensual": "61.64"
+        }
+    ]
+}

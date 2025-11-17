@@ -9,7 +9,7 @@ import TokenValidation from '../../shared/middlewares/validate.token.middleware.
 const router = express.Router();
 const controller = new PayrollsController();
 
-// employee_id, period_start, period_end, daily_salary, total_days_paid, integral_salary, annual_earnings, assements, ivss, pie, faov, total_deductions, net_salary
+
 router.post('/payrolls',
     TokenValidation,
     authorization(['Administrador', 'SuperUsuario']),

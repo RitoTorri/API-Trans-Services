@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Tabla de usuarios
 model users {
   id          Int      @id @default(autoincrement())
   rol         String   @db.VarChar(30)
@@ -17,6 +18,7 @@ model users {
 }
 
 
+// Todo de empleados
 model employees {
   id         Int      @id @default(autoincrement())
   name       String   @db.VarChar(40)
@@ -45,32 +47,8 @@ model employee_contacts {
 }
 
 
-model payrolls {
-  id                Int      @id @default(autoincrement())
-  status            String   @default("draft") // Estado de la nómina: draft, cancelled or paid
-  employee_id       Int      // ID del empleado asociado a esta nómina
-  period_start      DateTime // Fecha de inicio del período de nómina
-  period_end        DateTime // Fecha de fin del período de nómina
-  daily_salary           Decimal @db.Decimal(10, 2) // Salario base diario
-  total_days_paid        Decimal @db.Decimal(10, 2) // Total de días pagados en el período
-  monthly_salary         Decimal @db.Decimal(10, 2) // Salario mensual base = (total de días pagados * salario diario) * 2
-  integral_salary        Decimal @db.Decimal(10, 2) @default(0) // Salario integral 
-  annual_earnings        Decimal @db.Decimal(10, 2) @default(0) // Devengado anual
 
-  assements   Decimal @db.Decimal(10, 2) // Salario quincenal = daily_salary * total_days_paid
-  ivss        Decimal @db.Decimal(10, 2) // Deducción por seguro social 
-  pie      Decimal @db.Decimal(10, 2) // Deducción por paro forzoso
-  faov           Decimal @db.Decimal(10, 2) // Aporte al fondo de ahorro
-  total_deductions       Decimal @db.Decimal(10, 2) // Total de deducciones aplicadas
-  net_salary             Decimal @db.Decimal(10, 2) // Salario neto final después de deducciones
-
-  created_at             DateTime @default(now()) @map("created_at") // Fecha de creación del registro
-  employees              employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
-
-  @@map("payrolls")
-}
-
-
+// Todo de Vehiculos
 model vehicle_types {
   id          Int      @id @default(autoincrement())
   type_name   String   @db.VarChar(20)
@@ -110,6 +88,9 @@ model vehicles {
   @@map("vehicles")
 }
 
+
+
+// Tabla de Clientes
 model clients {
   id         Int      @id @default(autoincrement())
   rif       String   @db.VarChar(20) @unique
@@ -123,6 +104,9 @@ model clients {
   @@map("clients")
 }
 
+
+
+// Todo de proveedores
 model providers {
   id         Int       @id @default(autoincrement())
   name       String    @db.VarChar(30)
@@ -163,17 +147,6 @@ model provider_invoices {
   @@map("provider_invoices")
 }
 
-model expense_types {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(30)
-  description String   @db.VarChar(100)
-  created_at  DateTime @default(now()) @map("created_at")
-
-  purchase_invoices purchase_invoices[]
-
-  @@map("expense_types")
-}
-
 model purchase_invoices {
   id                    Int       @id @default(autoincrement())
   provider_invoice_id   Int
@@ -190,6 +163,8 @@ model purchase_invoices {
   @@map("purchase_invoices")
 }
 
+
+// Todo de Servicios
 model services {
   id                Int       @id @default(autoincrement())
   vehicle_id        Int
@@ -209,4 +184,89 @@ model services {
   @@index([vehicle_id])
   @@index([client_id])
   @@index([period_start, period_end]) 
+}
+
+
+
+
+
+// Tabla de tipos de gastos
+model expense_types {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(30) @unique
+  description String   @db.VarChar(100)
+  created_at  DateTime @default(now()) @map("created_at")
+
+  purchase_invoices purchase_invoices[]
+  expense         expenses[]
+
+  @@map("expense_types")
+}
+
+
+
+// Todo de gastos y ganancias
+model expenses {
+  id               Int       @id @default(autoincrement())
+  id_expense_type  Int
+  total            Decimal   @db.Decimal(10, 2)
+  created_at       DateTime  @default(now())
+  
+  expense_type     expense_types @relation(fields: [id_expense_type], references: [id], onDelete: Cascade)
+
+  @@map("expenses")
+}
+
+
+
+// Todo de nominas 
+model payrolls {
+  id                 Int      @id @default(autoincrement())
+  employee_id        Int  
+  status             String    @db.VarChar(30) @default("draft")
+
+  period_start       DateTime
+  period_end         DateTime
+  
+  daily_salary       Decimal @db.Decimal(10, 2)
+  total_days_paid    Decimal @db.Decimal(10, 2)
+  integral_salary        Decimal @db.Decimal(10, 2) @default(0) // Salario integral 
+  annual_earnings        Decimal @db.Decimal(10, 2) @default(0) // Devengado anual
+  monthly_salary     Decimal @db.Decimal(10, 2)
+  assignments          Decimal @db.Decimal(10, 2) // Salario quincenal
+
+  created_at         DateTime @default(now())
+
+  employee           employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  payrolls_retentions payrolls_retentions[]
+
+  @@map("payrolls")
+}
+
+
+
+model payrolls_retentions {
+  id               Int      @id @default(autoincrement())
+  payroll_id       Int
+  retention_code   String
+
+  base_amount      Decimal   @db.Decimal(10, 2) // monto de referencia
+  rate_retention   Decimal   @db.Decimal(10, 2) // Tasa de retención
+  total_retention  Decimal   @db.Decimal(10, 2) // Total de retención
+
+  created_at       DateTime @default(now())
+
+  payroll          payrolls   @relation(fields: [payroll_id], references: [id], onDelete: Cascade)
+  retention        retentions @relation(fields: [retention_code], references: [code], onDelete: Cascade)
+}
+
+
+
+model retentions {
+  code                  String    @db.VarChar(30) @id 
+  name                  String    @db.VarChar(50)
+  description           String    @db.VarChar(100)
+  created_at            DateTime  @default(now())
+
+  payrolls_retentions   payrolls_retentions[]
 }
