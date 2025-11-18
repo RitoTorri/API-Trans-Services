@@ -26,7 +26,13 @@ const middlewareGetEmployee = (req, res, next) => {
     }
 
     if (!validators.formatNamesInvalid(filter)) {
-        req.filter = { ...req.filter, name: filter };
+        req.filter = {
+            ...req.filter,
+            OR: [
+                { name: { contains: filter, mode: 'insensitive' } },
+                { lastname: { contains: filter, mode: 'insensitive' } },
+            ]
+        };
         return next();
     }
 

@@ -25,11 +25,7 @@ class ModelEmployee {
             // devuelve los empleados que cumplen con los filtros
             return await prisma.employees.findMany({
                 where: {
-                    is_active: data.is_active,
-                    OR: [
-                        { name: { contains: data.name, mode: 'insensitive' } },
-                        { lastname: { contains: data.name, mode: 'insensitive' } },
-                    ]
+                    ...data
                 },
                 orderBy: { id: 'asc' },
                 include: {
