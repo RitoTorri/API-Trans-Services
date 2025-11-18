@@ -25,7 +25,11 @@ class ModelEmployee {
             // devuelve los empleados que cumplen con los filtros
             return await prisma.employees.findMany({
                 where: {
-                    ...data,
+                    is_active: data.is_active,
+                    OR: [
+                        { name: { contains: data.name, mode: 'insensitive' } },
+                        { lastname: { contains: data.name, mode: 'insensitive' } },
+                    ]
                 },
                 orderBy: { id: 'asc' },
                 include: {
@@ -54,13 +58,7 @@ class ModelEmployee {
                     data: contacsModify
                 });
 
-                return {
-                    employeeResult,
-                    contacts_result: {
-                        message: "Contacts created successfully.",
-                        data: contactsResult
-                    }
-                };
+                return { employeeResult, contacts_result: contactsResult };
             });
 
             return addResult;
@@ -78,11 +76,31 @@ class ModelEmployee {
     }
 
     // Método para actualizar un empleado
-    async updateEmployee(object, idEmployee) {
+    async updateEmployee(object, idEmployee, contacts) {
         try {
-            return await prisma.employees.update({
-                where: { id: idEmployee },
-                data: object
+            return await prisma.$transaction(async (e) => {
+                // Actualizar empleado
+                const employeeResult = await e.employees.update({
+                    where: { id: idEmployee },
+                    data: object
+                });
+
+                // Actualizar contactos
+                if (contacts.length > 0) {
+                    let contactsModify = [];
+
+                    for (let i = 0; i < contacts.length; i++) {
+                        const result = await e.employee_contacts.update({
+                            where: { id: parseInt(contacts[i].id) },
+                            data: {
+                                contact_info: contacts[i].contact_info
+                            }
+                        });
+                        contactsModify.push(result);
+                    }
+                    return { employeeResult, contacts_result: contactsModify };
+                }
+                return employeeResult;
             });
         } catch (error) { throw error; }
     }

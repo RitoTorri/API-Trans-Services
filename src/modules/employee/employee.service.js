@@ -41,7 +41,7 @@ class ServiceEmployee {
         } catch (error) { throw error; }
     }
 
-    async updateEmployee(object) {
+    async updateEmployee(object, contacts) {
         try {
             // Verificar si el empleado a actualizar existe
             const exist = await model.getEmployeeById(object.id);
@@ -53,10 +53,16 @@ class ServiceEmployee {
                 if (ciExist) throw new Error('Employee with this ci already exists.');
             }
 
+            // Verificar si los contactos ya existen
+            if (contacts.length > 0) {
+                const contactsExist = await modelContacts.getContactInfoAll(contacts);
+                if (contactsExist.length > 0) throw new Error('Contact info already exists.');
+            }
+
             const idEmployee = object.id; // Obtener el id del empleado a actualizar
             delete object.id; // Eliminar el id del objeto
 
-            return await model.updateEmployee(object, idEmployee);
+            return await model.updateEmployee(object, idEmployee, contacts);
         } catch (error) { throw error; }
     }
 

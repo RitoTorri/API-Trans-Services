@@ -88,7 +88,17 @@ Content-Type: application/json
     "name": "string",
     "lastname": "string",
     "ci": "string",
-    "rol": "string"
+    "rol": "string",
+    "contacts": [
+        {
+            "id": "integer",
+            "contact_info": "string"
+        },
+        {
+            "id": "integer",
+            "contact_info": "string"
+        }
+    ]
 }
 ```
 

@@ -26,7 +26,7 @@ const middlewareGetEmployee = (req, res, next) => {
     }
 
     if (!validators.formatNamesInvalid(filter)) {
-        req.filter = { ...req.filter, name: { contains: filter, mode: 'insensitive' } };
+        req.filter = { ...req.filter, name: filter };
         return next();
     }
 
@@ -79,13 +79,13 @@ const middlewareDeleteEmployee = (req, res, next) => {
 const middlewareUpdateEmployee = (req, res, next) => {
     // Destructurar los datos de la petición
     const { id } = req.params;
-    const { name, lastname, ci, rol } = req.body;
+    const { name, lastname, ci, rol, contacts } = req.body;
 
     let object = { id: parseInt(id) };
     let errors = [];
 
     if (!id) return responses.BadRequest(res, "Parameters invalid. id is required.");
-    if (!name && !lastname && !ci && !rol) return responses.BadRequest(res, "Parameters invalid. We need at least one field to update.");
+    if (!name && !lastname && !ci && !rol && !contacts) return responses.BadRequest(res, "Parameters invalid. We need at least one field to update.");
 
     if (name) {
         if (validators.formatNamesInvalid(name)) errors.push("Error: name is invalid.");
@@ -105,6 +105,16 @@ const middlewareUpdateEmployee = (req, res, next) => {
     if (rol) {
         if (validators.formatNamesInvalid(rol)) errors.push("Error: rol is invalid.");
         else object = { ...object, rol: rol };
+    }
+
+    if (contacts) {
+        for (let i = 0; i < contacts.length; i++) {
+            if (!validators.formatEmailInvalid(contacts[i].contact_info)) continue;
+
+            if (!validators.formatNumberInvalid(contacts[i].contact_info)) continue;
+
+            errors.push(`Error in position ${i + 1}: contact_info is invalid.`);
+        }
     }
 
     if (errors.length > 0) return responses.ParametersInvalid(res, errors);
