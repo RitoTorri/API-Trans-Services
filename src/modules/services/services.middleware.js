@@ -5,15 +5,15 @@ const addServiceMiddleware = (req, res, next) => {
     const {
         vehicle_id,           // id_vehículo
         client_id,            // id_cliente
+        start_date,           // fecha_de_inicio
+        end_date,             // fecha_de_fin
         price,                // precio
-        dropoff_location,     // lugar_de_entrega
-        number_of_people,     // número_de_personas
-        payment_status,       // estado_del_pago    
+        isrl,                 // impuesto sobre la renta
     } = req.body;
 
     let errors = [];
 
-    if (!vehicle_id || !client_id || !price || !dropoff_location || !number_of_people || !payment_status) {
+    if (!vehicle_id || !client_id || !price || !start_date || !end_date || !isrl) {
         return responses.BadRequest(res, 'Missing required fields');
     }
 
@@ -29,16 +29,16 @@ const addServiceMiddleware = (req, res, next) => {
         errors.push("Invalid price. Price must be a number.");
     }
 
-    if (validators.formatTextInvalid(dropoff_location)) {
-        errors.push("Invalid dropoff location. Dropoff location must be a string.");
+    if (validators.formatDateInvalid(start_date)) {
+        errors.push("Invalid start date. Start date must be a date.");
     }
 
-    if (validators.formatNumberInvalid(number_of_people)) {
-        errors.push("Invalid number of people. Number of people must be a number.");
+    if (validators.formatDateInvalid(end_date)) {
+        errors.push("Invalid end date. End date must be a date.");
     }
 
-    if (payment_status !== "pending" && payment_status !== "paid" && payment_status !== "canceled") {
-        errors.push("Invalid payment status. Payment status must be pending, paid or canceled.");
+    if (validators.formatMoneyInvalid(isrl)) {
+        errors.push("Invalid isrl. Isrl must be a number.");
     }
 
     if (errors.length > 0) {
@@ -46,6 +46,7 @@ const addServiceMiddleware = (req, res, next) => {
     }
     return next();
 }
+
 
 const getServicesMiddleware = (req, res, next) => {
     const { filterSearch } = req.body;
@@ -56,6 +57,11 @@ const getServicesMiddleware = (req, res, next) => {
 
     if (Object.keys(filterSearch).length === 0) {
         req.filterSearch = {};
+        return next();
+    }
+
+    if (filterSearch === "paid" || filterSearch === "canceled" || filterSearch === "pending") {
+        req.filterSearch = { payment_status: filterSearch };
         return next();
     }
 
@@ -73,70 +79,22 @@ const getServicesMiddleware = (req, res, next) => {
     return responses.BadRequest(res, 'You should send a valid filterSearch object. A name or a date range is expected.');
 }
 
+
 const updatePaymentStatusMiddleware = (req, res, next) => {
-    const { id } = req.params;
-    const {
-        vehicle_id,           // id_vehículo
-        client_id,            // id_cliente
-        price,                // precio
-        dropoff_location,     // lugar_de_entrega
-        number_of_people,     // número_de_personas
-        payment_status,       // estado_del_pago
-    } = req.body;
+    const { id, status } = req.params;
 
-    let errors = [];
-
-    if (!id) {
-        return responses.BadRequest(res, 'Missing required fields: id');
-    }
-
-    if (!vehicle_id && !client_id && !price && !dropoff_location && !number_of_people && !payment_status) {
-        return responses.BadRequest(res, 'Missing required fields: vehicle_id, client_id, price, dropoff_location, number_of_people, payment_status');
+    if (!id || !status) {
+        return responses.BadRequest(res, 'Missing required fields: id, status');
     }
 
     if (validators.formatNumberInvalid(id)) {
         return responses.BadRequest(res, 'Invalid id. Id must be a number.');
     }
 
-    if (vehicle_id) {
-        if (validators.formatNumberInvalid(vehicle_id)) {
-            errors.push("Invalid vehicle id. Id must be a number.");
-        }
+    if (status !== "pending" && status !== "paid" && status !== "canceled") {
+        return responses.BadRequest(res, 'Invalid status. Status must be pending, paid or canceled.');
     }
 
-    if (client_id) {
-        if (validators.formatNumberInvalid(client_id)) {
-            errors.push("Invalid client id. Id must be a number.");
-        }
-    }
-
-    if (price) {
-        if (validators.formatMoneyInvalid(price)) {
-            errors.push("Invalid price. Price must be a number.");
-        }
-    }
-
-    if (dropoff_location) {
-        if (validators.formatTextInvalid(dropoff_location)) {
-            errors.push("Invalid dropoff location. Dropoff location must be a string.");
-        }
-    }
-
-    if (number_of_people) {
-        if (validators.formatNumberInvalid(number_of_people)) {
-            errors.push("Invalid number of people. Number of people must be a number.");
-        }
-    }
-
-    if (payment_status) {
-        if (payment_status !== "pending" && payment_status !== "paid" && payment_status !== "canceled") {
-            errors.push("Invalid payment status. Payment status must be pending, paid or canceled.");
-        }
-    }
-
-    if (errors.length > 0) {
-        return responses.BadRequest(res, errors);
-    }
     return next();
 }
 

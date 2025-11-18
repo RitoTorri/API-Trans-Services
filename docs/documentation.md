@@ -865,3 +865,165 @@ Authorization: Bearer {token}
         }
     ]
 }
+```
+
+---
+
+### 2. Reporte de Ganancias Anuales
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/revenue/annual/:year`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros URL:**
+- `year` (integer): Año a consultar
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/revenue/annual/2025
+```
+
+**Respuesta:**
+```json
+{
+    "success": true,
+    "code": "REQUEST_SUCCESSFUL",
+    "message": "The request was successful.",
+    "details": [
+        {
+            "Fecha": "2025-11",
+            "Ganancia Mensual": "61.64"
+        },
+        {
+            "Fecha": "2025-12",
+            "Ganancia Mensual": "61.64"
+        }
+    ]
+}
+```
+
+---
+
+### 3. Reporte de Clientes con mayor número de servicios
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/clients/service/ranking`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/clients/service/ranking
+```
+
+**Respuesta:**
+```json
+{
+    "success": true,
+    "code": "REQUEST_SUCCESSFUL",
+    "message": "The request was successful.",
+    "details": [
+        {
+            "Clientes": "Jesus",
+            "Rif": "V-1234567-8",
+            "Servicios Solicitados": 3
+        },
+        {
+            "Clientes": "Jesus",
+            "Rif": "V-1234567-8",
+            "Servicios Solicitados": 2
+        },
+        {
+            "Clientes": "Jesus",
+            "Rif": "V-1234567-8",
+            "Servicios Solicitados": 1
+        }
+    ]
+}
+```
+
+---
+
+## Módulo de Servicios
+**Rol requerido:** Administrador o SuperUsuario
+
+### 1. Crear servicio
+**Método:** `POST`  
+**Endpoint:** `http://localhost:3000/api/trans/services/offered/services`  
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Parámetros URL:**
+- `vehicle_id` (integer): ID del vehículo
+- `client_id` (integer): ID del cliente
+- `price` (number): Precio del servicio
+- `start_date` (date): Fecha de inicio del servicio
+- `end_date` (date): Fecha de fin del servicio
+- `isrl` (number): Impuesto sobre la renta
+
+**Ejemplo de Body:**
+```json
+{
+    "vehicle_id": 1,
+    "client_id": 1,
+    "price": 1200,
+    "start_date": "2025-11-03",
+    "end_date": "2025-11-30",
+    "isrl": 10
+}
+```
+
+---
+
+### 2. Listar todos los servicios
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/offered/services/search`
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros de Body:**
+Puedes busar por fechas, estado de pago del servicio o por nombre del cliente.
+
+Busqueda por fechas:
+```json
+    "filterSearch": {
+        "dateStart": "2002-10-10",
+        "dateEnd": "2002-10-10"
+    }
+```
+
+Busqueda por estado:
+```json
+    "filterSearch": "paid"
+```
+
+Busqueda por nombre del cliente:
+```json
+    "filterSearch": "Jesus"
+```
+
+### 3. Actualizar el estado de pago de un servicio
+** IMPORTANTE: Solo puedes actualizar el estado de pago de un servicio si está en estado "pending".**
+**Método:** `PATCH`  
+**Endpoint:** `http://localhost:3000/api/trans/services/offered/services/payment/:status/:id`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros URL:**
+- `status` (string): Estado de pago: pending, paid, canceled
+- `id` (integer): ID del servicio
+
+**Ejemplo de URL:**
+```
+PATCH http://localhost:3000/api/trans/services/offered/services/payment/paid/1
+```

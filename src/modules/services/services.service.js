@@ -1,6 +1,9 @@
 import ServicesModel from "./services.model.js";
 const model = new ServicesModel();
 
+// Importacion de retenciones
+import isrCalculator from "../../shared/utils/isr.calculator.js";
+
 // Importacion de clientes
 import ClientsModel from "../clients/clients.model.js";
 const clients = new ClientsModel();
@@ -8,7 +11,7 @@ const clients = new ClientsModel();
 class ServicesService {
     constructor() { }
 
-    async addService(service) {
+    async addService(service, retention) {
         try {
             // Validar si existe un cliente con ese rif
             const client = await clients.getClientById(service.client_id);
@@ -16,7 +19,15 @@ class ServicesService {
 
             // Validar si existe un vehículo con ese id
 
-            return await model.addService(service);
+            // Agregamos las propiedades de factura
+            const servicesExists = await model.getCountServices();
+            service.invoice_number = `TRS-${new Date().getFullYear()}-${servicesExists + 1}`;
+            service.invoice_date = new Date();
+
+            // Cremoas el objeto a guardar en retencion
+            retention.total_retention = isrCalculator(service.price, retention.rate_retention);
+
+            return await model.addService(service, retention);
         } catch (error) { throw error; }
     }
 
@@ -38,18 +49,33 @@ class ServicesService {
                 const dateEnd = new Date(filterSearch.dateEnd);
 
                 filterSearch = {
-                    created_at: {
-                        gte: dateStart,
-                        lte: dateEnd
-                    }
+                    start_date: { gte: dateStart },
+                    end_date: { lte: dateEnd }
                 };
             }
 
-            return await model.getServices(filterSearch);
+            const result = await model.getServices(filterSearch);
+            return result.map(result => {
+                return {
+                    services: {
+                        id: result.id,
+                        star_date: result.start_date,
+                        end_date: result.end_date,
+                        price: result.price,
+                        invoice_number: result.invoice_number,
+                        invoice_date: result.invoice_date,
+                        payment_status: result.payment_status
+                    },
+                    client: result.clients,
+                    retentions: result.services_retentions[0],
+                    vehicle: result.vehicles,
+                    totalAmount: result.price - result.services_retentions.map(s => s.total_retention)[0]
+                }
+            });
         } catch (error) { throw error; }
     }
 
-    async updatePaymentStatus(id, serviceObj) {
+    async updatePaymentStatus(id, status) {
         try {
             // Verificar que exista un servicio con ese id
             const servicesExist = await model.getServiceById(id);
@@ -59,7 +85,12 @@ class ServicesService {
                 throw new Error("Service already paid or canceled.");
             }
 
-            return await model.updatePaymentStatus(id, serviceObj);
+            if (status === "paid") {
+                return await model.updatePaymentStatusPaid(id, status);
+            }
+
+            const result = await model.updatePaymentStatusCanceled(id);
+            return "Service canceled successfully.";
         } catch (error) { throw error; }
     }
 }

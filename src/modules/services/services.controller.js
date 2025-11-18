@@ -8,26 +8,30 @@ class ServicesController {
 
     async addService(req, res) {
         try {
+            // Este contienen los datos del servicio
             const serviceObj = {
                 vehicle_id: parseInt(req.body.vehicle_id),
                 client_id: parseInt(req.body.client_id),
                 price: parseFloat(req.body.price),
-                dropoff_location: req.body.dropoff_location,
-                number_of_people: parseInt(req.body.number_of_people),
-                payment_status: req.body.payment_status,
+                start_date: new Date(req.body.start_date),
+                end_date: new Date(req.body.end_date),
             };
 
-            const result = await service.addService(serviceObj);
+            // Este contienen los datos de la retencion aplicada al servicio
+            const retention = {
+                code_retention: "isrl",
+                base_amount: serviceObj.price,
+                rate_retention: req.body.isrl,
+            }
+
+            const result = await service.addService(serviceObj, retention);
             return responses.QuerySuccess(res, result);
 
         } catch (error) {
-            console.log(error);
-
             if (error.message === "Client not found.") {
                 return responses.ItemNotFound(res, "Client not found. Please, check the client id.");
             }
-
-            return responses.ErrorInternal(res, error);
+            return responses.ErrorInternal(res, error.message);
         }
     }
 
@@ -43,27 +47,16 @@ class ServicesController {
 
     async updatePaymentStatus(req, res) {
         try {
-            const serviceObj = {};
-
-            // Si se envia alguno de los campos, se actualizan
-            if (req.body.vehicle_id) serviceObj.vehicle_id = parseInt(req.body.vehicle_id);
-            if (req.body.client_id) serviceObj.client_id = parseInt(req.body.client_id);
-            if (req.body.payment_status) serviceObj.payment_status = req.body.payment_status;
-            if (req.body.price) serviceObj.price = parseFloat(req.body.price);
-            if (req.body.number_of_people) serviceObj.number_of_people = parseInt(req.body.number_of_people);
-            if (req.body.dropoff_location) serviceObj.dropoff_location = req.body.dropoff_location;
-
-            const result = await service.updatePaymentStatus(parseInt(req.params.id), serviceObj);
+            const result = await service.updatePaymentStatus(parseInt(req.params.id), req.params.status);
             return responses.QuerySuccess(res, result);
+
         } catch (error) {
             if (error.message === "Service not found.") {
                 return responses.ItemNotFound(res, "Service not found. Please, check the service id.");
             }
-
             if (error.message === "Service already paid or canceled.") {
                 return responses.ResConflict(res, "Service already paid or canceled. Please, check the service id.");
             }
-
             return responses.ErrorInternal(res, error.message);
         }
     }

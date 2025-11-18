@@ -14,6 +14,28 @@ class ReportsModel {
             `
         } catch (error) { throw error; }
     }
+
+    async getAnnualRevenueReport(year) {
+        try {
+            return await prisma.$queryRaw`
+                SELECT EXTRACT(YEAR FROM date) || '-' || EXTRACT(MONTH FROM date) AS "Fecha", 
+                SUM(amount) AS "Ganancia Mensual" FROM revenue 
+                WHERE EXTRACT(YEAR FROM date) = ${year}
+                GROUP BY("Fecha")
+            `
+        } catch (error) { throw error; }
+    }
+
+    async getClientServiceRanking() {
+        try {
+            return await prisma.$queryRaw`
+                SELECT c.name AS "Clientes", c.rif AS "Rif", COUNT(s.payment_status)::integer AS "Servicios Solicitados" 
+                FROM clients c INNER JOIN services s ON c.id = s.client_id 
+                WHERE s.payment_status = 'paid' GROUP BY(c.name, c.rif)
+                ORDER BY("Servicios Solicitados") DESC LIMIT 3
+            `
+        } catch (error) { throw error; }
+    }
 }
 
 export default ReportsModel;

@@ -7,11 +7,24 @@ import TokenValidation from "../../shared/middlewares/validate.token.middleware.
 const router = express.Router();
 const controller = new ReportsController();
 
-router.get('/reports/expenses/annual',
+router.get('/reports/expenses/annual/:year',
     TokenValidation,
     authorization(['Administrador', 'SuperUsuario']),
-    middlewares.getAnnualExpensesReport,
+    middlewares.ValidateYear,
     controller.getAnnualExpensesReport
+);
+
+router.get('/reports/revenue/annual/:year',
+    TokenValidation,
+    authorization(['Administrador', 'SuperUsuario']),
+    middlewares.ValidateYear,
+    controller.getAnnualRevenueReport
+);
+
+router.get('/reports/clients/service/ranking',
+    TokenValidation,
+    authorization(['Administrador', 'SuperUsuario']),
+    controller.getClientServiceRanking
 );
 
 

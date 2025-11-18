@@ -1,8 +1,8 @@
 import responses from "../../shared/utils/responses.js";
 import validators from "../../shared/utils/format.data.js";
 
-const getAnnualExpensesReport = (req, res, next) => {
-    const { year } = req.body;
+const ValidateYear = (req, res, next) => {
+    const { year } = req.params;
 
     if (!year) {
         return responses.BadRequest(res, "Incomplete request. The following parameters are required: year.");
@@ -14,4 +14,4 @@ const getAnnualExpensesReport = (req, res, next) => {
     next();
 }
 
-export default { getAnnualExpensesReport };
+export default { ValidateYear };

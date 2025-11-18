@@ -22,7 +22,7 @@ router.get('/offered/services/search',
 );
 
 // Actualiza el estado de pago de un servicio
-router.patch('/offered/services/payment/:id',
+router.patch('/offered/services/payment/:status/:id',
     validationToken,
     authorization(['Administrador', 'SuperUsuario']),
     middlewares.updatePaymentStatusMiddleware,

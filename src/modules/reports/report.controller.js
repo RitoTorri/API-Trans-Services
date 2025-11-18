@@ -7,8 +7,29 @@ class ReportsController {
 
     async getAnnualExpensesReport(req, res) {
         try {
-            const { year } = req.body;
+            const { year } = req.params;
             const result = await service.getAnnualExpensesReport(parseInt(year));
+            return responses.QuerySuccess(res, result);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+
+    async getAnnualRevenueReport(req, res) {
+        try {
+            const { year } = req.params;
+            const result = await service.getAnnualRevenueReport(parseInt(year));
+            return responses.QuerySuccess(res, result);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+
+    async getClientServiceRanking(req, res) {
+        try {
+            const result = await service.getClientServiceRanking();
             return responses.QuerySuccess(res, result);
 
         } catch (error) {
