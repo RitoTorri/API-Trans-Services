@@ -14,7 +14,7 @@ class PayrollsModel {
                     include: { employee: true }
                 });
 
-                // Creamos los retenciones
+                // Le agregamos el id de la nominas a las retenciones que se van a guardar
                 const retentionFinal = retentions.map(retention => {
                     return {
                         ...retention,
@@ -22,22 +22,17 @@ class PayrollsModel {
                     }
                 });
 
+                // Creamos los retenciones
                 const retentionsResult = await e.payrolls_retentions.createMany({
                     data: retentionFinal
                 });
 
-                return {
-                    payrollResult,
-                    retentionsResult: {
-                        message: "retentions created successfully.",
-                        data: retentionsResult
-                    }
-                };
+                return { payrollResult, retentionsResult: { data: retentionsResult } };
             });
         } catch (error) { throw error; }
     }
 
-    async updatePayrollStatePaid(id, totalExpense) {
+    async updatePayrollStatePaid(id, totalExpense, description) {
         try {
             return await prisma.$transaction(async (e) => {
 
@@ -62,17 +57,16 @@ class PayrollsModel {
                     });
                 }
 
+                // Crea el gasto realizado en la tabla de gastos
                 const expensesResult = await e.expenses.create({
                     data: {
                         id_expense_type: expenseType.id,
+                        description: description,
                         total: totalExpense
                     }
                 });
 
-                return {
-                    message: "Payroll paid successfully.",
-                    data: expensesResult
-                };
+                return { data_expenses: expensesResult };
             });
         } catch (error) { throw error; }
     }
@@ -97,7 +91,7 @@ class PayrollsModel {
                     data: payroll
                 });
 
-                // Consultamos las retenciones que le pertenecen a esa nomina que se esta actualizando
+                // Consultamos las retenciones que le pertenecen a la nomina que se esta actualizando
                 let retentionsByPayroll = await e.payrolls_retentions.findMany({
                     where: { payroll_id: id_payroll }
                 });
@@ -106,7 +100,7 @@ class PayrollsModel {
                 retentionsByPayroll.sort((a, b) => order.indexOf(a.retention_code) - order.indexOf(b.retention_code));
                 retentions.sort((a, b) => order.indexOf(a.retention_code) - order.indexOf(b.retention_code));
 
-                // Le agregamos los id a las retentions recibida por parametro
+                // No se para que sirve, pero si lo quito el codigo deja de funcionar :(
                 for (let i = 0; i < retentions.length; i++) retentions[i].id = retentionsByPayroll[i].id;
 
                 // Le agregamos id a las retenciones recibidas por parametro
@@ -123,13 +117,7 @@ class PayrollsModel {
                     })
                 );
 
-                return {
-                    payrollResult,
-                    retentionsResult: {
-                        message: "retentions updated successfully.",
-                        data: retentionsResult
-                    }
-                }
+                return { payrollResult, retentionsResult: { data: retentionsResult } }
             });
         } catch (error) { throw error; }
     }

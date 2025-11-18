@@ -207,10 +207,11 @@ model expense_types {
 
 // Todo de gastos y ganancias
 model expenses {
-  id               Int       @id @default(autoincrement())
-  id_expense_type  Int
-  total            Decimal   @db.Decimal(10, 2)
-  created_at       DateTime  @default(now())
+  id               Int       @id @default(autoincrement()) // id del registro
+  id_expense_type  Int       // id del tipo de gasto si es nomina o compra
+  description      String    @db.VarChar(255) // descripción del gasto
+  total            Decimal   @db.Decimal(10, 2) // total de gasto realizado
+  created_at       DateTime  @default(now()) // fecha de creación
   
   expense_type     expense_types @relation(fields: [id_expense_type], references: [id], onDelete: Cascade)
 

@@ -30,7 +30,9 @@ class PayrollsController {
             return responses.QuerySuccess(res, result);
 
         } catch (error) {
-            if (error.message === 'Employee not found.') return responses.ItemNotFound(res, "Not exist employee with this id.");
+            if (error.message === 'Employee not found.') {
+                return responses.ItemNotFound(res, "Not exist employee with this id.");
+            }
             return responses.ErrorInternal(res, error.message);
         }
     }
@@ -54,7 +56,7 @@ class PayrollsController {
             };
 
             const result = await service.updatePayrollState(payroll);
-            return responses.QuerySuccess(res, { message: "payroll update succefully.", data: result });
+            return responses.QuerySuccess(res, { data: result });
 
         } catch (error) {
             if (error.message === 'Payroll not found.') {
@@ -88,7 +90,7 @@ class PayrollsController {
             };
 
             const result = await service.updatePayrolls(payroll);
-            return responses.QuerySuccess(res, { message: "payroll update succefully.", data: result });
+            return responses.QuerySuccess(res, { data: result });
 
         } catch (error) {
             if (error.message === 'Payroll not found.') {

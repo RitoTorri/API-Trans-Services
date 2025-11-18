@@ -16,12 +16,19 @@ class PayrollsService {
             const employee = await employeeModel.getEmployeeById(payroll.employee_id);
             if (!employee) throw new Error('Employee not found.');
 
+            /* 
+              Calculamos las retenciones aplicadas y las ganancias mensuales, quincenales y anuales
+              Esto me devuel un array de objetos que contienen los datos de la nomina y las retenciones 
+              de esa nomina
+            */
             const payrollFinal = this.CalculatePayrolls(payroll);
 
+            // Sacamos las retenciones de la nomina
             delete payrollFinal[0].ivss;
             delete payrollFinal[0].pie;
             delete payrollFinal[0].faov;
 
+            // EL 0 es el payroll y el 1 es las retenciones de la nomina
             return await model.addPayrolls(payrollFinal[0], payrollFinal[1]);
         } catch (error) { throw error; }
     }
@@ -30,12 +37,6 @@ class PayrollsService {
         try {
             let filter = {};
 
-            /* Recibimos esto:
-                {   
-                    dateStart: 2002-10-10,
-                    dateEnd: 2002-10-10
-                }
-            */
             if (filterSearch.status) {
                 filter = { status: filterSearch.status }
 
@@ -55,6 +56,7 @@ class PayrollsService {
 
             const result = await model.getPayrolls(filter);
 
+            // Mensaje burda de grande. Pero retorna los necesario para el frontend
             return result.map(result => {
                 let year = new Date().getFullYear() - new Date(result.employee.created_at).getFullYear();
                 let month = new Date().getMonth() - new Date(result.employee.created_at).getMonth();
@@ -103,26 +105,40 @@ class PayrollsService {
 
     async updatePayrollState(payroll) {
         try {
-            // Verificamos que exita la nomina
+            // Verificamos que exista la nomina
             const existPayroll = await model.getPayrollById(payroll.id);
             if (!existPayroll) throw new Error('Payroll not found.');
 
-            // Si el estado es "paid" o "cancelled" no se puede modificar
+            // Si el estado de la nominaes "paid" o "cancelled" no se puede modificar
             if (existPayroll.status !== "draft") throw new Error('This payroll can not modify.');
 
+            // Sacamos el id de la nomina para no actualizarla
             const id = payroll.id;
             delete payroll.id;
 
             if (payroll.status === "paid") {
-                let totalRetentions = 0; // Total de retenciones
+                let totalRetentions = 0; // Almacena lo que se retiene de la nomina
 
-                // Calculamos el total de retenciones
+                // Sumamos todas las retenciones de la nomina ivss + pie + faov
                 for (const element of existPayroll.payrolls_retentions) {
                     totalRetentions += parseFloat(element.total_retention);
                 }
 
-                const totalExpense = existPayroll.assignments - totalRetentions; // Total de gastos
-                return await model.updatePayrollStatePaid(id, totalExpense);
+                // Se le resta las retenciones a las asignaciones
+                const totalExpense = existPayroll.assignments - totalRetentions;
+
+                // Obtenemos los datos del empleado de la nomina
+                const employee = await employeeModel.getEmployeeById(existPayroll.employee_id);
+
+                // Creamos la descripcion del pago de la nomina
+                let dateStart = new Date(existPayroll.period_start);
+                let dateEnd = new Date(existPayroll.period_end);
+
+                dateStart = dateStart.toISOString().split('T')[0];
+                dateEnd = dateEnd.toISOString().split('T')[0];
+
+                const description = `Pago de la nomina de ${employee.name} ${employee.lastname} desde ${dateStart} hasta ${dateEnd}`;
+                return await model.updatePayrollStatePaid(id, totalExpense, description);
             }
 
             return await model.updatePayrollStateCancelled(id);
@@ -137,18 +153,23 @@ class PayrollsService {
 
             if (existPayroll.status !== "draft") throw new Error('This payroll can not modify.');
 
-            // Calculamos las retenciones aplicadas y las ganancias mensuales, quincenales y anuales
+            /* 
+                Calculamos las retenciones aplicadas y las ganancias mensuales, quincenales y anuales
+                Esto me devuel un array de objetos que contienen los datos de la nomina y las retenciones 
+                de esa nomina
+            */
             const payrollFinal = this.CalculatePayrolls(payroll);
 
             // sacamos el id de la nomina para no actualizarla
             const id = payrollFinal[0].id;
             delete payrollFinal[0].id;
 
-            // Eliminamos las retenciones, por que solo se actualizaran los datos de nominas
+            // Eliminamos las retenciones del objeto de la nomina
             delete payrollFinal[0].ivss;
             delete payrollFinal[0].pie;
             delete payrollFinal[0].faov;
 
+            // EL 0 es el payroll y el 1 es las retenciones de la nomina
             return await model.updatePayrolls(id, payrollFinal[0], payrollFinal[1]);
         } catch (error) { throw error; }
     }
