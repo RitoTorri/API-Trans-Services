@@ -700,7 +700,7 @@ Busqueda por estado:
 ---
 
 ### 3. Actualizar el estado de una Nomina
-** IMPORTANTE: Solo puedes actualizar el estado de una nomina si está en estado "draft".**
+**INPORTANTE**: Solo puedes actualizar el estado de una nomina si está en estado "draft".  
 **Método:** `PATCH`  
 **Endpoint:** `http://localhost:3000/api/trans/services/payrolls/:id/:status`
 **Headers:**
@@ -710,6 +710,7 @@ Authorization: Bearer {token}
 
 **Parámetros del URL:**
 - `status` (string): Estado de la nomina: draft, cancelled o paid
+- `id` (integer): ID de la nomina
 
 **Ejemplo de URL:**
 ```

@@ -36,7 +36,7 @@ const getClientsMiddleware = (req, res, next) => {
 
     if (!validators.formatNamesInvalid(filter)) {
         req.filter = {
-            name: { startsWith: filter }
+            name: { startsWith: filter, mode: 'insensitive' }
         }
         return next();
     }
