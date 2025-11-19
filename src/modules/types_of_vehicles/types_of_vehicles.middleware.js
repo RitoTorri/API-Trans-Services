@@ -63,7 +63,6 @@ export const validateTypeNameParam = (req, res, next) => {
 
     if (error) return response.ParametersInvalid(res, details);
     
-    // Si todo es válido, continuamos
-    next(); // <--- ¡Asegúrate de que esta línea esté aquí!
+    
+    next(); 
 };
-

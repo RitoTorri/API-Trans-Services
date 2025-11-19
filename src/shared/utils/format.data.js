@@ -25,7 +25,7 @@ const formatNumberInvalid = (data) => {
 }
 
 const formatTextInvalid = (data) => {
-    const expression = /^[a-zA-Z0-9áéíóúÁÉÍÓÚüÜ$%&{}\[\]\.,:;\s]+$/
+    const expression = /^[a-zA-Z0-9áéíóúÁÉÍÓÚüÜ$%&{}\[\]\.,:;\s-]+$/
     return !expression.test(data) ? true : false
 }
 

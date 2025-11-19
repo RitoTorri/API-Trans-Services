@@ -106,8 +106,34 @@ model vehicles {
   employees         employees     @relation(fields: [driver_id], references: [id], onDelete: Cascade)
   vehicle_types     vehicle_types @relation(fields: [vehicle_type_id], references: [id], onDelete: Cascade)
   services          services[]
+  repairs         repair[]
 
   @@map("vehicles")
+}
+
+model repair{
+
+  // --- CAMPOS DE IDENTIFICACIÓN Y TIEMPO ---
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  
+
+  // --- CAMPOS DE RELACIÓN ---
+  vehicleId   Int      
+  vehicle     vehicles  @relation(fields: [vehicleId], references: [id])
+
+  // --- CAMPOS ESPECÍFICOS DE LA REPARACIÓN ---
+  description String   @db.Text // Descripción detallada de lo que se debe hacer o se hizo.
+  status      String   @default("Pending") // Ej: Pending, InProgress, Completed, Canceled.
+  startDate   DateTime? 
+  endDate     DateTime? // Fecha en que se completó la reparación.
+
+  // --- CAMPOS FINANCIEROS Y DE COSTO ---
+  estimatedCost   Float? // Costo estimado de las partes y mano de obra.
+  finalCost       Float?
+
+  @@map("repairs")
+
 }
 
 model clients {
