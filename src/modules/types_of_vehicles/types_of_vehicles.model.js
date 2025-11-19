@@ -14,6 +14,16 @@ class types_of_vehicles {
         }
     }
 
+    async findTypeById(id) {
+        try {
+            return await prisma.vehicle_types.findUnique({
+                where: { id: id }
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async findTypeByName(typeName) {
         try {
             // Usamos findFirst en lugar de findUnique porque no es una búsqueda por @id
@@ -49,7 +59,7 @@ class types_of_vehicles {
     async updateType(id, data) {
         try {
             return await prisma.vehicle_types.update({
-                where: { id: parseInt(id) },
+                where: { id:id },
                 data,
             });
         } catch (error) {
@@ -60,7 +70,7 @@ class types_of_vehicles {
     async deleteType(id) {
         try {
             return await prisma.vehicle_types.delete({
-                where: { id: parseInt(id) },
+                where: { id:id },
             });
         } catch (error) {
             throw error;

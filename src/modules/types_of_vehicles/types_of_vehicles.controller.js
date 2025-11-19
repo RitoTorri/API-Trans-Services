@@ -58,8 +58,9 @@ class ControllerType {
         try {
             const { typeId } = req.params;
             const dataToUpdate = req.body;
+            const idNumber = parseInt(typeId, 10);
 
-            const result = await typeServiceInstance.updateType(typeId, dataToUpdate);
+            const result = await typeServiceInstance.updateType(idNumber, dataToUpdate);
             
             return response.QuerySuccess(res, { message: "Tipo actualizado con éxito.", data: result });
 
@@ -74,8 +75,9 @@ class ControllerType {
     async delete(req, res) {
         try {
             const { typeId } = req.params;
+            const idNumber = parseInt(typeId, 10);
             
-            await typeServiceInstance.removeType(typeId);
+            await typeServiceInstance.removeType(idNumber);
             
             // Respuesta 200 sin contenido de datos o con un mensaje simple
             return response.QuerySuccess(res, { message: "Tipo de vehículo eliminado con éxito." });

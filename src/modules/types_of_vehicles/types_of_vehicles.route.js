@@ -14,12 +14,12 @@ router.get('/list', typeController.listAll);
 router.get('/list/by_name/:typeName', validateTypeNameParam, typeController.getTypeByName);
 
 
-router.post('/create', ValidateTypeData, typeController.create);
+router.post('/createType', ValidateTypeData, typeController.create);
 
 
-router.put('/update/:typeId', validateTypeIdParam, typeController.update);
+router.put('/updateTypeId/:typeId', validateTypeIdParam, typeController.update);
 
 
-router.delete('/delete/:typeId', validateTypeIdParam, typeController.delete); 
+router.delete('/deleteTypeId/:typeId', validateTypeIdParam, typeController.delete); 
 
 export default router;
