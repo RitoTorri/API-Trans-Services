@@ -88,7 +88,17 @@ Content-Type: application/json
     "name": "string",
     "lastname": "string",
     "ci": "string",
-    "rol": "string"
+    "rol": "string",
+    "contacts": [
+        {
+            "id": "integer",
+            "contact_info": "string"
+        },
+        {
+            "id": "integer",
+            "contact_info": "string"
+        }
+    ]
 }
 ```
 
@@ -187,8 +197,6 @@ PATCH http://localhost:3000/api/trans/services/clients/1
 ```
 
 **Nota:** No es obligatorio enviar todos los campos. Solo envias las propiedades que quieras actualizar.
-
-# Documentación de la API
 
 ## Módulo de Proveedores
 **Rol requerido:** Administrador
@@ -474,73 +482,6 @@ PUT http://localhost:3000/api/trans/services/provider-invoice/restore/1
 
 ---
 
-## Módulo de Contactos de Proveedores
-**Rol requerido:** Administrador
-
-### 1. Crear contacto
-**Método:** `POST`  
-**Endpoint:** `http://localhost:3000/api/trans/services/provider-contact/:provider_id`  
-**Headers:**
-```
-Authorization: Bearer {token}
-Content-Type: application/json
-```
-
-**Parámetros URL:**
-- `provider_id` (integer): ID del proveedor
-
-**Body:**
-```json
-{
-  "contact_info": "04141234567"
-}
-```
-
-**Nota:** El campo `contact_info` acepta números de teléfono o correos electrónicos válidos.
-
-**Ejemplo con email:**
-```json
-{
-  "contact_info": "correo@ejemplo.com"
-}
-```
-
----
-
-### 2. Eliminar contacto
-**Método:** `DELETE`  
-**Endpoint:** `http://localhost:3000/api/trans/services/provider-contact/:contact_id`  
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Parámetros URL:**
-- `contact_id` (integer): ID del contacto
-
-**Ejemplo:**
-```
-DELETE http://localhost:3000/api/trans/services/provider-contact/1
-```
-
----
-
-### 3. Listar contactos por proveedor
-**Método:** `GET`  
-**Endpoint:** `http://localhost:3000/api/trans/services/provider-contact/:provider_id`  
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Parámetros URL:**
-- `provider_id` (integer): ID del proveedor
-
-**Ejemplo:**
-```
-GET http://localhost:3000/api/trans/services/provider-contact/1
-```
-
 ## Módulo de Nomina
 
 ### 1. Crear una Nomina
@@ -690,7 +631,7 @@ Busqueda por estado:
 ---
 
 ### 3. Actualizar el estado de una Nomina
-** IMPORTANTE **: Solo puedes actualizar el estado de una nomina si está en estado "draft".
+**INPORTANTE**: Solo puedes actualizar el estado de una nomina si está en estado "draft".  
 **Método:** `PATCH`  
 **Endpoint:** `http://localhost:3000/api/trans/services/payrolls/:id/:status`
 **Headers:**
@@ -700,6 +641,7 @@ Authorization: Bearer {token}
 
 **Parámetros del URL:**
 - `status` (string): Estado de la nomina: draft, cancelled o paid
+- `id` (integer): ID de la nomina
 
 **Ejemplo de URL:**
 ```
@@ -980,3 +922,206 @@ Resultado Esperado:,200 OK
 **DELETE http://localhost:3000/api/trans/services/vehicles/deleteVehicle/XYA-987**
 
 **Nota: Esta operación marca el campo is_active del vehículo como false.**
+# Modulo de Reportes
+
+## 1. Reporte de Gastos Anuales
+**Rol requerido:**  Administrador o 
+
+### 1. Obtener reporte de gastos anuales
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/expenses/annual`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros del Body:**
+- `year` (integer): Año a consultar
+
+**Ejemplo de Body:**
+```json
+{
+    "year": "2025"
+}
+
+```
+
+**Respuesta:**
+```json
+{
+    "success": true,
+    "code": "REQUEST_SUCCESSFUL",
+    "message": "The request was successful.",
+    "details": [
+        {
+            "Fecha": "2025-11",
+            "Gasto Mensual": "61.64"
+        },
+        {
+            "Fecha": "2025-12",
+            "Gasto Mensual": "61.64"
+        }
+    ]
+}
+```
+
+---
+
+### 2. Reporte de Ganancias Anuales
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/revenue/annual/:year`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros URL:**
+- `year` (integer): Año a consultar
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/revenue/annual/2025
+```
+
+**Respuesta:**
+```json
+{
+    "success": true,
+    "code": "REQUEST_SUCCESSFUL",
+    "message": "The request was successful.",
+    "details": [
+        {
+            "Fecha": "2025-11",
+            "Ganancia Mensual": "61.64"
+        },
+        {
+            "Fecha": "2025-12",
+            "Ganancia Mensual": "61.64"
+        }
+    ]
+}
+```
+
+---
+
+### 3. Reporte de Clientes con mayor número de servicios
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/clients/service/ranking`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/clients/service/ranking
+```
+
+**Respuesta:**
+```json
+{
+    "success": true,
+    "code": "REQUEST_SUCCESSFUL",
+    "message": "The request was successful.",
+    "details": [
+        {
+            "Clientes": "Jesus",
+            "Rif": "V-1234567-8",
+            "Servicios Solicitados": 3
+        },
+        {
+            "Clientes": "Jesus",
+            "Rif": "V-1234567-8",
+            "Servicios Solicitados": 2
+        },
+        {
+            "Clientes": "Jesus",
+            "Rif": "V-1234567-8",
+            "Servicios Solicitados": 1
+        }
+    ]
+}
+```
+
+---
+
+## Módulo de Servicios
+**Rol requerido:** Administrador o SuperUsuario
+
+### 1. Crear servicio
+**Método:** `POST`  
+**Endpoint:** `http://localhost:3000/api/trans/services/offered/services`  
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Parámetros URL:**
+- `vehicle_id` (integer): ID del vehículo
+- `client_id` (integer): ID del cliente
+- `price` (number): Precio del servicio
+- `start_date` (date): Fecha de inicio del servicio
+- `end_date` (date): Fecha de fin del servicio
+- `isrl` (number): Impuesto sobre la renta
+
+**Ejemplo de Body:**
+```json
+{
+    "vehicle_id": 1,
+    "client_id": 1,
+    "price": 1200,
+    "start_date": "2025-11-03",
+    "end_date": "2025-11-30",
+    "isrl": 10
+}
+```
+
+---
+
+### 2. Listar todos los servicios
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/offered/services/search`
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros de Body:**
+Puedes busar por fechas, estado de pago del servicio o por nombre del cliente.
+
+Busqueda por fechas:
+```json
+    "filterSearch": {
+        "dateStart": "2002-10-10",
+        "dateEnd": "2002-10-10"
+    }
+```
+
+Busqueda por estado:
+```json
+    "filterSearch": "paid"
+```
+
+Busqueda por nombre del cliente:
+```json
+    "filterSearch": "Jesus"
+```
+
+### 3. Actualizar el estado de pago de un servicio
+** IMPORTANTE: Solo puedes actualizar el estado de pago de un servicio si está en estado "pending".**
+**Método:** `PATCH`  
+**Endpoint:** `http://localhost:3000/api/trans/services/offered/services/payment/:status/:id`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros URL:**
+- `status` (string): Estado de pago: pending, paid, canceled
+- `id` (integer): ID del servicio
+
+**Ejemplo de URL:**
+```
+PATCH http://localhost:3000/api/trans/services/offered/services/payment/paid/1
+```

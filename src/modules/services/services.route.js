@@ -9,22 +9,22 @@ const controller = new ServicesController();
 
 router.post('/offered/services',
     validationToken,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.addServiceMiddleware,
     controller.addService
 );
 
 router.get('/offered/services/search',
     validationToken,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.getServicesMiddleware,
     controller.getServices
 );
 
 // Actualiza el estado de pago de un servicio
-router.patch('/offered/services/payment/:id',
+router.patch('/offered/services/payment/:status/:id',
     validationToken,
-    authorization(['Administrador']),
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.updatePaymentStatusMiddleware,
     controller.updatePaymentStatus
 );

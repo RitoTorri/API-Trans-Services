@@ -1,0 +1,41 @@
+import responses from "../../shared/utils/responses.js";
+import ReportsService from "./report.service.js";
+const service = new ReportsService();
+
+class ReportsController {
+    constructor() { }
+
+    async getAnnualExpensesReport(req, res) {
+        try {
+            const { year } = req.params;
+            const result = await service.getAnnualExpensesReport(parseInt(year));
+            return responses.QuerySuccess(res, result);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+
+    async getAnnualRevenueReport(req, res) {
+        try {
+            const { year } = req.params;
+            const result = await service.getAnnualRevenueReport(parseInt(year));
+            return responses.QuerySuccess(res, result);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+
+    async getClientServiceRanking(req, res) {
+        try {
+            const result = await service.getClientServiceRanking();
+            return responses.QuerySuccess(res, result);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+}
+
+export default ReportsController;
