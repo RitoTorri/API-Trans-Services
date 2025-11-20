@@ -13,6 +13,8 @@ import clientsRoute from "./modules/clients/clients.route.js";
 import usersRoute from "./modules/users/users.route.js";
 import servicesRoute from "./modules/services/services.route.js";
 import reportsRoute from "./modules/reports/report.route.js";
+import providerRoute from "./modules/provider/provider.route.js";
+import providerInvoicesRoute from "./modules/provider_invoices/provider.invoices.route.js";
 
 
 // initializations
@@ -55,5 +57,7 @@ app.use(urlApiBase, clientsRoute);
 app.use(urlApiBase, usersRoute);
 app.use(urlApiBase, servicesRoute);
 app.use(urlApiBase, reportsRoute);
+app.use(urlApiBase, providerRoute);
+app.use(urlApiBase, providerInvoicesRoute);
 
 export default app;

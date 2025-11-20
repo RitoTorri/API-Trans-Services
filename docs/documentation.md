@@ -198,8 +198,6 @@ PATCH http://localhost:3000/api/trans/services/clients/1
 
 **Nota:** No es obligatorio enviar todos los campos. Solo envias las propiedades que quieras actualizar.
 
-# Documentación de la API
-
 ## Módulo de Proveedores
 **Rol requerido:** Administrador
 
@@ -483,73 +481,6 @@ PUT http://localhost:3000/api/trans/services/provider-invoice/restore/1
 ```
 
 ---
-
-## Módulo de Contactos de Proveedores
-**Rol requerido:** Administrador
-
-### 1. Crear contacto
-**Método:** `POST`  
-**Endpoint:** `http://localhost:3000/api/trans/services/provider-contact/:provider_id`  
-**Headers:**
-```
-Authorization: Bearer {token}
-Content-Type: application/json
-```
-
-**Parámetros URL:**
-- `provider_id` (integer): ID del proveedor
-
-**Body:**
-```json
-{
-  "contact_info": "04141234567"
-}
-```
-
-**Nota:** El campo `contact_info` acepta números de teléfono o correos electrónicos válidos.
-
-**Ejemplo con email:**
-```json
-{
-  "contact_info": "correo@ejemplo.com"
-}
-```
-
----
-
-### 2. Eliminar contacto
-**Método:** `DELETE`  
-**Endpoint:** `http://localhost:3000/api/trans/services/provider-contact/:contact_id`  
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Parámetros URL:**
-- `contact_id` (integer): ID del contacto
-
-**Ejemplo:**
-```
-DELETE http://localhost:3000/api/trans/services/provider-contact/1
-```
-
----
-
-### 3. Listar contactos por proveedor
-**Método:** `GET`  
-**Endpoint:** `http://localhost:3000/api/trans/services/provider-contact/:provider_id`  
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-**Parámetros URL:**
-- `provider_id` (integer): ID del proveedor
-
-**Ejemplo:**
-```
-GET http://localhost:3000/api/trans/services/provider-contact/1
-```
 
 ## Módulo de Nomina
 
