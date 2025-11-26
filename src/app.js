@@ -17,11 +17,12 @@ import reportsRoute from "./modules/reports/report.route.js";
 import providerRoute from "./modules/provider/provider.route.js";
 import providerInvoicesRoute from "./modules/provider_invoices/provider.invoices.route.js";
 
+// nuevos módulos
+import expenseTypesRoute from "./modules/expense_types/expense.types.route.js";
+import retentionsRoute from "./modules/retentions/retentions.route.js";
 
-// initializations
 const app = express();
 
-// middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("combined"));
@@ -32,7 +33,7 @@ app.use(cors({
     credentials: true
 }));
 
-// limit requests
+
 const globalLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,
     max: 60,
@@ -48,7 +49,6 @@ const globalLimiter = rateLimit({
 // routers
 const urlApiBase = '/api/trans/services';
 
-// ejemplo de ruta -> app.use(urlApiBase, router);
 app.use(globalLimiter);
 app.use(urlApiBase, authRoute);
 app.use(urlApiBase, employeeRoute);
@@ -61,5 +61,9 @@ app.use(urlApiBase, vehicleRoute);
 app.use(urlApiBase, reportsRoute);
 app.use(urlApiBase, providerRoute);
 app.use(urlApiBase, providerInvoicesRoute);
+
+// nuevos módulos
+app.use(urlApiBase, expenseTypesRoute);
+app.use(urlApiBase, retentionsRoute);
 
 export default app;
