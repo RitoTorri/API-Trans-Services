@@ -858,7 +858,50 @@ Resultado Esperado:,200 OK
     "vehicle_type_id": "integer (ID del tipo de vehículo)"
 }
 ---
+**1.5. Listar Todos los Vehículos Activos**
 
+**Método: GET**
+
+**Endpoint: http://localhost:3000/api/trans/services/findAll**
+
+**Headers:**
+
+**Authorization: Bearer {token}**
+
+**Response (200 OK):**
+
+{
+  "success": true,
+  "code": "REQUEST_SUCCESSFUL",
+  "message": "The request was successful.",
+  "details": [
+    {
+      "id": 4,
+      "driver_id": 2,
+      "model": "Ford F-150",
+      "license_plate": "ABC-123",
+      "total_seats": 4,
+      "vehicle_type_id": 1,
+      "is_active": true,
+      "created_at": "2025-11-20T10:00:00.000Z"
+    }
+  ]
+}
+
+---
+**Response (404 Not Found - Sin registros):**
+
+**Endpoint: http://localhost:3000/api/trans/services/findAll**
+
+**Response:**
+
+{
+  "success": false,
+  "code": "ITEM_NOT_FOUND",
+  "message": "The item was not found.",
+  "details": "No hay vehículos registrados."
+}
+---
 **2. Obtener Vehículo por Placa**
 
 **Método: GET**

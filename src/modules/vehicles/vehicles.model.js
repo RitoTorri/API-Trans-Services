@@ -14,6 +14,16 @@ class vehicles {
         }
     }
 
+    async findAllVehicles() {
+        try {
+            return await prisma.vehicles.findMany({
+                orderBy: { id: 'asc' } 
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async findVehicleByPlate(licensePlate) {
         try {
             return await prisma.vehicles.findUnique({

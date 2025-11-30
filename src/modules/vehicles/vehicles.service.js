@@ -23,20 +23,36 @@ class vehiclesServices{
         }
     }
 
+    async getVehicleList() {
+        try {
+            
+            const result = await this.vehiclesModel.findAllVehicles();
+            
+            
+            if (!result || result.length === 0) {
+                 return []; 
+            }
+            return result;
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async getVehicleDetailsByPlate(licensePlate) {
         try {
             const vehicle = await this.vehiclesModel.findVehicleByPlate(licensePlate);
 
-            // 1. Lógica de Negocio: Verificar la existencia
+            
             if (!vehicle) {
-                // Lanzar un error específico que el Controlador traducirá a 404
+                
                 throw new Error("VEHICLE_NOT_FOUND");
             }
 
-            // 2. Éxito
+            
             return vehicle;
         } catch (error) {
-            // Relanzamos el error
+            
             throw error;
         }
     }

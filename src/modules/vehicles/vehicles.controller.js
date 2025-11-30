@@ -1,6 +1,7 @@
 import vehiclesService from './vehicles.service.js'; 
 import responses from '../../shared/utils/responses.js';
 
+
 class vehiclesController {
     constructor() {
         this.vehiclesService = vehiclesService;
@@ -8,6 +9,8 @@ class vehiclesController {
         this.getVehicleByPlate = this.getVehicleByPlate.bind(this);
         this.updateVehicle = this.updateVehicle.bind(this); 
         this.deleteVehicle = this.deleteVehicle.bind(this);
+        this.listAll = this.listAll.bind(this);
+       
     }
 
     
@@ -37,6 +40,21 @@ class vehiclesController {
             return responses.ErrorInternal(res, {
                 error: error.message || 'Error desconocido al registrar el vehículo.'
             });
+        }
+    }
+
+    async listAll(req, res) {
+        try {
+            const result = await this.vehiclesService.getVehicleList();
+            
+            if (result.length === 0) {
+                return responses.ItemNotFound(res, "No hay vehículos registrados.");
+            }
+            
+            return responses.QuerySuccess(res, result);
+        } catch (error) {
+            console.error("Error al listar todos los vehículos:", error);
+            return responses.ErrorInternal(res, "Error interno del servidor al obtener la lista de vehículos.");
         }
     }
 

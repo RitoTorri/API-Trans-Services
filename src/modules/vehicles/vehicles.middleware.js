@@ -5,7 +5,7 @@ export const validateCreateVehicleData = (req, res, next) => {
 
     const { driver_id, model, license_plate, total_seats, vehicle_type_id, color } = req.body;
     
-    // --- 1. Verificar Campos Obligatorios ---
+    
     if (!driver_id || !model || !license_plate || !total_seats || !vehicle_type_id) {
         return responses.BadRequest(res, { 
             message: 'Faltan campos obligatorios.',
@@ -13,9 +13,7 @@ export const validateCreateVehicleData = (req, res, next) => {
         });
     }
 
-    // --- 2. Validaciones de Formato usando tus funciones ---
     
-    // Validar driver_id (debe ser un número entero)
     if (validator.formatNumberInvalid(driver_id.toString())) { 
         return responses.ParametersInvalid(res, {
             field: 'driver_id',
@@ -23,7 +21,7 @@ export const validateCreateVehicleData = (req, res, next) => {
         });
     }
     
-    // Validar total_seats (debe ser un número entero)
+    
     if (validator.formatNumberInvalid(total_seats.toString())) {
         return responses.ParametersInvalid(res, {
             field: 'total_seats',
@@ -31,7 +29,7 @@ export const validateCreateVehicleData = (req, res, next) => {
         });
     }
 
-    // Validar vehicle_type_id (debe ser un número entero)
+    
     if (validator.formatNumberInvalid(vehicle_type_id.toString())) { 
         return responses.ParametersInvalid(res, {
             field: 'vehicle_type_id',
@@ -39,7 +37,7 @@ export const validateCreateVehicleData = (req, res, next) => {
         });
     }
     
-    // Validar el modelo (asumiendo que es texto alfanumérico)
+    
     if (validator.formatTextInvalid(model)) {
         return responses.ParametersInvalid(res, {
             field: 'model',
@@ -52,10 +50,11 @@ export const validateCreateVehicleData = (req, res, next) => {
 
 
 export const validateLicensePlateParam = (req, res, next) => {
-    // Capturamos el parámetro de la URL
+    
     const { license_plate } = req.params;
 
-    // 1. Verificar que el parámetro exista y no esté vacío
+    
+
     if (!license_plate || license_plate.trim().length === 0) {
         return responses.BadRequest(res, {
             error: 'MISSING_LICENSE_PLATE_PARAM',
@@ -63,8 +62,6 @@ export const validateLicensePlateParam = (req, res, next) => {
         });
     }
     
-    // 2. ✅ Reutilización: Validar el formato de la placa (asumiendo que es texto alfanumérico)
-    // Usamos tu función formatTextInvalid para verificar caracteres no deseados
     if (validator.formatTextInvalid(license_plate)) {
         return responses.ParametersInvalid(res, {
             field: 'license_plate',

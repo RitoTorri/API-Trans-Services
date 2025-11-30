@@ -4,6 +4,10 @@ import { validateCreateVehicleData, validateLicensePlateParam, validateUpdateVeh
 
 const router = Router();
 
+router.get(
+    '/findAll',
+      controller.listAll
+);
 
 router.post(
     '/registerVehicle', 
