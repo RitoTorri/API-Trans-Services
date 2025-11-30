@@ -5,9 +5,9 @@ async function main() {
   // Tipos de gasto básicos
   await prisma.expense_types.createMany({
     data: [
-      { name: "Compras", description: "Gastos por compras de proveedores" },
-      { name: "Nómina", description: "Pago de empleados" },
-      { name: "Servicios", description: "Servicios contratados" }
+      { name: "compras", description: "Gastos por compras de proveedores" },
+      { name: "nomina", description: "Pago de empleados" },
+      { name: "servicios", description: "Servicios contratados" }
     ],
     skipDuplicates: true
   });
