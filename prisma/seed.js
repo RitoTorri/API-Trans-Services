@@ -15,9 +15,10 @@ async function main() {
   // Retenciones básicas
   await prisma.retentions.createMany({
     data: [
-      { code: "ISLR", name: "Impuesto sobre la renta", description: "Retención ISLR" },
-      { code: "IVSS", name: "Seguro Social", description: "Retención IVSS" },
-      { code: "FAOV", name: "Fondo de Ahorro", description: "Retención FAOV" }
+      { code: "isrl", name: "Impuesto sobre la renta", description: "Retención ISLR" },
+      { code: "ivss", name: "Seguro Social", description: "Retención IVSS" },
+      { code: "faov", name: "Fondo de Ahorro", description: "Retención FAOV" },
+      { code: "pie", name: "Paro forzoso", description: "Retención PIE" }
     ],
     skipDuplicates: true
   });
