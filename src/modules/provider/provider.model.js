@@ -8,17 +8,12 @@ class ProviderModel {
       data: {
         name: data.name,
         rif: data.rif,
-        balance: data.balance,
         provider_contacts: {
           create: data.contacts || []
         }
       },
       include: { provider_contacts: true }
     });
-  }
-
-  async create(data) {
-    return await prisma.providers.create({ data });
   }
 
   async findAll() {
@@ -31,7 +26,7 @@ class ProviderModel {
 
   async findById(id) {
     return await prisma.providers.findFirst({
-      where: { id, is_active: true },
+      where: { id },
       include: { provider_contacts: true }
     });
   }
@@ -51,9 +46,32 @@ class ProviderModel {
     });
   }
 
+  async findInactiveByName(name) {
+    return await prisma.providers.findMany({
+      where: {
+        is_active: false,
+        name: { contains: name, mode: 'insensitive' }
+      },
+      orderBy: { created_at: 'desc' },
+      include: { provider_contacts: true }
+    });
+  }
 
   async update(id, data) {
-    return await prisma.providers.update({ where: { id }, data });
+    return await prisma.providers.update({
+      where: { id },
+      data: {
+        name: data.name,
+        rif: data.rif,
+        provider_contacts: data.contacts
+          ? {
+              deleteMany: {}, // elimina todos los contactos previos
+              create: data.contacts
+            }
+          : undefined
+      },
+      include: { provider_contacts: true }
+    });
   }
 
   async softDelete(id) {
@@ -66,7 +84,8 @@ class ProviderModel {
   async restore(id) {
     return await prisma.providers.update({
       where: { id },
-      data: { is_active: true }
+      data: { is_active: true },
+      include: { provider_contacts: true }
     });
   }
 
@@ -83,44 +102,6 @@ class ProviderModel {
       where: { rif, is_active: true }
     });
   }
-
-  // 📌 Crear contacto
-  async addContact(providerId, contact_info) {
-    // Validar duplicado
-    const existing = await prisma.provider_contacts.findFirst({
-      where: { contact_info }
-    });
-    if (existing) throw new Error('Contact info already exists.');
-
-    return await prisma.provider_contacts.create({
-      data: { provider_id: providerId, contact_info }
-    });
-  }
-
-
-  // 📌 Actualizar contacto
-  async updateContact(contactId, contact_info) {
-    return await prisma.provider_contacts.update({
-      where: { id: contactId },
-      data: { contact_info }
-    });
-  }
-
-  // 📌 Eliminar contacto
-  async deleteContact(contactId) {
-    return await prisma.provider_contacts.delete({
-      where: { id: contactId }
-    });
-  }
-
-  // 📌 Listar contactos de un proveedor
-  async listContacts(providerId) {
-    return await prisma.provider_contacts.findMany({
-      where: { provider_id: providerId },
-      orderBy: { created_at: 'desc' }
-    });
-  }
-
 }
 
 export default ProviderModel;

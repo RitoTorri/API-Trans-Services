@@ -1,416 +1,208 @@
-==============================
-DOCUMENTACIÓN DE CAMBIOS EN FACTURACIÓN Y ESQUEMA PRISMA
-==============================
+COMPARACIÓN DE ESQUEMA PRISMA - VIEJO VS ACTUAL
+===============================================
 
-1. CAMBIOS EN EL ESQUEMA PRISMA
-------------------------------
-- Se añadió la relación entre `expenses` y `provider_invoices`:
-  • Campo: provider_invoice_id Int?
-  • Relación: provider_invoice provider_invoices? @relation(fields: [provider_invoice_id], references: [id], onDelete: Cascade)
+1. TABLA PROVIDERS
+------------------
+ANTES:
+- Campos: id, name, rif, balance, is_active, created_at
+- Relaciones: provider_contacts[], provider_invoices[]
 
-  ➡️ Razón: Antes los gastos eran registros aislados. Ahora cada gasto puede estar asociado directamente a una factura de proveedor, lo que mejora la trazabilidad y permite auditar qué gasto corresponde a qué factura.
+AHORA:
+- Campos: id, name, rif, is_active, created_at
+- Relaciones: provider_contacts[], provider_invoices[]
+- ❌ balance eliminado
 
-- Se añadió la relación inversa en `provider_invoices`:
-  • Campo: expenses expenses[]
+-----------------------------------------------
 
-  ➡️ Razón: Permite que las facturas conozcan sus gastos asociados. Sin esta relación, solo el gasto sabría la factura, pero la factura no podría listar sus gastos. Esto habilita consultas completas (factura + gastos).
+2. TABLA PROVIDER_INVOICES
+--------------------------
+ANTES:
+- Campos: id, provider_id, control_number, invoice_number, invoice_date, total_amount, created_at
+- Relaciones: provider (FK), purchase_invoices[], expenses[]
 
-- Se añadió la tabla `purchase_invoices_retentions` para vincular retenciones con compras:
-  • Campos: purchase_invoice_id, retention_code, base_amount, rate_retention, total_retention
-  • Relaciones: con `purchase_invoices` y `retentions`
+AHORA:
+- Campos: id, provider_id, control_number, invoice_number, invoice_date, subtotal, total_amount, status (enum), created_at
+- Relaciones: provider (FK), expenses[], invoice_taxes[]
+- ❌ purchase_invoices eliminado
+- ➕ campo subtotal
+- ➕ campo status (enum InvoiceStatus: pendiente, cancelado, pagado)
+- ➕ relación con invoice_taxes
 
-  ➡️ Razón: Antes las retenciones existían pero no había forma de vincularlas a una compra específica. Con esta tabla relacional se pueden aplicar múltiples retenciones a una misma compra (ejemplo: ISLR 6% + IVSS 2%). Cada retención queda registrada con código, nombre, base imponible, porcentaje y total retenido.
+-----------------------------------------------
 
-- Se añadió la relación `expense_type` en `expenses`:
-  • Campo: id_expense_type Int
-  • Relación: expense_type expense_types @relation(fields: [id_expense_type], references: [id])
+3. TABLA INVOICE_TAXES
+----------------------
+ANTES:
+- ❌ No existía
 
-  ➡️ Razón: Los gastos no tenían clasificación clara. Ahora cada gasto se vincula a un tipo definido en el catálogo `expense_types` (ejemplo: servicios, suministros, nómina). Esto permite reportes por categoría y análisis más estructurado.
+AHORA:
+- Campos: id, provider_invoice_id, code, name, percentage, amount, created_at
+- Relación: provider_invoices (FK)
+- ➕ Nueva tabla para desglose de impuestos por factura
 
-2. MÓDULOS AÑADIDOS: ExpenseTypes y Retentions
----------------------------------------------
-- `expense_types`: Define los tipos de gastos.
-  • Campos: id, name, description
-  • Endpoints: CRUD completo (/api/expense-types)
+-----------------------------------------------
 
-- `retentions`: Define los tipos de retención fiscales.
-  • Campos: code, name, description
-  • Endpoints: CRUD completo (/api/retentions)
+4. TABLA EXPENSES
+-----------------
+ANTES:
+- Campos: id, id_expense_type, provider_invoice_id, description, total, created_at
+- Relaciones: expense_types (FK), provider_invoices (FK)
 
-- `purchase_invoices_retentions`: Tabla relacional entre compras y retenciones.
-  • Permite definir múltiples retenciones por compra con sus tasas y montos base.
+AHORA:
+- Campos: id, provider_invoice_id, description, subtotal, taxes, total, created_at
+- Relación: provider_invoices (FK)
+- ❌ id_expense_type eliminado
+- ➕ campos subtotal y taxes
+- ➕ desglose completo de gasto
 
-3. IMPACTO EN LA LÓGICA DE FACTURACIÓN
---------------------------------------
-- Al registrar una factura de proveedor:
-  1. Se crea la factura (`provider_invoices`)
-  2. Se crea el detalle de compra (`purchase_invoices`)
-  3. Se insertan las retenciones (`purchase_invoices_retentions`)
-  4. Se calcula el total neto (monto total - retenciones)
-  5. Se crea un gasto automático (`expenses`) con:
-     • tipo de gasto (`id_expense_type`)
-     • descripción generada automáticamente (ejemplo: "Compra al proveedor X el YYYY-MM-DD")
-     • total neto
-     • vínculo directo con la factura (`provider_invoice_id`)
-  6. Se actualiza el balance del proveedor
+-----------------------------------------------
 
-➡️ Razón: Esto automatiza el flujo fiscal completo y asegura que cada compra se refleje en la tabla de gastos con retenciones aplicadas previamente.
+5. TABLA PURCHASE_INVOICES
+--------------------------
+ANTES:
+- Existía con relación a provider_invoices y expense_types
+- Campos: id, provider_invoice_id, expense_type_id, purchase_date, description, exempt_amount, total_amount, created_at
+- Relación: purchase_invoices_retentions[]
 
-4. ENDPOINTS DISPONIBLES
+AHORA:
+- ❌ Eliminada
+
+-----------------------------------------------
+
+6. TABLAS DE RETENCIONES
 ------------------------
-==============================
-ORDEN DE PRUEBAS DE ENDPOINTS (PRIMERA VEZ)
-==============================
+ANTES:
+- Existían retentions, purchase_invoices_retentions, services_retentions, payrolls_retentions
+- Usadas para vincular retenciones con compras, servicios y nóminas
 
-1. CREAR CATÁLOGO DE TIPOS DE GASTO
------------------------------------
-Primero definimos los tipos de gasto que se usarán en las compras.
+AHORA:
+- ❌ Eliminadas
+- ➕ Retenciones ahora se manejan directamente en invoice_taxes
 
-POST http://localhost:3000/api/trans/services/expense-types
-Headers:
-  Content-Type: application/json
-  Authorization: Bearer <TOKEN>
+-----------------------------------------------
 
+7. TABLA EXPENSE_TYPES
+----------------------
+ANTES:
+- Existía para clasificar gastos
+- Campos: id, name, description, created_at
+- Relación: purchase_invoices[], expenses[]
+
+AHORA:
+- ❌ Eliminada
+
+-----------------------------------------------
+
+8. ENUM INVOICESTATUS
+---------------------
+ANTES:
+- ❌ No existía
+
+AHORA:
+- ➕ Enum InvoiceStatus con valores: pendiente, cancelado, pagado
+
+-----------------------------------------------
+
+RESUMEN FINAL
+-------------
+- ❌ Eliminados: balance en providers, purchase_invoices, purchase_invoices_retentions, services_retentions, payrolls_retentions, expense_types
+- ➕ Añadidos: invoice_taxes, subtotal y status en provider_invoices, desglose (subtotal, taxes, total) en expenses, enum InvoiceStatus
+- 🔄 Simplificación: las retenciones y tipos de gasto ahora se manejan directamente en invoice_taxes y expenses
+- ✅ Consistencia: todas las relaciones mantienen onDelete: Cascade y soft delete con is_active
+
+===============================================
+FIN DEL DOCUMENTO COMPARATIVO
+===============================================
+
+DOCUMENTACIÓN DE ENDPOINTS - PROVIDER & PROVIDER_INVOICES
+=========================================================
+
+PROVEEDORES (provider)
+----------------------
+POST    http://localhost:3000/api/trans/services/provider
 Body:
 {
-  "name": "Suministros",
-  "description": "Material de oficina"
-}
-
-👉 Esto crea un tipo de gasto con ID que luego se usará en las facturas.
-
----
-
-2. CREAR CATÁLOGO DE RETENCIONES
---------------------------------
-Luego definimos las retenciones fiscales que se aplicarán a las compras.
-
-POST http://localhost:3000/api/trans/services/retentions
-Headers:
-  Content-Type: application/json
-  Authorization: Bearer <TOKEN>
-
-Body:
-{
-  "code": "ISLR",
-  "name": "Impuesto sobre la renta",
-  "description": "Retención fiscal ISLR"
-}
-
-👉 Esto crea la retención con código único (ejemplo: ISLR).
-
----
-
-3. CREAR UNA FACTURA DE PROVEEDOR CON COMPRA, RETENCIONES Y GASTO AUTOMÁTICO
-----------------------------------------------------------------------------
-Ahora registramos la primera factura, vinculando compra, retenciones y gasto automático.
-
-POST http://localhost:3000/api/trans/services/provider-invoice/1
-Headers:
-  Content-Type: application/json
-  Authorization: Bearer <TOKEN>
-
-Body:
-{
-  "control_number": "CN-001",
-  "invoice_number": "INV-001",
-  "invoice_date": "2025-11-25",
-  "total_amount": 1000,
-  "purchase": {
-    "expense_type_id": 1,
-    "purchase_date": "2025-11-25",
-    "description": "Compra de suministros",
-    "exempt_amount": 0
-  },
-  "retentions": [
-    {
-      "retention_code": "ISLR",
-      "rate_retention": 6,
-      "base_amount": 1000
-    }
+  "name": "Proveedor Ejemplo",
+  "rif": "J-12345678-9",
+  "is_active": true,
+  "contacts": [
+    { "contact_info": "proveedor@example.com" },
+    { "contact_info": "+58-412-1234567" }
   ]
 }
 
-👉 Esto genera automáticamente:
-   • La factura
-   • La compra vinculada
-   • Las retenciones aplicadas
-   • El gasto automático con descripción y total neto
+GET     http://localhost:3000/api/trans/services/provider
+👉 Lista todos los proveedores activos.
 
----
+GET     http://localhost:3000/api/trans/services/provider/:id
+👉 Obtiene un proveedor específico por ID.
 
-4. LISTAR TODAS LAS FACTURAS ACTIVAS
-------------------------------------
-GET http://localhost:3000/api/trans/services/provider-invoices
-Headers:
-  Authorization: Bearer <TOKEN>
+GET     http://localhost:3000/api/trans/services/provider/search/:name
+👉 Busca proveedores activos por nombre.
 
-👉 Verificamos que la factura creada aparece en la lista.
+GET     http://localhost:3000/api/trans/services/provider/inactive/search/:name
+👉 Busca proveedores inactivos por nombre.
 
----
-
-5. LISTAR FACTURAS DE UN PROVEEDOR
-----------------------------------
-GET http://localhost:3000/api/trans/services/provider-invoices/provider/1
-Headers:
-  Authorization: Bearer <TOKEN>
-
-👉 Filtramos facturas por proveedor específico.
-
----
-
-6. FILTRAR FACTURAS POR RANGO DE FECHAS
----------------------------------------
-GET http://localhost:3000/api/trans/services/provider-invoices-range?start=2025-01-01&end=2025-12-31
-Headers:
-  Authorization: Bearer <TOKEN>
-
-👉 Obtenemos facturas emitidas dentro del rango de fechas.
-
----
-
-7. BUSCAR FACTURA POR NÚMERO FISCAL O CONTROL
----------------------------------------------
-GET http://localhost:3000/api/trans/services/provider-invoices/search/CN-001
-Headers:
-  Authorization: Bearer <TOKEN>
-
-👉 Localizamos la factura por su número de control.
-
----
-
-8. CONSULTAR RETENCIONES DE UNA COMPRA
---------------------------------------
-GET http://localhost:3000/api/trans/services/purchase-invoice/1/retentions
-Headers:
-  Authorization: Bearer <TOKEN>
-
-👉 Verificamos las retenciones aplicadas a la compra vinculada.
-
----
-
-9. CONSULTAR FACTURA COMPLETA (COMPRAS + RETENCIONES + GASTO)
--------------------------------------------------------------
-GET http://localhost:3000/api/trans/services/provider-invoices/1/full
-Headers:
-  Authorization: Bearer <TOKEN>
-
-👉 Obtenemos la factura con todos sus detalles integrados.
-
----
-
-10. ELIMINAR LÓGICAMENTE UNA FACTURA (SOFT DELETE)
---------------------------------------------------
-DELETE http://localhost:3000/api/trans/services/provider-invoice/1
-Headers:
-  Authorization: Bearer <TOKEN>
-
-👉 Marcamos la factura como eliminada.
-
----
-
-11. LISTAR FACTURAS ELIMINADAS
-------------------------------
-GET http://localhost:3000/api/trans/services/provider-invoices-deleted
-Headers:
-  Authorization: Bearer <TOKEN>
-
-👉 Verificamos que la factura eliminada aparece en la lista de eliminadas.
-
----
-
-12. RESTAURAR FACTURA ELIMINADA
--------------------------------
-PUT http://localhost:3000/api/trans/services/provider-invoice/restore/1
-Headers:
-  Content-Type: application/json
-  Authorization: Bearer <TOKEN>
-
+PATCH   http://localhost:3000/api/trans/services/provider/:id
 Body:
 {
-  "control_number": "CN-RESTORE-001"
+  "name": "Proveedor Actualizado",
+  "rif": "J-98765432-1",
+  "contacts": [
+    { "contact_info": "nuevo@example.com" }
+  ]
 }
 
-👉 Restauramos la factura eliminada con un nuevo número de control.
+DELETE  http://localhost:3000/api/trans/services/provider/:id
+👉 Elimina proveedor (soft delete).
 
----
+GET     http://localhost:3000/api/trans/services/provider/deleted
+👉 Lista proveedores eliminados.
 
-==============================
-FIN DE LA CREACIÓN
-==============================
+PUT     http://localhost:3000/api/trans/services/provider/restore/:id
+👉 Restaura proveedor eliminado (solo por ID, sin body).
 
+---------------------------------------------------------
 
-==============================
-ENDPOINTS DISPONIBLES - FACTURACIÓN
-==============================
-
-FACTURAS DE PROVEEDOR
----------------------
+FACTURAS DE PROVEEDOR (provider_invoices)
+-----------------------------------------
 POST    http://localhost:3000/api/trans/services/provider-invoice/:provider_id
-Headers:
-  Content-Type: application/json
-  Authorization: Bearer <TOKEN>
 Body:
 {
   "control_number": "CN-001",
   "invoice_number": "INV-001",
   "invoice_date": "2025-11-25",
-  "total_amount": 1000,
-  "purchase": {
-    "expense_type_id": 1,
-    "purchase_date": "2025-11-25",
-    "description": "Compra de suministros",
-    "exempt_amount": 0
-  },
-  "retentions": [
-    {
-      "retention_code": "ISLR",
-      "rate_retention": 6,
-      "base_amount": 1000
-    }
+  "subtotal": 1000,
+  "taxes": [
+    { "code": "IVA", "name": "Impuesto al Valor Agregado", "percentage": 16 },
+    { "code": "ISLR", "name": "Impuesto Sobre la Renta", "percentage": 5 }
   ]
 }
 
 GET     http://localhost:3000/api/trans/services/provider-invoices
-Headers:
-  Authorization: Bearer <TOKEN>
+👉 Lista todas las facturas activas.
 
 GET     http://localhost:3000/api/trans/services/provider-invoices/provider/:provider_id
-Headers:
-  Authorization: Bearer <TOKEN>
+👉 Lista facturas de un proveedor específico.
 
 GET     http://localhost:3000/api/trans/services/provider-invoices-range?start=YYYY-MM-DD&end=YYYY-MM-DD
-Headers:
-  Authorization: Bearer <TOKEN>
+👉 Filtra facturas por rango de fechas.
 
 GET     http://localhost:3000/api/trans/services/provider-invoices/search/:value
-Headers:
-  Authorization: Bearer <TOKEN>
+👉 Busca factura por número fiscal o control.
 
 GET     http://localhost:3000/api/trans/services/provider-invoices-deleted
-Headers:
-  Authorization: Bearer <TOKEN>
+👉 Lista facturas eliminadas (soft delete).
 
 PUT     http://localhost:3000/api/trans/services/provider-invoice/restore/:id
-Headers:
-  Content-Type: application/json
-  Authorization: Bearer <TOKEN>
-Body:
-{
-  "control_number": "CN-RESTORE-001"
-}
+👉 Restaura factura eliminada (solo por ID, sin body).
 
 DELETE  http://localhost:3000/api/trans/services/provider-invoice/:id
-Headers:
-  Authorization: Bearer <TOKEN>
-
-GET     http://localhost:3000/api/trans/services/purchase-invoice/:purchase_invoice_id/retentions
-Headers:
-  Authorization: Bearer <TOKEN>
+👉 Elimina factura (soft delete).
 
 GET     http://localhost:3000/api/trans/services/provider-invoices/:id/full
-Headers:
-  Authorization: Bearer <TOKEN>
+👉 Consulta factura completa con impuestos y gasto automático.
 
-
-TIPOS DE GASTO
---------------
-POST    http://localhost:3000/api/trans/services/expense-types
-Headers:
-  Content-Type: application/json
-  Authorization: Bearer <TOKEN>
-Body:
-{
-  "name": "Suministros",
-  "description": "Material de oficina"
-}
-
-GET     http://localhost:3000/api/trans/services/expense-types
-Headers:
-  Authorization: Bearer <TOKEN>
-
-GET     http://localhost:3000/api/trans/services/expense-types/:id
-Headers:
-  Authorization: Bearer <TOKEN>
-
-PUT     http://localhost:3000/api/trans/services/expense-types/:id
-Headers:
-  Content-Type: application/json
-  Authorization: Bearer <TOKEN>
-Body:
-{
-  "name": "Servicios",
-  "description": "Servicios generales"
-}
-
-DELETE  http://localhost:3000/api/trans/services/expense-types/:id
-Headers:
-  Authorization: Bearer <TOKEN>
-
-
-RETENCIONES
------------
-POST    http://localhost:3000/api/trans/services/retentions
-Headers:
-  Content-Type: application/json
-  Authorization: Bearer <TOKEN>
-Body:
-{
-  "code": "ISLR",
-  "name": "Impuesto sobre la renta",
-  "description": "Retención fiscal ISLR"
-}
-
-GET     http://localhost:3000/api/trans/services/retentions
-Headers:
-  Authorization: Bearer <TOKEN>
-
-GET     http://localhost:3000/api/trans/services/retentions/:code
-Headers:
-  Authorization: Bearer <TOKEN>
-
-PUT     http://localhost:3000/api/trans/services/:code
-Headers:
-  Content-Type: application/json
-  Authorization: Bearer <TOKEN>
-Body:
-{
-  "name": "Impuesto sobre la renta actualizado",
-  "description": "Retención fiscal ISLR modificada"
-}
-
-DELETE  http://localhost:3000/api/trans/services/retentions/:code
-Headers:
-  Authorization: Bearer <TOKEN>
-
-==============================
-FIN DEL DOCUMENTO
-==============================
-
-
-5. CUMPLIMIENTO DEL ENUNCIADO
------------------------------
-✔ Cuando se realiza una compra:
-   - Se registra la factura del proveedor
-   - Se registra el detalle de compra
-   - Se aplican retenciones usando la tabla `retentions`
-   - Se calcula el total neto (monto - retenciones)
-   - Se crea un gasto automático en `expenses` con:
-     • tipo de gasto
-     • descripción generada automáticamente
-     • total neto
-     • vínculo con la factura
-   - Se actualiza el balance del proveedor
-
-✔ Las retenciones se almacenan en `purchase_invoices_retentions` con:
-   - código de retención
-   - nombre (vía relación con `retentions`)
-   - tasa aplicada
-   - base imponible
-   - total retenido
-
-✔ Todo el proceso ocurre dentro de una transacción Prisma para garantizar consistencia.
-
-==============================
-FIN DEL DOCUMENTO
-==============================
+=========================================================
+FIN DEL DOCUMENTO ACTUALIZADO
+=========================================================

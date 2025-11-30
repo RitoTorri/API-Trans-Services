@@ -7,11 +7,71 @@ const model = new ProviderInvoicesModel();
 const providerModel = new ProviderModel();
 
 class ProviderInvoicesService {
-  // Crear factura + compra + retenciones + gasto automático
+  // Crear factura + cálculo de impuestos + gasto automático
   async create(data) {
     const provider = await providerModel.findById(data.provider_id);
     if (!provider) throw new Error('Provider not found.');
-    return await model.createWithPurchase(data);
+
+    const subtotal = data.subtotal ?? 0;
+    let totalTaxes = 0;
+
+    // 🔹 Crear factura primero
+    const providerInvoice = await prisma.provider_invoices.create({
+      data: {
+        provider_id: data.provider_id,
+        control_number: data.control_number,
+        invoice_number: data.invoice_number,
+        invoice_date: new Date(data.invoice_date),
+        subtotal,
+        total_amount: 0, // se actualiza luego
+        status: 'pendiente'
+      }
+    });
+
+    // 🔹 Registrar impuestos detallados
+    if (Array.isArray(data.taxes)) {
+      for (const tax of data.taxes) {
+        const amount = (subtotal * tax.percentage) / 100;
+        totalTaxes += amount;
+
+        await prisma.invoice_taxes.create({
+          data: {
+            provider_invoice_id: providerInvoice.id,
+            code: tax.code,
+            name: tax.name,
+            percentage: tax.percentage,
+            amount
+          }
+        });
+      }
+    }
+
+    // 🔹 Calcular total y actualizar factura
+    const totalAmount = subtotal + totalTaxes;
+    const updatedInvoice = await prisma.provider_invoices.update({
+      where: { id: providerInvoice.id },
+      data: { total_amount: totalAmount }
+    });
+
+    // 🔹 Crear gasto automático vinculado
+    const descripcionGasto = `Gasto automático de factura ${data.invoice_number}`;
+    const expense = await prisma.expenses.create({
+      data: {
+        provider_invoice_id: providerInvoice.id,
+        description: descripcionGasto,
+        subtotal,
+        taxes: totalTaxes,
+        total: totalAmount
+      }
+    });
+
+    return {
+      provider_invoice: updatedInvoice,
+      taxes: await prisma.invoice_taxes.findMany({
+        where: { provider_invoice_id: providerInvoice.id }
+      }),
+      expense
+    };
   }
 
   async findAll() {
@@ -34,17 +94,15 @@ class ProviderInvoicesService {
     return await model.findDeleted();
   }
 
-  async restore(id, newControlNumber) {
+  async restore(id) {
     const invoice = await model.findById(id);
     if (!invoice) throw new Error('Invoice not found.');
     if (!invoice.control_number.startsWith('deleted_')) {
       throw new Error('Invoice is not marked as deleted.');
     }
 
-    const duplicate = await model.existsControlNumber(newControlNumber);
-    if (duplicate) throw new Error('Control number already exists.');
-
-    return await model.restore(id, newControlNumber);
+    const restoredControlNumber = invoice.control_number.replace(/^deleted_\d+/, '');
+    return await model.restore(id, restoredControlNumber);
   }
 
   async delete(id) {
@@ -53,44 +111,23 @@ class ProviderInvoicesService {
     return await model.softDelete(id);
   }
 
-  async getPurchaseWithRetentions(purchase_invoice_id) {
-    return await model.findRetentionsByPurchase(purchase_invoice_id);
-  }
-
-  // 🔹 Consulta completa de factura con compras, retenciones y gasto automático
+  // 🔹 Consulta completa de factura con impuestos y gasto automático
   async findInvoiceFull(id) {
     const invoice = await model.findById(id);
     if (!invoice) return null;
 
-    // Traer todas las compras con sus retenciones
-    const purchases = await prisma.purchase_invoices.findMany({
-      where: { provider_invoice_id: id },
-      include: {
-        purchase_invoices_retentions: { include: { retention: true } }
-      }
+    const taxes = await prisma.invoice_taxes.findMany({
+      where: { provider_invoice_id: id }
     });
 
-    // Aplanar todas las retenciones
-    const allRetentions = purchases.flatMap(pi => pi.purchase_invoices_retentions);
-
-    // Calcular total de retenciones
-    const totalRetentions = allRetentions.reduce((acc, r) => acc + Number(r.total_retention), 0);
-
-    // Traer gasto automático vinculado directamente por provider_invoice_id
     const expense = await prisma.expenses.findFirst({
-      where: { provider_invoice_id: id },
-      include: {
-        expense_type: true,      // ✅ nombre correcto según tu schema
-        provider_invoice: true   // opcional, si quieres ver la factura asociada
-      }
+      where: { provider_invoice_id: id }
     });
 
     return {
       provider_invoice: invoice,
-      purchase_invoices: purchases,
-      retentions: allRetentions,
-      total_retentions: totalRetentions,
-      expense: expense || null
+      taxes,
+      expense
     };
   }
 }

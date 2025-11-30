@@ -20,6 +20,10 @@ class ProviderService {
     return await providerModel.findByName(name);
   }
 
+  async findInactiveByName(name) {
+    return await providerModel.findInactiveByName(name);
+  }
+
   async update(id, data) {
     const exist = await providerModel.findById(id);
     if (!exist) throw new Error('Provider not found.');
@@ -42,43 +46,13 @@ class ProviderService {
     return await providerModel.findDeleted();
   }
 
-  async restore(id, rif) {
-    const provider = await providerModel.findByRif(rif);
-    if (!provider || provider.id !== id || provider.is_active) {
+  async restore(id) {
+    const provider = await providerModel.findById(id);
+    if (!provider || provider.is_active) {
       throw new Error('Provider is not marked as deleted.');
     }
-
-    const duplicate = await providerModel.existsActiveRif(rif);
-    if (duplicate) throw new Error('RIF already exists.');
-
     return await providerModel.restore(id);
   }
-
-  async addContact(providerId, contact_info) {
-    const provider = await providerModel.findById(providerId);
-    if (!provider) throw new Error('Provider not found.');
-    return await providerModel.addContact(providerId, contact_info);
-  }
-
-
-  async updateContact(providerId, contactId, contact_info) {
-    const provider = await providerModel.findById(providerId);
-    if (!provider) throw new Error('Provider not found.');
-    return await providerModel.updateContact(contactId, contact_info);
-  }
-
-  async deleteContact(providerId, contactId) {
-    const provider = await providerModel.findById(providerId);
-    if (!provider) throw new Error('Provider not found.');
-    return await providerModel.deleteContact(contactId);
-  }
-
-  async listContacts(providerId) {
-    const provider = await providerModel.findById(providerId);
-    if (!provider) throw new Error('Provider not found.');
-    return await providerModel.listContacts(providerId);
-  }
-
 }
 
 export default ProviderService;
