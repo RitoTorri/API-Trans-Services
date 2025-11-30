@@ -29,10 +29,19 @@ class ReportsModel {
     async getClientServiceRanking() {
         try {
             return await prisma.$queryRaw`
-                SELECT c.name AS "Clientes", c.rif AS "Rif", COUNT(s.payment_status)::integer AS "Servicios Solicitados" 
-                FROM clients c INNER JOIN services s ON c.id = s.client_id 
-                WHERE s.payment_status = 'paid' GROUP BY(c.name, c.rif)
-                ORDER BY("Servicios Solicitados") DESC LIMIT 3
+                SELECT 
+                    c.name AS "Clientes",
+                    c.rif AS "Rif",
+                    EXTRACT(YEAR FROM s.start_date) || '-' || EXTRACT(MONTH FROM s.start_date) AS "Fecha de servicios",
+                    COUNT(s.id)::integer AS "Servicios Solicitados" 
+                FROM clients c 
+                INNER JOIN services s ON c.id = s.client_id 
+                WHERE s.payment_status = 'paid' 
+                    AND EXTRACT(YEAR FROM s.start_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+                    AND EXTRACT(MONTH FROM s.start_date) = EXTRACT(MONTH FROM CURRENT_DATE)
+                GROUP BY c.name, c.rif, EXTRACT(YEAR FROM s.start_date), EXTRACT(MONTH FROM s.start_date)
+                ORDER BY "Servicios Solicitados" DESC 
+                LIMIT 3;    
             `
         } catch (error) { throw error; }
     }

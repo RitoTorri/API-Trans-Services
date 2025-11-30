@@ -21,11 +21,10 @@ router.get('/reports/revenue/annual/:year',
     controller.getAnnualRevenueReport
 );
 
-router.get('/reports/clients/service/ranking',
+router.get('/reports/clients/service/ranking/:year',
     TokenValidation,
     authorization(['Administrador', 'SuperUsuario']),
     controller.getClientServiceRanking
 );
-
 
 export default router;
