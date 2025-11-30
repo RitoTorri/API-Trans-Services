@@ -36,6 +36,26 @@ class ReportsController {
             return responses.ErrorInternal(res, error.message);
         }
     }
+
+    async getEmployeesWithMoreServices(req, res) {
+        try {
+            const result = await service.getEmployeesWithMoreServices();
+            return responses.QuerySuccess(res, result);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+
+    async getExpenseDetails(req, res) {
+        try {
+            const { year, month } = req.params;
+            const result = await service.getExpenseDetails(parseInt(year), parseInt(month));
+            return responses.QuerySuccess(res, result);
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
 }
 
 export default ReportsController;
