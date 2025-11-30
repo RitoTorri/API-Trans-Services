@@ -33,7 +33,7 @@ app.use(cors({
     credentials: true
 }));
 
-
+/*
 const globalLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,
     max: 60,
@@ -44,12 +44,12 @@ const globalLimiter = rateLimit({
             'Retry-After': 300
         }
     }
-})
+})*/
 
 // routers
 const urlApiBase = '/api/trans/services';
 
-app.use(globalLimiter);
+//app.use(globalLimiter);
 app.use(urlApiBase, authRoute);
 app.use(urlApiBase, employeeRoute);
 app.use(urlApiBase, typeRoutes);
