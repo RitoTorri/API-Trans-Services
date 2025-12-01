@@ -100,6 +100,18 @@ class ProviderInvoicesController {
     }
   }
 
+    async updateStatus(req, res) {
+    try {
+      const id = Number(req.params.id);
+      const { status } = req.body;
+
+      const result = await service.updateStatus(id, status);
+      return responses.QuerySuccess(res, result);
+    } catch (error) {
+      return responses.ErrorInternal(res, error.message);
+    }
+  }
+  
   // 📌 Nuevo método: factura completa con gasto automático
   async findInvoiceFull(req, res) {
     try {

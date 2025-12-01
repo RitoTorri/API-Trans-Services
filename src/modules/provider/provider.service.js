@@ -2,10 +2,10 @@ import ProviderModel from './provider.model.js';
 const providerModel = new ProviderModel();
 
 class ProviderService {
-  async create(data) {
+  async create(data, contacts = []) {
     const exist = await providerModel.findByRif(data.rif);
     if (exist) throw new Error('Provider already exists.');
-    return await providerModel.createWithContacts(data);
+    return await providerModel.createWithContacts({ ...data, contacts });
   }
 
   async findAll() {
@@ -24,16 +24,28 @@ class ProviderService {
     return await providerModel.findInactiveByName(name);
   }
 
-  async update(id, data) {
-    const exist = await providerModel.findById(id);
+  async update(provider, contacts = [], contactsToDelete = []) {
+    const exist = await providerModel.findById(provider.id);
     if (!exist) throw new Error('Provider not found.');
 
-    if (data.rif) {
-      const existRif = await providerModel.findByRif(data.rif);
-      if (existRif && existRif.id !== id) throw new Error('RIF already exists.');
+    if (provider.rif) {
+      const existRif = await providerModel.findByRif(provider.rif);
+      if (existRif && existRif.id !== provider.id) {
+        throw new Error('Provider with this rif already exists.');
+      }
     }
 
-    return await providerModel.update(id, data);
+    const idProvider = provider.id;
+    delete provider.id;
+
+    try {
+      return await providerModel.updateProvider(provider, idProvider, contacts, contactsToDelete);
+    } catch (error) {
+      if (error.message.includes('Contact with id')) {
+        throw new Error(error.message); // mensaje claro para el controller
+      }
+      throw error;
+    }
   }
 
   async delete(id) {
@@ -49,7 +61,7 @@ class ProviderService {
   async restore(id) {
     const provider = await providerModel.findById(id);
     if (!provider || provider.is_active) {
-      throw new Error('Provider is not marked as deleted.');
+      throw new Error('Provider not found.');
     }
     return await providerModel.restore(id);
   }

@@ -119,89 +119,184 @@ DOCUMENTACIÓN DE ENDPOINTS - PROVIDER & PROVIDER_INVOICES
 
 PROVEEDORES (provider)
 ----------------------
-POST    http://localhost:3000/api/trans/services/provider
+BASE URL: http://localhost:3000/api/trans/services
+
+---------------------------------------------------
+1. Crear proveedor con contactos
+POST http://localhost:3000/api/trans/services/provider
 Body:
 {
-  "name": "Proveedor Ejemplo",
+  "name": "Proveedor Transporte Lara",
   "rif": "J-12345678-9",
-  "is_active": true,
   "contacts": [
-    { "contact_info": "proveedor@example.com" },
-    { "contact_info": "+58-412-1234567" }
+    { "contact_info": "contacto@transportelara.com" },
+    { "contact_info": "+58-412-9876543" }
   ]
 }
 
-GET     http://localhost:3000/api/trans/services/provider
-👉 Lista todos los proveedores activos.
+---------------------------------------------------
+2. Listar proveedores activos
+GET http://localhost:3000/api/trans/services/providers
 
-GET     http://localhost:3000/api/trans/services/provider/:id
-👉 Obtiene un proveedor específico por ID.
+---------------------------------------------------
+3. Buscar proveedores activos por nombre
+GET http://localhost:3000/api/trans/services/provider/search/:name
+Ejemplo: http://localhost:3000/api/trans/services/provider/search/Lara
 
-GET     http://localhost:3000/api/trans/services/provider/search/:name
-👉 Busca proveedores activos por nombre.
+---------------------------------------------------
+4. Buscar proveedores inactivos por nombre
+GET http://localhost:3000/api/trans/services/provider/inactive/search/:name
+Ejemplo: http://localhost:3000/api/trans/services/provider/inactive/search/Lara
 
-GET     http://localhost:3000/api/trans/services/provider/inactive/search/:name
-👉 Busca proveedores inactivos por nombre.
+---------------------------------------------------
+5. Actualizar proveedor y contactos (parcial)
+PATCH http://localhost:3000/api/trans/services/provider/:id
+Ejemplo: http://localhost:3000/api/trans/services/provider/5
 
-PATCH   http://localhost:3000/api/trans/services/provider/:id
+---------------------------------------------------
+Explicación detallada de actualización:
+
+A) Actualizar nombre o RIF
 Body:
 {
-  "name": "Proveedor Actualizado",
-  "rif": "J-98765432-1",
+  "name": "Proveedor Transporte Lara Actualizado",
+  "rif": "J-12345678-9"
+}
+- Si envías `name`, se actualiza el nombre del proveedor.
+- Si envías `rif`, se actualiza el RIF (validando que no esté duplicado).
+- Puedes enviar ambos campos juntos o solo uno.
+
+B) Actualizar un contacto existente
+Body:
+{
   "contacts": [
-    { "contact_info": "nuevo@example.com" }
+    { "id": 11, "contact_info": "soporte@transportebarquisimeto.com" }
   ]
 }
+- Si el objeto incluye `id`, se actualiza ese contacto.
+- El `id` debe existir, si no se devuelve error "Contact with id X not found".
 
-DELETE  http://localhost:3000/api/trans/services/provider/:id
-👉 Elimina proveedor (soft delete).
+C) Agregar un contacto nuevo
+Body:
+{
+  "contacts": [
+    { "contact_info": "+58-414-9998887" }
+  ]
+}
+- Si el objeto NO incluye `id`, se crea un nuevo contacto.
+- Se valida que `contact_info` no esté duplicado y tenga máximo 100 caracteres.
 
-GET     http://localhost:3000/api/trans/services/provider/deleted
-👉 Lista proveedores eliminados.
+D) Eliminar un contacto
+Body:
+{
+  "contactsToDelete": [12]
+}
+- Se envía un array de IDs de contactos a eliminar.
+- Cada `id` debe existir, si no se devuelve error "Contact with id X not found".
 
-PUT     http://localhost:3000/api/trans/services/provider/restore/:id
-👉 Restaura proveedor eliminado (solo por ID, sin body).
+---------------------------------------------------
+6. Eliminar proveedor (soft delete)
+DELETE http://localhost:3000/api/trans/services/provider/:id
+Ejemplo: http://localhost:3000/api/trans/services/provider/5
+
+---------------------------------------------------
+7. Listar proveedores eliminados
+GET http://localhost:3000/api/trans/services/providers-deleted
+
+---------------------------------------------------
+8. Restaurar proveedor eliminado
+PUT http://localhost:3000/api/trans/services/provider/restore/:id
+Ejemplo: http://localhost:3000/api/trans/services/provider/restore/5
+
 
 ---------------------------------------------------------
 
 FACTURAS DE PROVEEDOR (provider_invoices)
 -----------------------------------------
-POST    http://localhost:3000/api/trans/services/provider-invoice/:provider_id
+BASE URL: http://localhost:3000/api/trans/services
+
+---------------------------------------------------
+1. Crear factura con impuestos (estado inicial: pendiente)
+POST /provider-invoice/:provider_id
+Ejemplo:
+POST http://localhost:3000/api/trans/services/provider-invoice/5
+
 Body:
 {
   "control_number": "CN-001",
   "invoice_number": "INV-001",
-  "invoice_date": "2025-11-25",
+  "invoice_date": "2025-12-01",
   "subtotal": 1000,
   "taxes": [
-    { "code": "IVA", "name": "Impuesto al Valor Agregado", "percentage": 16 },
-    { "code": "ISLR", "name": "Impuesto Sobre la Renta", "percentage": 5 }
+    { "code": "IVA", "name": "Impuesto al Valor Agregado", "percentage": 16.00 },
+    { "code": "ISLR", "name": "Impuesto Sobre la Renta", "percentage": 10.00 }
   ]
 }
 
-GET     http://localhost:3000/api/trans/services/provider-invoices
-👉 Lista todas las facturas activas.
+---------------------------------------------------
+2. Listar todas las facturas activas
+GET /provider-invoices
+Ejemplo:
+GET http://localhost:3000/api/trans/services/provider-invoices
 
-GET     http://localhost:3000/api/trans/services/provider-invoices/provider/:provider_id
-👉 Lista facturas de un proveedor específico.
+---------------------------------------------------
+3. Listar facturas por proveedor
+GET /provider-invoices/provider/:provider_id
+Ejemplo:
+GET http://localhost:3000/api/trans/services/provider-invoices/provider/5
 
-GET     http://localhost:3000/api/trans/services/provider-invoices-range?start=YYYY-MM-DD&end=YYYY-MM-DD
-👉 Filtra facturas por rango de fechas.
+---------------------------------------------------
+4. Filtrar facturas por rango de fechas
+GET /provider-invoices-range?start=YYYY-MM-DD&end=YYYY-MM-DD
+Ejemplo:
+GET http://localhost:3000/api/trans/services/provider-invoices-range?start=2025-12-01&end=2025-12-31
 
-GET     http://localhost:3000/api/trans/services/provider-invoices/search/:value
-👉 Busca factura por número fiscal o control.
+---------------------------------------------------
+5. Buscar facturas por número fiscal o control
+GET /provider-invoices/search/:value
+Ejemplo:
+GET http://localhost:3000/api/trans/services/provider-invoices/search/INV-001
 
-GET     http://localhost:3000/api/trans/services/provider-invoices-deleted
-👉 Lista facturas eliminadas (soft delete).
+---------------------------------------------------
+6. Listar facturas eliminadas (soft deleted)
+GET /provider-invoices-deleted
+Ejemplo:
+GET http://localhost:3000/api/trans/services/provider-invoices-deleted
 
-PUT     http://localhost:3000/api/trans/services/provider-invoice/restore/:id
-👉 Restaura factura eliminada (solo por ID, sin body).
+---------------------------------------------------
+7. Restaurar factura eliminada (solo por ID)
+PUT /provider-invoice/restore/:id
+Ejemplo:
+PUT http://localhost:3000/api/trans/services/provider-invoice/restore/3
 
-DELETE  http://localhost:3000/api/trans/services/provider-invoice/:id
-👉 Elimina factura (soft delete).
+---------------------------------------------------
+8. Soft delete: marcar factura como eliminada
+DELETE /provider-invoice/:id
+Ejemplo:
+DELETE http://localhost:3000/api/trans/services/provider-invoice/3
 
-GET     http://localhost:3000/api/trans/services/provider-invoices/:id/full
-👉 Consulta factura completa con impuestos y gasto automático.
+---------------------------------------------------
+9. Consultar factura completa con impuestos y gasto automático
+GET /provider-invoices/:id/full
+Ejemplo:
+GET http://localhost:3000/api/trans/services/provider-invoices/5/full
+
+---------------------------------------------------
+10. Cambiar estado de una factura (pendiente → pagado → cancelado)
+PATCH /provider-invoice/:id/status
+Ejemplo:
+PATCH http://localhost:3000/api/trans/services/provider-invoice/5/status
+
+Body:
+{
+  "status": "pagado"
+}
+
+Body alternativo:
+{
+  "status": "cancelado"
+}
+
 
 =========================================================
 FIN DEL DOCUMENTO ACTUALIZADO

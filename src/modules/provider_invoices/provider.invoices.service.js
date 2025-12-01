@@ -7,7 +7,7 @@ const model = new ProviderInvoicesModel();
 const providerModel = new ProviderModel();
 
 class ProviderInvoicesService {
-  // Crear factura + cálculo de impuestos + gasto automático
+  // Crear factura + cálculo de impuestos (sin gasto todavía)
   async create(data) {
     const provider = await providerModel.findById(data.provider_id);
     if (!provider) throw new Error('Provider not found.');
@@ -15,7 +15,7 @@ class ProviderInvoicesService {
     const subtotal = data.subtotal ?? 0;
     let totalTaxes = 0;
 
-    // 🔹 Crear factura primero
+    // 🔹 Crear factura
     const providerInvoice = await prisma.provider_invoices.create({
       data: {
         provider_id: data.provider_id,
@@ -23,7 +23,7 @@ class ProviderInvoicesService {
         invoice_number: data.invoice_number,
         invoice_date: new Date(data.invoice_date),
         subtotal,
-        total_amount: 0, // se actualiza luego
+        total_amount: 0,
         status: 'pendiente'
       }
     });
@@ -53,24 +53,11 @@ class ProviderInvoicesService {
       data: { total_amount: totalAmount }
     });
 
-    // 🔹 Crear gasto automático vinculado
-    const descripcionGasto = `Gasto automático de factura ${data.invoice_number}`;
-    const expense = await prisma.expenses.create({
-      data: {
-        provider_invoice_id: providerInvoice.id,
-        description: descripcionGasto,
-        subtotal,
-        taxes: totalTaxes,
-        total: totalAmount
-      }
-    });
-
     return {
       provider_invoice: updatedInvoice,
       taxes: await prisma.invoice_taxes.findMany({
         where: { provider_invoice_id: providerInvoice.id }
-      }),
-      expense
+      })
     };
   }
 
@@ -111,9 +98,49 @@ class ProviderInvoicesService {
     return await model.softDelete(id);
   }
 
+  // 🔹 Cambiar estado de factura (pendiente → pagado → cancelado)
+async updateStatus(id, status) {
+  const invoice = await model.findById(id);
+  if (!invoice) throw new Error('Invoice not found.');
+
+  const updated = await prisma.provider_invoices.update({
+    where: { id },
+    data: { status }
+  });
+
+  // 🔹 Solo crear gasto si pasa a pagado y aún no existe
+  if (status === 'pagado') {
+    const descripcionGasto = `Compra al ${invoice.provider.name}`;
+
+    const existingExpense = await prisma.expenses.findFirst({
+      where: { description: descripcionGasto }
+    });
+
+    if (!existingExpense) {
+      const taxes = await prisma.invoice_taxes.findMany({
+        where: { provider_invoice_id: id }
+      });
+
+      const totalTaxes = taxes.reduce((sum, t) => sum + Number(t.amount), 0);
+
+      await prisma.expenses.create({
+        data: {
+          description: descripcionGasto,
+          subtotal: Number(invoice.subtotal),
+          taxes: totalTaxes,
+          total: Number(invoice.total_amount)
+        }
+      });
+    }
+  }
+
+  return updated;
+}
+
+
   // 🔹 Consulta completa de factura con impuestos y gasto automático
   async findInvoiceFull(id) {
-    const invoice = await model.findById(id);
+    const invoice = await model.findById(id); // incluye provider
     if (!invoice) return null;
 
     const taxes = await prisma.invoice_taxes.findMany({
@@ -121,7 +148,7 @@ class ProviderInvoicesService {
     });
 
     const expense = await prisma.expenses.findFirst({
-      where: { provider_invoice_id: id }
+      where: { description: `Compra al ${invoice.provider.name}` }
     });
 
     return {

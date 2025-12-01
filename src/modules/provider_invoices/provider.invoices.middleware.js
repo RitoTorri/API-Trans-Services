@@ -6,21 +6,28 @@ const validateCreate = (req, res, next) => {
   const { control_number, invoice_number, invoice_date, subtotal, taxes } = req.body;
   let errors = [];
 
-  // Validaciones básicas
-  if (!provider_id || !control_number || !invoice_number || !invoice_date || subtotal === undefined || !Array.isArray(taxes)) {
+  // 🔹 Validaciones básicas
+  if (
+    !provider_id ||
+    !control_number ||
+    !invoice_number ||
+    !invoice_date ||
+    subtotal === undefined ||
+    !Array.isArray(taxes)
+  ) {
     return responses.BadRequest(res, 'Missing required fields or taxes must be an array.');
   }
 
-  // Validaciones de formato
+  // 🔹 Validaciones de formato
   if (validators.formatNumberInvalid(provider_id)) errors.push('Invalid provider_id.');
   if (validators.formatTextInvalid(control_number)) errors.push('Invalid control_number.');
   if (validators.formatTextInvalid(invoice_number)) errors.push('Invalid invoice_number.');
   if (validators.formatDateInvalid(invoice_date)) errors.push('Invalid invoice_date.');
 
-  // Validaciones numéricas
+  // 🔹 Validaciones numéricas
   if (typeof subtotal !== 'number' || subtotal < 0) errors.push('Invalid subtotal.');
 
-  // Validar impuestos detallados
+  // 🔹 Validar impuestos detallados (invoice_taxes)
   taxes.forEach((tax, index) => {
     if (!tax.code || !tax.name || tax.percentage === undefined) {
       errors.push(`Tax at index ${index} is missing required fields.`);
@@ -34,7 +41,7 @@ const validateCreate = (req, res, next) => {
 
   if (errors.length > 0) return responses.ParametersInvalid(res, errors);
 
-  // Inyectar provider_id en el body para el controller
+  // 🔹 Inyectar provider_id en el body para el controller
   req.body.provider_id = provider_id;
   next();
 };

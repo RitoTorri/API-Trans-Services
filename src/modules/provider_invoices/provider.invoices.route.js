@@ -65,6 +65,13 @@ router.delete('/provider-invoice/:id',
   (req, res) => controller.delete(req, res)
 );
 
+// 📌 Cambiar estado de una factura
+router.patch('/provider-invoice/:id/status',
+  validateTokenAccess,
+  authorization(['Administrador', 'SuperUsuario']),
+  (req, res) => controller.updateStatus(req, res)
+);
+
 // 📌 Consultar factura completa con gasto automático (incluye desglose)
 router.get('/provider-invoices/:id/full',
   validateTokenAccess,

@@ -150,7 +150,6 @@ model provider_invoices {
   created_at     DateTime      @default(now())
 
   provider      providers       @relation(fields: [provider_id], references: [id], onDelete: Cascade)
-  expenses      expenses[]
   invoice_taxes invoice_taxes[]
 
   @@map("provider_invoices")
@@ -171,17 +170,14 @@ model invoice_taxes {
   @@map("invoice_taxes")
 }
 
-// 🔹 Gastos con desglose
+// 🔹 Gastos generales (sin relación con facturas)
 model expenses {
-  id                  Int      @id @default(autoincrement())
-  provider_invoice_id Int?
-  description         String   @db.VarChar(255)
-  subtotal            Decimal  @db.Decimal(10, 2)
-  taxes               Decimal  @db.Decimal(10, 2)
-  total               Decimal  @db.Decimal(10, 2)
-  created_at          DateTime @default(now())
-
-  provider_invoice provider_invoices? @relation(fields: [provider_invoice_id], references: [id], onDelete: Cascade)
+  id          Int      @id @default(autoincrement())
+  description String   @db.VarChar(255)
+  subtotal    Decimal  @db.Decimal(10, 2)
+  taxes       Decimal  @db.Decimal(10, 2)
+  total       Decimal  @db.Decimal(10, 2)
+  created_at  DateTime @default(now())
 
   @@map("expenses")
 }
@@ -205,12 +201,11 @@ model services {
   @@map("services")
 }
 
-// Ingresos
+// Ingresos (sin categoría)
 model revenue {
   id          Int      @id @default(autoincrement())
   description String   @db.VarChar(255)
   amount      Decimal  @db.Decimal(10, 2)
-  category    String   @default("servicio") @db.VarChar(100)
   date        DateTime
   created_at  DateTime @default(now())
 

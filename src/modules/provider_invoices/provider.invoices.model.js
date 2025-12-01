@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 class ProviderInvoicesModel {
-  // Crear factura + gasto automático con desglose
+  // Crear factura + impuestos + gasto automático
   async createWithExpense(data) {
     const {
       provider_id,
@@ -12,12 +12,11 @@ class ProviderInvoicesModel {
       subtotal,
       taxes,
       total_amount,
-      balance,
       status
     } = data;
 
     return await prisma.$transaction(async (tx) => {
-      // 1) Factura del proveedor
+      // 1) Crear factura del proveedor con include para traer el nombre
       const providerInvoice = await tx.provider_invoices.create({
         data: {
           provider_id,
@@ -25,22 +24,39 @@ class ProviderInvoicesModel {
           invoice_number,
           invoice_date,
           subtotal,
-          taxes,
           total_amount,
-          balance,
           status
-        }
+        },
+        include: { provider: true }
       });
 
-      // 2) Gasto automático vinculado a la factura con desglose
-      const descripcionGasto = `Gasto automático de factura ${invoice_number}`;
+      // 2) Registrar impuestos detallados
+      let totalTaxes = 0;
+      if (Array.isArray(taxes)) {
+        for (const tax of taxes) {
+          const amount = (subtotal * tax.percentage) / 100;
+          totalTaxes += amount;
+
+          await tx.invoice_taxes.create({
+            data: {
+              provider_invoice_id: providerInvoice.id,
+              code: tax.code,
+              name: tax.name,
+              percentage: tax.percentage,
+              amount
+            }
+          });
+        }
+      }
+
+      // 3) Crear gasto automático general con descripción del proveedor
+      const descripcionGasto = `Compra al ${providerInvoice.provider.name}`;
       const expense = await tx.expenses.create({
         data: {
           description: descripcionGasto,
           subtotal,
-          taxes,
-          total: total_amount,
-          provider_invoice_id: providerInvoice.id
+          taxes: totalTaxes,
+          total: subtotal + totalTaxes
         }
       });
 
@@ -49,8 +65,8 @@ class ProviderInvoicesModel {
         expense: {
           id: expense.id,
           subtotal: Number(subtotal),
-          taxes: Number(taxes),
-          total: Number(total_amount),
+          taxes: Number(totalTaxes),
+          total: Number(subtotal + totalTaxes),
           description: descripcionGasto
         }
       };
@@ -62,7 +78,10 @@ class ProviderInvoicesModel {
   }
 
   async findById(id) {
-    return await prisma.provider_invoices.findFirst({ where: { id } });
+    return await prisma.provider_invoices.findFirst({
+      where: { id },
+      include: { provider: true } // 🔹 ahora incluye el proveedor
+    });
   }
 
   async findAll() {
@@ -113,9 +132,7 @@ class ProviderInvoicesModel {
       throw new Error('Invoice is not marked as deleted.');
     }
 
-    // Quitar prefijo deleted_
     const restoredControlNumber = invoice.control_number.replace(/^deleted_\d+/, '');
-
     return await prisma.provider_invoices.update({
       where: { id },
       data: { control_number: restoredControlNumber }

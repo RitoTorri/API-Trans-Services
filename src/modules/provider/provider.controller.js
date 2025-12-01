@@ -5,7 +5,8 @@ const service = new ProviderService();
 class ProviderController {
   async create(req, res) {
     try {
-      const result = await service.create(req.body);
+      const { contacts, ...providerData } = req.body;
+      const result = await service.create(providerData, contacts || []);
       return responses.ItemCreated(res, result);
     } catch (error) {
       if (error.message === 'Provider already exists.') {
@@ -26,8 +27,7 @@ class ProviderController {
 
   async findByName(req, res) {
     try {
-      const name = req.params.name;
-      const result = await service.findByName(name);
+      const result = await service.findByName(req.params.name);
       return responses.QuerySuccess(res, result);
     } catch (error) {
       return responses.ErrorInternal(res, error.message);
@@ -36,8 +36,7 @@ class ProviderController {
 
   async findInactiveByName(req, res) {
     try {
-      const name = req.params.name;
-      const result = await service.findInactiveByName(name);
+      const result = await service.findInactiveByName(req.params.name);
       return responses.QuerySuccess(res, result);
     } catch (error) {
       return responses.ErrorInternal(res, error.message);
@@ -49,13 +48,18 @@ class ProviderController {
       const id = Number(req.params.id);
       if (isNaN(id)) return responses.BadRequest(res, 'Invalid provider ID.');
 
-      const result = await service.update(id, req.body);
+      const { name, rif, contacts, contactsToDelete } = req.body;
+      let provider = { id };
+      if (name) provider.name = name;
+      if (rif) provider.rif = rif;
+
+      const result = await service.update(provider, contacts || [], contactsToDelete || []);
       return responses.QuerySuccess(res, result);
     } catch (error) {
       if (error.message === 'Provider not found.') {
         return responses.ItemNotFound(res, error.message);
       }
-      if (error.message === 'RIF already exists.') {
+      if (error.message === 'Provider with this rif already exists.') {
         return responses.ResConflict(res, error.message);
       }
       return responses.ErrorInternal(res, error.message);
@@ -94,7 +98,7 @@ class ProviderController {
       const result = await service.restore(id);
       return responses.QuerySuccess(res, result);
     } catch (error) {
-      if (error.message === 'Provider is not marked as deleted.') {
+      if (error.message === 'Provider not found.') {
         return responses.ItemNotFound(res, error.message);
       }
       return responses.ErrorInternal(res, error.message);
