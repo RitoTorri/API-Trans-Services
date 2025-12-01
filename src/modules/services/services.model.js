@@ -7,32 +7,18 @@ class ServicesModel {
     async addService(service, retentions) {
         try {
             return await prisma.$transaction(async (e) => {
-                let serviceCreated;
-                let retentionsCreated;
-
                 // Crear servicio
-                try {
-                    serviceCreated = await prisma.services.create({
-                        data: service
-                    });
-                } catch (error) {
-                    console.log("Error al crear el servicio");
-                    throw error;
-                }
+                const serviceCreated = await prisma.services.create({
+                    data: service
+                });
 
                 // Agregamos el id del servicio a las retenciones
                 retentions.service_id = serviceCreated.id;
 
                 // Crear retenciones
-                try {
-                    retentionsCreated = await prisma.services_retentions.create({
-                        data: retentions
-                    });
-                } catch (error) {
-                    console.log("Error al crear las retenciones");
-                    throw error;
-                }
-
+                const retentionsCreated = await prisma.services_retentions.create({
+                    data: retentions
+                });
                 return [serviceCreated, retentionsCreated];
             });
         } catch (error) { throw error; }
