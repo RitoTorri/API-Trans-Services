@@ -56,6 +56,32 @@ class ReportsController {
             return responses.ErrorInternal(res, error.message);
         }
     }
+
+    async getPdfReportClients(req, res) {
+        try {
+            const pdf = await service.getPdfReportClients();
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="reporte_clientes.pdf"');
+            res.send(pdf);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+
+    async getPdfReportEmployees(req, res) {
+        try {
+            const pdf = await service.getPdfReportEmployees();
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="reporte_empleados.pdf"');
+            res.send(pdf);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
 }
 
 export default ReportsController;

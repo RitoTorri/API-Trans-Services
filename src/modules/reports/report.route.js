@@ -37,6 +37,15 @@ router.get('/reports/expenses/details/:year/:month',
     controller.getExpenseDetails
 );
 
+// PDFS 
+router.get('/reports/clients/pdf',
+    controller.getPdfReportClients
+);
+
+router.get('/reports/employees/pdf',
+    controller.getPdfReportEmployees
+);
+
 // Proveedores a los que se le ha pagado mas servicios
 
 export default router;

@@ -1,6 +1,19 @@
 import ReportModel from "./report.model.js";
 const model = new ReportModel();
 
+// Importacion de generador de PDF
+import generarPDF from "../../shared/utils/pdf.generator.js";
+import htmls from "../../shared/utils/html.templates.js";
+
+// Importacion de clientes
+import ClientsModel from "../clients/clients.model.js";
+const clients = new ClientsModel();
+
+// Importacion de empleados
+import EmployeesModel from "../employee/employee.model.js";
+const employees = new EmployeesModel();
+
+
 class ReportsService {
     constructor() { }
 
@@ -31,6 +44,26 @@ class ReportsService {
     async getExpenseDetails(year, month) {
         try {
             return await model.getExpenseDetails(year, month);
+        } catch (error) { throw error; }
+    }
+
+    async getPdfReportClients() {
+        try {
+            const data = await clients.getClients({});
+            const html = await htmls.htmlClientsReport(data);
+            const pdf = await generarPDF(html);
+
+            return pdf;
+        } catch (error) { throw error; }
+    }
+
+    async getPdfReportEmployees() {
+        try {
+            const data = await employees.getAllEmployees({ is_active: true, filterSearch: 'all' });
+            const html = await htmls.htmlEmployeesReport(data);
+            const pdf = await generarPDF(html);
+
+            return pdf;
         } catch (error) { throw error; }
     }
 }

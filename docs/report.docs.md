@@ -175,3 +175,35 @@ GET http://localhost:3000/api/trans/services/reports/expenses/details/2025/11
     ]
 }
 ```
+
+### 4. Reporte de Clientes en pdf
+**INFO:** Este reporte te devuelve un pdf con todos los clientes registrados.
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/clients/pdf`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/clients/pdf
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 5. Reporte de Empleados en pdf
+**INFO:** Este reporte te devuelve un pdf con todos los empleados registrados.
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/employees/pdf`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/employees/pdf
+```
+
+**Respuesta:** Es la descarga del pdf.
