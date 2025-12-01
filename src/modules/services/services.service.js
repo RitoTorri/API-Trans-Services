@@ -8,6 +8,9 @@ import isrCalculator from "../../shared/utils/isr.calculator.js";
 import ClientsModel from "../clients/clients.model.js";
 const clients = new ClientsModel();
 
+// Importacion de vehículos
+import VehiclesModel from "../vehicles/vehicles.model.js";
+
 class ServicesService {
     constructor() { }
 
@@ -18,6 +21,8 @@ class ServicesService {
             if (!client) throw new Error("Client not found.");
 
             // Validar si existe un vehículo con ese id
+            const vehicle = await VehiclesModel.getVehicleById(service.vehicle_id);
+            if (!vehicle) throw new Error("Vehicle not found.");
 
             // Agregamos las propiedades de factura
             const servicesExists = await model.getCountServices();
