@@ -1,0 +1,116 @@
+COMPARACIÓN DE ESQUEMA PRISMA - VIEJO VS ACTUAL
+===============================================
+
+1. TABLA PROVIDERS
+------------------
+ANTES:
+- Campos: id, name, rif, balance, is_active, created_at
+- Relaciones: provider_contacts[], provider_invoices[]
+
+AHORA:
+- Campos: id, name, rif, is_active, created_at
+- Relaciones: provider_contacts[], provider_invoices[]
+- ❌ balance eliminado
+
+-----------------------------------------------
+
+2. TABLA PROVIDER_INVOICES
+--------------------------
+ANTES:
+- Campos: id, provider_id, control_number, invoice_number, invoice_date, total_amount, created_at
+- Relaciones: provider (FK), purchase_invoices[], expenses[]
+
+AHORA:
+- Campos: id, provider_id, control_number, invoice_number, invoice_date, subtotal, total_amount, status (enum), created_at
+- Relaciones: provider (FK), expenses[], invoice_taxes[], provider_invoices_retentions[]
+- ❌ purchase_invoices eliminado
+- ➕ campo subtotal
+- ➕ campo status (enum InvoiceStatus: pendiente, cancelado, pagado)
+- ➕ relación con invoice_taxes
+- ➕ relación con provider_invoices_retentions
+
+-----------------------------------------------
+
+3. TABLA INVOICE_TAXES
+----------------------
+ANTES:
+- ❌ No existía
+
+AHORA:
+- Campos: id, provider_invoice_id, code, name, percentage, amount, created_at
+- Relación: provider_invoices (FK)
+- ➕ Nueva tabla para desglose de impuestos por factura
+
+-----------------------------------------------
+
+4. TABLA EXPENSES
+-----------------
+ANTES:
+- Campos: id, id_expense_type, provider_invoice_id, description, total, created_at
+- Relaciones: expense_types (FK), provider_invoices (FK)
+
+AHORA:
+- Campos: id, id_expense_type, description, total, created_at
+- Relación: expense_types (FK)
+- ❌ relación directa con provider_invoices eliminada
+- ❌ provider_invoice_id eliminado como campo obligatorio
+- 🔄 ahora los gastos se vinculan indirectamente vía lógica de negocio
+
+-----------------------------------------------
+
+5. TABLA PURCHASE_INVOICES
+--------------------------
+ANTES:
+- Existía con relación a provider_invoices y expense_types
+- Campos: id, provider_invoice_id, expense_type_id, purchase_date, description, exempt_amount, total_amount, created_at
+- Relación: purchase_invoices_retentions[]
+
+AHORA:
+- ❌ Eliminada
+
+-----------------------------------------------
+
+6. TABLAS DE RETENCIONES
+------------------------
+ANTES:
+- Existían retentions, purchase_invoices_retentions, services_retentions, payrolls_retentions
+- Usadas para vincular retenciones con compras, servicios y nóminas
+
+AHORA:
+- ➕ Se mantiene tabla retentions
+- ➕ Se mantiene provider_invoices_retentions y services_retentions, payrolls_retentions
+- 🔄 En la versión actual las retenciones se aplican directamente a facturas de proveedores y servicios, no a compras
+
+-----------------------------------------------
+
+7. TABLA EXPENSE_TYPES
+----------------------
+ANTES:
+- Existía para clasificar gastos
+- Campos: id, name, description, created_at
+- Relación: purchase_invoices[], expenses[]
+
+AHORA:
+- Se mantiene
+- Campos: id, name, description, created_at
+- Relación: expenses[]
+- ❌ relación con purchase_invoices eliminada
+
+-----------------------------------------------
+
+8. ENUM INVOICESTATUS
+---------------------
+ANTES:
+- ❌ No existía
+
+AHORA:
+- ➕ Enum InvoiceStatus con valores: pendiente, cancelado, pagado
+
+-----------------------------------------------
+
+RESUMEN FINAL
+-------------
+- ❌ Eliminados: balance en providers, purchase_invoices, relación directa de expenses con provider_invoices.
+- ➕ Añadidos: invoice_taxes, campo subtotal y status en provider_invoices, enum InvoiceStatus.
+- 🔄 Simplificación: las retenciones y tipos de gasto se manejan directamente en provider_invoices_retentions, services_retentions y payrolls_retentions.
+- ✅ Consistencia: todas las relaciones mantienen onDelete: Cascade y soft delete con is_active.

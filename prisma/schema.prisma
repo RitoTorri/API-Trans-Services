@@ -149,8 +149,9 @@ model provider_invoices {
   status         InvoiceStatus @default(pendiente)
   created_at     DateTime      @default(now())
 
-  provider      providers       @relation(fields: [provider_id], references: [id], onDelete: Cascade)
-  invoice_taxes invoice_taxes[]
+  provider                     providers                      @relation(fields: [provider_id], references: [id], onDelete: Cascade)
+  invoice_taxes                invoice_taxes[]
+  provider_invoices_retentions provider_invoices_retentions[]
 
   @@map("provider_invoices")
 }
@@ -170,16 +171,59 @@ model invoice_taxes {
   @@map("invoice_taxes")
 }
 
-// 🔹 Gastos generales (sin relación con facturas)
+// 🔹 Retenciones aplicadas a facturas de proveedores
+model provider_invoices_retentions {
+  id                  Int      @id @default(autoincrement())
+  provider_invoice_id Int
+  retention_code      String   @db.VarChar(30)
+  base_amount         Decimal  @db.Decimal(10, 2)
+  rate_retention      Decimal  @db.Decimal(10, 2)
+  total_retention     Decimal  @db.Decimal(10, 2)
+  created_at          DateTime @default(now())
+
+  provider_invoice provider_invoices @relation(fields: [provider_invoice_id], references: [id], onDelete: Cascade)
+  retention        retentions        @relation(fields: [retention_code], references: [code], onDelete: Cascade)
+
+  @@map("provider_invoices_retentions")
+}
+
+// 🔹 Gastos generales
 model expenses {
-  id          Int      @id @default(autoincrement())
-  description String   @db.VarChar(255)
-  subtotal    Decimal  @db.Decimal(10, 2)
-  taxes       Decimal  @db.Decimal(10, 2)
-  total       Decimal  @db.Decimal(10, 2)
-  created_at  DateTime @default(now())
+  id              Int      @id @default(autoincrement())
+  id_expense_type Int
+  description     String   @db.VarChar(255)
+  total           Decimal  @db.Decimal(10, 2)
+  created_at      DateTime @default(now())
+
+  expense_type expense_types @relation(fields: [id_expense_type], references: [id], onDelete: Cascade)
 
   @@map("expenses")
+}
+
+// Retenciones
+model retentions {
+  code        String   @id @db.VarChar(30)
+  name        String   @db.VarChar(50)
+  description String   @db.VarChar(100)
+  created_at  DateTime @default(now())
+
+  payrolls_retentions          payrolls_retentions[]
+  services_retentions          services_retentions[]
+  provider_invoices_retentions provider_invoices_retentions[]
+
+  @@map("retentions")
+}
+
+// Tipos de gastos
+model expense_types {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(30)
+  description String   @db.VarChar(100)
+  created_at  DateTime @default(now()) @map("created_at")
+
+  expenses expenses[]
+
+  @@map("expense_types")
 }
 
 // Servicios
@@ -195,20 +239,42 @@ model services {
   payment_status String   @default("pending") @db.VarChar(20)
   created_at     DateTime @default(now())
 
-  vehicles vehicles @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
-  clients  clients  @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  vehicles            vehicles              @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
+  clients             clients               @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  services_retentions services_retentions[]
 
   @@map("services")
 }
 
-// Ingresos (sin categoría)
+model services_retentions {
+  // Relaciones
+  id             Int    @id @default(autoincrement())
+  service_id     Int    @db.Integer
+  code_retention String @db.VarChar(30)
+
+  // Datos
+  base_amount     Decimal  @db.Decimal(10, 2)
+  rate_retention  Decimal  @db.Decimal(10, 2) // Tasa de retención
+  total_retention Decimal  @db.Decimal(10, 2) // Total de retención
+  created_at      DateTime @default(now())
+
+  services   services   @relation(fields: [service_id], references: [id], onDelete: Cascade)
+  retentions retentions @relation(fields: [code_retention], references: [code], onDelete: Cascade)
+
+  @@map("services_retentions")
+}
+
+// Ingresos
 model revenue {
   id          Int      @id @default(autoincrement())
   description String   @db.VarChar(255)
-  amount      Decimal  @db.Decimal(10, 2)
-  date        DateTime
+  amount      Decimal  @db.Decimal(10, 2) // total
+  category    String   @default("servicio") @db.VarChar(100)
+  date        DateTime // Fecha del revenue (no solo created_at)
   created_at  DateTime @default(now())
 
+  @@index([date])
+  @@index([category])
   @@map("revenue")
 }
 
@@ -227,7 +293,23 @@ model payrolls {
   assignments     Decimal  @db.Decimal(10, 2)
   created_at      DateTime @default(now())
 
-  employee employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  employee            employees             @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  payrolls_retentions payrolls_retentions[]
 
   @@map("payrolls")
+}
+
+model payrolls_retentions {
+  id             Int    @id @default(autoincrement())
+  payroll_id     Int
+  retention_code String
+
+  base_amount     Decimal @db.Decimal(10, 2) // monto de referencia
+  rate_retention  Decimal @db.Decimal(10, 2) // Tasa de retención
+  total_retention Decimal @db.Decimal(10, 2) // Total de retención
+
+  created_at DateTime @default(now())
+
+  payroll   payrolls   @relation(fields: [payroll_id], references: [id], onDelete: Cascade)
+  retention retentions @relation(fields: [retention_code], references: [code], onDelete: Cascade)
 }

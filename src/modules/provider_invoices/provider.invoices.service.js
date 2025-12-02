@@ -99,43 +99,57 @@ class ProviderInvoicesService {
   }
 
   // 🔹 Cambiar estado de factura (pendiente → pagado → cancelado)
+// 🔹 Cambiar estado de factura (pendiente → pagado → cancelado)
 async updateStatus(id, status) {
   const invoice = await model.findById(id);
   if (!invoice) throw new Error('Invoice not found.');
+
+  // 🔹 Restricciones de transición
+  if (invoice.status === 'pagado' || invoice.status === 'cancelado') {
+    throw new Error(`No se puede modificar una factura con estado '${invoice.status}'.`);
+  }
+
+  if (invoice.status === 'pendiente' && !['pagado', 'cancelado'].includes(status)) {
+    throw new Error(`Transición inválida: pendiente solo puede pasar a pagado o cancelado.`);
+  }
 
   const updated = await prisma.provider_invoices.update({
     where: { id },
     data: { status }
   });
 
-  // 🔹 Solo crear gasto si pasa a pagado y aún no existe
+  // 🔹 Crear gasto automático solo si pasa a pagado
   if (status === 'pagado') {
-    const descripcionGasto = `Compra al ${invoice.provider.name}`;
+    const descripcionGasto = `Compra al ${invoice.provider.name} - Factura ${invoice.invoice_number}`;
 
-    const existingExpense = await prisma.expenses.findFirst({
-      where: { description: descripcionGasto }
+    // Buscar tipo de gasto "compras"
+    let expenseType = await prisma.expense_types.findFirst({
+      where: { name: "compras" }
     });
 
-    if (!existingExpense) {
-      const taxes = await prisma.invoice_taxes.findMany({
-        where: { provider_invoice_id: id }
-      });
-
-      const totalTaxes = taxes.reduce((sum, t) => sum + Number(t.amount), 0);
-
-      await prisma.expenses.create({
+    // Si no existe, lo creamos
+    if (!expenseType) {
+      expenseType = await prisma.expense_types.create({
         data: {
-          description: descripcionGasto,
-          subtotal: Number(invoice.subtotal),
-          taxes: totalTaxes,
-          total: Number(invoice.total_amount)
+          name: "compras",
+          description: "Gastos por compras de proveedores"
         }
       });
     }
+
+    // Crear gasto en la tabla expenses
+    await prisma.expenses.create({
+      data: {
+        id_expense_type: expenseType.id,
+        description: descripcionGasto,
+        total: Number(invoice.total_amount)
+      }
+    });
   }
 
   return updated;
 }
+
 
 
   // 🔹 Consulta completa de factura con impuestos y gasto automático
@@ -148,7 +162,7 @@ async updateStatus(id, status) {
     });
 
     const expense = await prisma.expenses.findFirst({
-      where: { description: `Compra al ${invoice.provider.name}` }
+      where: { description: `Compra al ${invoice.provider.name} - Factura ${invoice.invoice_number}` }
     });
 
     return {

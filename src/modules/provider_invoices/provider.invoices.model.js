@@ -54,9 +54,8 @@ class ProviderInvoicesModel {
       const expense = await tx.expenses.create({
         data: {
           description: descripcionGasto,
-          subtotal,
-          taxes: totalTaxes,
-          total: subtotal + totalTaxes
+          total: subtotal + totalTaxes,
+          id_expense_type: 1 // ⚠️ Ajusta según tu catálogo de tipos de gasto
         }
       });
 
@@ -64,8 +63,6 @@ class ProviderInvoicesModel {
         provider_invoice: providerInvoice,
         expense: {
           id: expense.id,
-          subtotal: Number(subtotal),
-          taxes: Number(totalTaxes),
           total: Number(subtotal + totalTaxes),
           description: descripcionGasto
         }

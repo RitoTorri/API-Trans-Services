@@ -8,7 +8,7 @@ const validateCreate = (req, res, next) => {
 
   // 🔹 Validaciones básicas
   if (
-    !provider_id ||
+    Number.isNaN(provider_id) ||
     !control_number ||
     !invoice_number ||
     !invoice_date ||
