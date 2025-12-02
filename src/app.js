@@ -3,6 +3,8 @@ import express from "express";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
 
 // import routes
 import authRoute from "./modules/auth/auth.route.js";
@@ -19,6 +21,7 @@ import providerInvoicesRoute from "./modules/provider_invoices/provider.invoices
 
 const app = express();
 
+app.set("port", process.env.PORT || 3000);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("combined"));

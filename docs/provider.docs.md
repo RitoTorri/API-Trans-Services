@@ -1,57 +1,53 @@
-Módulo Provider
-===============
+# Módulo Provider
 
-Descripción general
--------------------
-El módulo Provider gestiona proveedores y sus contactos: creación, búsqueda, actualización parcial con contactos, eliminación lógica y restauración. 
-Incluye validaciones de formato y longitud, y evita RIF duplicados en activos.
+## Descripción general
+El módulo Provider gestiona proveedores y sus contactos: creación, búsqueda, actualización parcial con contactos, eliminación lógica y restauración. Incluye validaciones de formato y longitud, y evita RIF duplicados en activos.
 
-Modelo de datos
----------------
-Tabla providers:
+## Modelo de datos
+### Tabla providers:
 - id (PK)
 - name (string, ≤30)
 - rif (string, ≤30, único)
 - is_active (boolean, default true)
 - created_at (timestamp)
 
-Tabla provider_contacts:
+### Tabla provider_contacts:
 - id (PK)
 - provider_id (FK → providers.id)
 - contact_info (string, ≤100)
 - created_at (timestamp)
 
-Validaciones
-------------
-Creación:
+## Validaciones
+### Creación:
 - Obligatorios: name, rif.
 - Formato: name y rif validados por format.data.js.
 - Longitud: name ≤ 30, rif ≤ 30.
 - Contactos: contact_info string obligatorio, ≤100.
 
-Actualización:
+### Actualización:
 - Requisito mínimo: al menos uno de name, rif, contacts, contactsToDelete.
 - Formato y longitud: mismas reglas de creación.
 - Eliminar contactos: contactsToDelete debe ser un array de IDs.
 
-Endpoints
----------
-Listar proveedores activos
-URL: GET /api/trans/services/providers
-Headers: Authorization: Bearer <token>
+## Endpoints
 
-Buscar proveedores activos por nombre
-URL: GET /api/trans/services/provider/search/:name
-Headers: Authorization: Bearer <token>
+### Listar proveedores activos
+**URL:** GET /api/trans/services/providers  
+**Headers:** Authorization: Bearer <token>
 
-Buscar proveedores inactivos por nombre
-URL: GET /api/trans/services/provider/inactive/search/:name
-Headers: Authorization: Bearer <token>
+### Buscar proveedores activos por nombre
+**URL:** GET /api/trans/services/provider/search/:name  
+**Headers:** Authorization: Bearer <token>
 
-Actualizar proveedor y contactos
-URL: PATCH /api/trans/services/provider/:id
-Headers: Authorization: Bearer <token>
-Body:
+### Buscar proveedores inactivos por nombre
+**URL:** GET /api/trans/services/provider/inactive/search/:name  
+**Headers:** Authorization: Bearer <token>
+
+### Actualizar proveedor y contactos
+**URL:** PATCH /api/trans/services/provider/:id  
+**Headers:** Authorization: Bearer <token>  
+**Body:**
+```json
 {
   "name": "Proveedor Transporte Lara C.A.",
   "rif": "J-12345678-9",
@@ -61,62 +57,69 @@ Body:
   ],
   "contactsToDelete": [3]
 }
+```
 
----------------------------------------------------
-Explicación detallada de actualización:
+## Explicación detallada de actualización
 
-A) Actualizar nombre o RIF
-Body:
+### A) Actualizar nombre o RIF
+**Body:**
+```json
 {
   "name": "Proveedor Transporte Lara Actualizado",
   "rif": "J-12345678-9"
 }
+```
 - Si envías `name`, se actualiza el nombre del proveedor.
 - Si envías `rif`, se actualiza el RIF (validando que no esté duplicado).
 - Puedes enviar ambos campos juntos o solo uno.
 
-B) Actualizar un contacto existente
-Body:
+### B) Actualizar un contacto existente
+**Body:**
+```json
 {
   "contacts": [
     { "id": 11, "contact_info": "soporte@transportebarquisimeto.com" }
   ]
 }
+```
 - Si el objeto incluye `id`, se actualiza ese contacto.
 - El `id` debe existir, si no se devuelve error "Contact with id X not found".
 
-C) Agregar un contacto nuevo
-Body:
+### C) Agregar un contacto nuevo
+**Body:**
+```json
 {
   "contacts": [
     { "contact_info": "+58-414-9998887" }
   ]
 }
+```
 - Si el objeto NO incluye `id`, se crea un nuevo contacto.
 - Se valida que `contact_info` no esté duplicado y tenga máximo 100 caracteres.
 
-D) Eliminar un contacto
-Body:
+### D) Eliminar un contacto
+**Body:**
+```json
 {
   "contactsToDelete": [12]
 }
+```
 - Se envía un array de IDs de contactos a eliminar.
 - Cada `id` debe existir, si no se devuelve error "Contact with id X not found".
 
-Eliminar proveedor (soft delete)
-URL: DELETE /api/trans/services/provider/:id
-Headers: Authorization: Bearer <token>
+### Eliminar proveedor (soft delete)
+**URL:** DELETE /api/trans/services/provider/:id  
+**Headers:** Authorization: Bearer <token>
 
-Listar proveedores eliminados
-URL: GET /api/trans/services/providers-deleted
-Headers: Authorization: Bearer <token>
+### Listar proveedores eliminados
+**URL:** GET /api/trans/services/providers-deleted  
+**Headers:** Authorization: Bearer <token>
 
-Restaurar proveedor eliminado
-URL: PUT /api/trans/services/provider/restore/:id
-Headers: Authorization: Bearer <token>
+### Restaurar proveedor eliminado
+**URL:** PUT /api/trans/services/provider/restore/:id  
+**Headers:** Authorization: Bearer <token>
 
-Flujo recomendado de pruebas
-----------------------------
+## Flujo recomendado de pruebas
 1. Crear proveedor con contactos.
 2. Listar proveedores activos para confirmar creación.
 3. Actualizar proveedor (nombre, rif o contactos).
@@ -124,16 +127,14 @@ Flujo recomendado de pruebas
 5. Listar eliminados → confirmar que aparece.
 6. Restaurar proveedor → vuelve a activo.
 
-Respuestas y errores comunes
-----------------------------
+## Respuestas y errores comunes
 - Provider already exists. → RIF duplicado en activo.
 - Provider not found. → ID inexistente o ya activo en restore.
 - Invalid provider ID. → ID no numérico.
 - ParametersInvalid. → errores de formato/longitud/contactos.
 - You must send at least one field. → actualización sin campos.
 
-Notas de implementación
------------------------
+## Notas de implementación
 - Transacciones: actualización parcial y gestión de contactos se ejecuta en prisma.$transaction.
 - RIF único: al actualizar, se verifica colisión de RIF con otros proveedores.
 - Soft delete: nunca se borra físicamente; se marca is_active = false y es recuperable.

@@ -92,7 +92,7 @@ class ReportsModel {
                 WHERE pi.status = 'pagado'
                 AND EXTRACT(YEAR FROM pi.invoice_date) = ${year}
                 AND EXTRACT(MONTH FROM pi.invoice_date) = ${month}
-                GROUP BY p.name, p.rif, periodo
+                GROUP BY p.name, p.rif, "Periodo"
                 ORDER BY "Total de gastos" DESC
                 LIMIT 3;
             `
