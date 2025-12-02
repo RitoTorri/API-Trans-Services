@@ -15,6 +15,25 @@ class RepairsModel {
         }
     }
 
+    async findRepairsByDateRange(startDate, endDate) {
+        try {
+            return await prisma.repair.findMany({
+                where: {
+                    createdAt: { // Asumiendo que el campo de fecha de registro es 'createdAt'
+                        gte: new Date(startDate), // Mayor o igual que la fecha de inicio
+                        lte: new Date(endDate),   // Menor o igual que la fecha de fin
+                    }
+                },
+                orderBy: { createdAt: 'asc' },
+                include: {
+                    vehicle: true, // Incluye el vehículo relacionado
+                }
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
     /**
      * Obtiene la lista completa de reparaciones, incluyendo detalles del vehículo.
      */

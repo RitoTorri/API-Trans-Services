@@ -16,6 +16,7 @@ import vehicleRoute from "./modules/vehicles/vehicles.route.js";
 import reportsRoute from "./modules/reports/report.route.js";
 import providerRoute from "./modules/provider/provider.route.js";
 import providerInvoicesRoute from "./modules/provider_invoices/provider.invoices.route.js";
+import repairRoute from "./modules/repairs/repairs.route.js";
 
 // nuevos módulos
 import expenseTypesRoute from "./modules/expense_types/expense.types.route.js";
@@ -61,7 +62,7 @@ app.use(urlApiBase, vehicleRoute);
 app.use(urlApiBase, reportsRoute);
 app.use(urlApiBase, providerRoute);
 app.use(urlApiBase, providerInvoicesRoute);
-
+app.use(urlApiBase, repairRoute);
 // nuevos módulos
 app.use(urlApiBase, expenseTypesRoute);
 app.use(urlApiBase, retentionsRoute);
