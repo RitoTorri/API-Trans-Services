@@ -2,21 +2,30 @@ import responses from '../../shared/utils/responses.js';
 import validators from '../../shared/utils/format.data.js';
 
 const validateProvider = (req, res, next) => {
-  const { name, rif, balance, contacts } = req.body;
+  const { name, rif, contacts } = req.body;
   let errors = [];
 
-  if (!name || !rif || balance === undefined) {
+  // Campos obligatorios
+  if (!name || !rif) {
     return responses.BadRequest(res, 'Missing required fields.');
   }
 
+  // Validaciones de formato
   if (validators.formatNamesInvalid(name)) errors.push('Invalid name.');
   if (validators.formatRifInvalid(rif)) errors.push('Invalid RIF.');
-  if (typeof balance !== 'number' || balance < 0) errors.push('Balance must be a positive number.');
+
+  // Validaciones de longitud según schema
+  if (name && name.length > 30) errors.push('Name must be 30 characters or less.');
+  if (rif && rif.length > 30) errors.push('RIF must be 30 characters or less.');
 
   // Validar contactos si vienen
   if (contacts && Array.isArray(contacts)) {
     contacts.forEach(c => {
-      if (!c.contact_info) errors.push('Contact info is required.');
+      if (!c.contact_info || typeof c.contact_info !== 'string') {
+        errors.push('Contact info is required and must be a string.');
+      } else if (c.contact_info.length > 100) {
+        errors.push('Contact info must be 100 characters or less.');
+      }
     });
   }
 
@@ -25,17 +34,36 @@ const validateProvider = (req, res, next) => {
 };
 
 const validateProviderUpdate = (req, res, next) => {
-  const { name, rif, balance } = req.body;
+  const { name, rif, contacts, contactsToDelete } = req.body;
   let errors = [];
 
-  if (!name && !rif && balance === undefined) {
+  // Al menos un campo debe venir
+  if (!name && !rif && !contacts && !contactsToDelete) {
     return responses.BadRequest(res, 'You must send at least one field.');
   }
 
+  // Validaciones de formato
   if (name && validators.formatNamesInvalid(name)) errors.push('Invalid name.');
   if (rif && validators.formatRifInvalid(rif)) errors.push('Invalid RIF.');
-  if (balance !== undefined && (typeof balance !== 'number' || balance < 0)) {
-    errors.push('Balance must be a positive number.');
+
+  // Validaciones de longitud según schema
+  if (name && name.length > 30) errors.push('Name must be 30 characters or less.');
+  if (rif && rif.length > 30) errors.push('RIF must be 30 characters or less.');
+
+  // Validar contactos si vienen
+  if (contacts && Array.isArray(contacts)) {
+    contacts.forEach(c => {
+      if (!c.contact_info || typeof c.contact_info !== 'string') {
+        errors.push('Contact info is required and must be a string.');
+      } else if (c.contact_info.length > 100) {
+        errors.push('Contact info must be 100 characters or less.');
+      }
+    });
+  }
+
+  // Validar contactos a eliminar
+  if (contactsToDelete && !Array.isArray(contactsToDelete)) {
+    errors.push('contactsToDelete must be an array of IDs.');
   }
 
   if (errors.length > 0) return responses.ParametersInvalid(res, errors);

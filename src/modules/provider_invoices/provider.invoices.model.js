@@ -2,102 +2,69 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 class ProviderInvoicesModel {
-  // Crear factura + detalle de compra + retenciones + gasto automático
-  async createWithPurchase(data) {
+  // Crear factura + impuestos + gasto automático
+  async createWithExpense(data) {
     const {
       provider_id,
       control_number,
       invoice_number,
       invoice_date,
+      subtotal,
+      taxes,
       total_amount,
-      purchase,       // { expense_type_id, purchase_date, description, exempt_amount }
-      retentions = [] // [{ retention_code, rate_retention, base_amount }]
+      status
     } = data;
 
     return await prisma.$transaction(async (tx) => {
-      // 1) Factura del proveedor
+      // 1) Crear factura del proveedor con include para traer el nombre
       const providerInvoice = await tx.provider_invoices.create({
         data: {
           provider_id,
           control_number,
           invoice_number,
           invoice_date,
-          total_amount
-        }
+          subtotal,
+          total_amount,
+          status
+        },
+        include: { provider: true }
       });
 
-      // 2) Detalle de compra asociado
-      const purchaseInvoice = await tx.purchase_invoices.create({
-        data: {
-          provider_invoice_id: providerInvoice.id,
-          expense_type_id: purchase.expense_type_id,
-          purchase_date: new Date(purchase.purchase_date),
-          description: purchase.description,
-          exempt_amount: purchase.exempt_amount ?? 0,
-          total_amount
+      // 2) Registrar impuestos detallados
+      let totalTaxes = 0;
+      if (Array.isArray(taxes)) {
+        for (const tax of taxes) {
+          const amount = (subtotal * tax.percentage) / 100;
+          totalTaxes += amount;
+
+          await tx.invoice_taxes.create({
+            data: {
+              provider_invoice_id: providerInvoice.id,
+              code: tax.code,
+              name: tax.name,
+              percentage: tax.percentage,
+              amount
+            }
+          });
         }
-      });
-
-      // 3) Retenciones de la compra
-      let totalRetenciones = 0;
-      for (const r of retentions) {
-        const base = Number(r.base_amount ?? total_amount);
-        const rate = Number(r.rate_retention);
-        const total = Number(((base * rate) / 100).toFixed(2));
-        totalRetenciones += total;
-
-        await tx.purchase_invoices_retentions.create({
-          data: {
-            purchase_invoice_id: purchaseInvoice.id,
-            retention_code: r.retention_code,
-            base_amount: base,
-            rate_retention: rate,
-            total_retention: total
-          }
-        });
       }
 
-      // 🔹 Consultar retenciones con nombre
-      const retencionesConNombre = await tx.purchase_invoices_retentions.findMany({
-        where: { purchase_invoice_id: purchaseInvoice.id },
-        include: { retention: true }
-      });
-
-      // 🔹 Consultar nombre del proveedor
-      const proveedor = await tx.providers.findUnique({
-        where: { id: provider_id },
-        select: { name: true }
-      });
-
-      // 4) Gasto automático con vínculo directo a la factura
-      const neto = Number(total_amount) - Number(totalRetenciones);
-      const descripcionGasto = `Compra al proveedor ${proveedor?.name ?? provider_id} el ${new Date(purchase.purchase_date).toISOString().slice(0, 10)}`;
-
+      // 3) Crear gasto automático general con descripción del proveedor
+      const descripcionGasto = `Compra al ${providerInvoice.provider.name}`;
       const expense = await tx.expenses.create({
         data: {
-          id_expense_type: purchase.expense_type_id,
           description: descripcionGasto,
-          total: neto,
-          provider_invoice_id: providerInvoice.id // ✅ vínculo directo
+          total: subtotal + totalTaxes,
+          id_expense_type: 1 // ⚠️ Ajusta según tu catálogo de tipos de gasto
         }
-      });
-
-      // 5) Actualizar balance del proveedor (puedes usar neto si prefieres)
-      await tx.providers.update({
-        where: { id: provider_id },
-        data: { balance: { increment: total_amount } }
       });
 
       return {
         provider_invoice: providerInvoice,
-        purchase_invoice: purchaseInvoice,
-        retentions: retencionesConNombre, // 🔹 devuelve código + nombre
-        total_retentions: Number(totalRetenciones.toFixed(2)),
-        expense: { 
+        expense: {
           id: expense.id,
-          total: Number(neto.toFixed(2)), 
-          description: descripcionGasto,
-          provider_name: proveedor?.name ?? null
+          total: Number(subtotal + totalTaxes),
+          description: descripcionGasto
         }
       };
     });
@@ -108,7 +75,10 @@ class ProviderInvoicesModel {
   }
 
   async findById(id) {
-    return await prisma.provider_invoices.findFirst({ where: { id } });
+    return await prisma.provider_invoices.findFirst({
+      where: { id },
+      include: { provider: true } // 🔹 ahora incluye el proveedor
+    });
   }
 
   async findAll() {
@@ -151,10 +121,18 @@ class ProviderInvoicesModel {
     });
   }
 
-  async restore(id, newControlNumber) {
+  // Restaurar factura eliminada solo con ID
+  async restore(id) {
+    const invoice = await prisma.provider_invoices.findFirst({ where: { id } });
+    if (!invoice) throw new Error('Invoice not found.');
+    if (!invoice.control_number.startsWith('deleted_')) {
+      throw new Error('Invoice is not marked as deleted.');
+    }
+
+    const restoredControlNumber = invoice.control_number.replace(/^deleted_\d+/, '');
     return await prisma.provider_invoices.update({
       where: { id },
-      data: { control_number: newControlNumber }
+      data: { control_number: restoredControlNumber }
     });
   }
 
@@ -178,13 +156,6 @@ class ProviderInvoicesModel {
     return await prisma.provider_invoices.update({
       where: { id },
       data: { control_number: `deleted_${Date.now()}` }
-    });
-  }
-
-  async findRetentionsByPurchase(purchase_invoice_id) {
-    return await prisma.purchase_invoices_retentions.findMany({
-      where: { purchase_invoice_id },
-      include: { retention: true }
     });
   }
 }

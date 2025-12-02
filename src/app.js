@@ -17,10 +17,6 @@ import reportsRoute from "./modules/reports/report.route.js";
 import providerRoute from "./modules/provider/provider.route.js";
 import providerInvoicesRoute from "./modules/provider_invoices/provider.invoices.route.js";
 
-// nuevos módulos
-import expenseTypesRoute from "./modules/expense_types/expense.types.route.js";
-import retentionsRoute from "./modules/retentions/retentions.route.js";
-
 const app = express();
 
 app.use(express.json());
@@ -61,9 +57,5 @@ app.use(urlApiBase, vehicleRoute);
 app.use(urlApiBase, reportsRoute);
 app.use(urlApiBase, providerRoute);
 app.use(urlApiBase, providerInvoicesRoute);
-
-// nuevos módulos
-app.use(urlApiBase, expenseTypesRoute);
-app.use(urlApiBase, retentionsRoute);
 
 export default app;

@@ -8,17 +8,12 @@ class ProviderModel {
       data: {
         name: data.name,
         rif: data.rif,
-        balance: data.balance,
         provider_contacts: {
           create: data.contacts || []
         }
       },
       include: { provider_contacts: true }
     });
-  }
-
-  async create(data) {
-    return await prisma.providers.create({ data });
   }
 
   async findAll() {
@@ -31,7 +26,7 @@ class ProviderModel {
 
   async findById(id) {
     return await prisma.providers.findFirst({
-      where: { id, is_active: true },
+      where: { id },
       include: { provider_contacts: true }
     });
   }
@@ -51,9 +46,63 @@ class ProviderModel {
     });
   }
 
+  async findInactiveByName(name) {
+    return await prisma.providers.findMany({
+      where: {
+        is_active: false,
+        name: { contains: name, mode: 'insensitive' }
+      },
+      orderBy: { created_at: 'desc' },
+      include: { provider_contacts: true }
+    });
+  }
 
-  async update(id, data) {
-    return await prisma.providers.update({ where: { id }, data });
+  // ✅ Actualización parcial con validación de contactos
+  async updateProvider(object, idProvider, contacts = [], contactsToDelete = []) {
+    return await prisma.$transaction(async (tx) => {
+      // Actualizar proveedor si hay datos
+      const providerResult = await tx.providers.update({
+        where: { id: idProvider },
+        data: object,
+        include: { provider_contacts: true }
+      });
+
+      let contactsResult = [];
+
+      // Actualizar o crear contactos
+      for (const c of contacts) {
+        if (c.id) {
+          const existContact = await tx.provider_contacts.findUnique({
+            where: { id: parseInt(c.id) }
+          });
+          if (!existContact) {
+            throw new Error(`Contact with id ${c.id} not found.`);
+          }
+
+          const updated = await tx.provider_contacts.update({
+            where: { id: parseInt(c.id) },
+            data: { contact_info: c.contact_info }
+          });
+          contactsResult.push(updated);
+        } else {
+          const created = await tx.provider_contacts.create({
+            data: { provider_id: idProvider, contact_info: c.contact_info }
+          });
+          contactsResult.push(created);
+        }
+      }
+
+      // Eliminar contactos específicos
+      for (const id of contactsToDelete) {
+        const existContact = await tx.provider_contacts.findUnique({ where: { id } });
+        if (!existContact) {
+          throw new Error(`Contact with id ${id} not found.`);
+        }
+        await tx.provider_contacts.delete({ where: { id } });
+      }
+
+      return { providerResult, contacts_result: contactsResult };
+    });
   }
 
   async softDelete(id) {
@@ -66,7 +115,8 @@ class ProviderModel {
   async restore(id) {
     return await prisma.providers.update({
       where: { id },
-      data: { is_active: true }
+      data: { is_active: true },
+      include: { provider_contacts: true }
     });
   }
 
@@ -83,44 +133,6 @@ class ProviderModel {
       where: { rif, is_active: true }
     });
   }
-
-  // 📌 Crear contacto
-  async addContact(providerId, contact_info) {
-    // Validar duplicado
-    const existing = await prisma.provider_contacts.findFirst({
-      where: { contact_info }
-    });
-    if (existing) throw new Error('Contact info already exists.');
-
-    return await prisma.provider_contacts.create({
-      data: { provider_id: providerId, contact_info }
-    });
-  }
-
-
-  // 📌 Actualizar contacto
-  async updateContact(contactId, contact_info) {
-    return await prisma.provider_contacts.update({
-      where: { id: contactId },
-      data: { contact_info }
-    });
-  }
-
-  // 📌 Eliminar contacto
-  async deleteContact(contactId) {
-    return await prisma.provider_contacts.delete({
-      where: { id: contactId }
-    });
-  }
-
-  // 📌 Listar contactos de un proveedor
-  async listContacts(providerId) {
-    return await prisma.provider_contacts.findMany({
-      where: { provider_id: providerId },
-      orderBy: { created_at: 'desc' }
-    });
-  }
-
 }
 
 export default ProviderModel;
