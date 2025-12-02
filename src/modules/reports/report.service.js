@@ -29,15 +29,15 @@ class ReportsService {
         } catch (error) { throw error; }
     }
 
-    async getClientServiceRanking() {
+    async getClientServiceRanking(year, month) {
         try {
-            return await model.getClientServiceRanking();
+            return await model.getClientServiceRanking(year, month);
         } catch (error) { throw error; }
     }
 
-    async getEmployeesWithMoreServices() {
+    async getEmployeesWithMoreServices(year, month) {
         try {
-            return await model.getEmployeesWithMoreServices();
+            return await model.getEmployeesWithMoreServices(year, month);
         } catch (error) { throw error; }
     }
 
@@ -47,6 +47,13 @@ class ReportsService {
         } catch (error) { throw error; }
     }
 
+    async getProvidersReport(year, month) {
+        try {
+            return await model.getProvidersReport(year, month);
+        } catch (error) { throw error; }
+    }
+
+    // PDFS
     async getPdfReportClients() {
         try {
             const data = await clients.getClients({});

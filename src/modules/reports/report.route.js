@@ -21,31 +21,48 @@ router.get('/reports/revenue/annual/:year',
     controller.getAnnualRevenueReport
 );
 
-router.get('/reports/clients/service/ranking',
+router.get('/reports/clients/service/ranking/:year/:month',
     TokenValidation,
     authorization(['Administrador', 'SuperUsuario']),
+    middlewares.ValidateYear,
+    middlewares.ValidateMonth,
     controller.getClientServiceRanking
 );
 
-router.get('/reports/employees/services/borrowed',
+router.get('/reports/employees/services/borrowed/:year/:month',
+    TokenValidation,
+    authorization(['Administrador', 'SuperUsuario']),
+    middlewares.ValidateYear,
+    middlewares.ValidateMonth,
     controller.getEmployeesWithMoreServices
 );
 
 router.get('/reports/expenses/details/:year/:month',
+    TokenValidation,
+    authorization(['Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     middlewares.ValidateMonth,
     controller.getExpenseDetails
 );
 
+router.get('/reports/providers/:year/:month',
+    middlewares.ValidateYear,
+    middlewares.ValidateMonth,
+    controller.getProvidersReport
+);
+
 // PDFS 
 router.get('/reports/clients/pdf',
+    TokenValidation,
+    authorization(['Administrador', 'SuperUsuario']),
     controller.getPdfReportClients
 );
 
 router.get('/reports/employees/pdf',
+    TokenValidation,
+    authorization(['Administrador', 'SuperUsuario']),
     controller.getPdfReportEmployees
 );
 
-// Proveedores a los que se le ha pagado mas servicios
 
 export default router;
