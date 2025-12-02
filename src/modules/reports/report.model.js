@@ -26,39 +26,39 @@ class ReportsModel {
         } catch (error) { throw error; }
     }
 
-    async getClientServiceRanking() {
+    async getClientServiceRanking(year, month) {
         try {
             return await prisma.$queryRaw`
                 SELECT 
                     c.name AS "Clientes",
                     c.rif AS "Rif",
-                    EXTRACT(YEAR FROM s.start_date) || '-' || EXTRACT(MONTH FROM s.start_date) AS "Fecha de servicios",
+                    ${year} || '-' || ${month} AS "Fecha de servicios",
                     COUNT(s.id)::integer AS "Servicios Solicitados" 
                 FROM clients c 
                 INNER JOIN services s ON c.id = s.client_id 
                 WHERE s.payment_status = 'paid' 
-                    AND EXTRACT(YEAR FROM s.start_date) = EXTRACT(YEAR FROM CURRENT_DATE)
-                    AND EXTRACT(MONTH FROM s.start_date) = EXTRACT(MONTH FROM CURRENT_DATE)
-                GROUP BY c.name, c.rif, EXTRACT(YEAR FROM s.start_date), EXTRACT(MONTH FROM s.start_date)
+                    AND EXTRACT(YEAR FROM s.start_date) = ${year}
+                    AND EXTRACT(MONTH FROM s.start_date) = ${month}
+                GROUP BY c.name, c.rif, "Fecha de servicios"
                 ORDER BY "Servicios Solicitados" DESC 
                 LIMIT 3;    
             `
         } catch (error) { throw error; }
     }
 
-    async getEmployeesWithMoreServices() {
+    async getEmployeesWithMoreServices(year, month) {
         try {
             return await prisma.$queryRaw`
                 SELECT e.name || ' ' || e.lastname AS "Conductor",
                 e.ci AS "Cedula",
                 COUNT(s.id)::integer AS "Viajes Realizados",
-                EXTRACT(YEAR FROM s.start_date) || '-' || EXTRACT(MONTH FROM s.start_date) AS "Fecha de servicios"
+                ${year} || '-' || ${month} AS "Fecha de servicios"
                 FROM employees e
                 INNER JOIN vehicles v ON e.id = v.driver_id
                 INNER JOIN services s ON v.id = s.vehicle_id
                 WHERE s.payment_status = 'paid' 
-                    AND EXTRACT(YEAR FROM s.start_date) = EXTRACT(YEAR FROM CURRENT_DATE)
-                    AND EXTRACT(MONTh FROM s.start_date) = EXTRACT(MONTH FROM CURRENT_DATE)
+                    AND EXTRACT(YEAR FROM s.start_date) = ${year}
+                    AND EXTRACT(MONTh FROM s.start_date) = ${month}
                 GROUP BY("Conductor", "Cedula", "Fecha de servicios") ORDER BY "Viajes Realizados" DESC LIMIT 3
             `
         } catch (error) { throw error; }
@@ -74,6 +74,27 @@ class ReportsModel {
                 WHERE EXTRACT(YEAR FROM e.created_at) = ${year} 
                     AND EXTRACT(MONTH FROM e.created_at) = ${month}
                 GROUP BY("Tipo de gasto", "Fecha de gasto")
+            `
+        } catch (error) { throw error; }
+    }
+
+    async getProvidersReport(year, month) {
+        try {
+            return await prisma.$queryRaw`
+                SELECT 
+                    p.name AS "Nombre de proveedor",
+                    p.rif AS "RIF",
+                    TO_CHAR(pi.invoice_date, 'YYYY-MM') AS "Periodo",
+                    COUNT(pi.id) AS "Cantidad de compras realizadas",
+                    SUM(pi.total_amount) AS "Total de gastos"
+                FROM provider_invoices pi
+                JOIN providers p ON pi.provider_id = p.id
+                WHERE pi.status = 'pagado'
+                AND EXTRACT(YEAR FROM pi.invoice_date) = ${year}
+                AND EXTRACT(MONTH FROM pi.invoice_date) = ${month}
+                GROUP BY p.name, p.rif, "Periodo"
+                ORDER BY "Total de gastos" DESC
+                LIMIT 3;
             `
         } catch (error) { throw error; }
     }

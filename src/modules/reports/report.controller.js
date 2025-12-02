@@ -29,7 +29,8 @@ class ReportsController {
 
     async getClientServiceRanking(req, res) {
         try {
-            const result = await service.getClientServiceRanking();
+            const { year, month } = req.params;
+            const result = await service.getClientServiceRanking(parseInt(year), parseInt(month));
             return responses.QuerySuccess(res, result);
 
         } catch (error) {
@@ -39,7 +40,8 @@ class ReportsController {
 
     async getEmployeesWithMoreServices(req, res) {
         try {
-            const result = await service.getEmployeesWithMoreServices();
+            const { year, month } = req.params;
+            const result = await service.getEmployeesWithMoreServices(parseInt(year), parseInt(month));
             return responses.QuerySuccess(res, result);
 
         } catch (error) {
@@ -52,6 +54,44 @@ class ReportsController {
             const { year, month } = req.params;
             const result = await service.getExpenseDetails(parseInt(year), parseInt(month));
             return responses.QuerySuccess(res, result);
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+
+    async getProvidersReport(req, res) {
+        try {
+            const { year, month } = req.params;
+            const result = await service.getProvidersReport(parseInt(year), parseInt(month));
+            return responses.QuerySuccess(res, result);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+
+    // PDFS
+    async getPdfReportClients(req, res) {
+        try {
+            const pdf = await service.getPdfReportClients();
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="reporte_clientes.pdf"');
+            res.send(pdf);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
+
+    async getPdfReportEmployees(req, res) {
+        try {
+            const pdf = await service.getPdfReportEmployees();
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="reporte_empleados.pdf"');
+            res.send(pdf);
+
         } catch (error) {
             return responses.ErrorInternal(res, error.message);
         }

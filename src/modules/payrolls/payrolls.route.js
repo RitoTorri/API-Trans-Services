@@ -18,7 +18,7 @@ router.post('/payrolls',
 );
 
 // filterSearch: { dateStart: 2002-10-10, dateEnd: 2002-10-10  } o {} desde del body
-router.get('/payrolls/search',
+router.post('/payrolls/search',
     TokenValidation,
     authorization(['Administrador', 'SuperUsuario']),
     middlewares.getPayrolls,

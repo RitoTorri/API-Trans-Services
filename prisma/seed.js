@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-async function main() {
+export default async function main() {
   // Tipos de gasto básicos
   await prisma.expense_types.createMany({
     data: [
@@ -25,12 +25,3 @@ async function main() {
 
   console.log("✅ Tipos de gasto y retenciones iniciales creados");
 }
-
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });

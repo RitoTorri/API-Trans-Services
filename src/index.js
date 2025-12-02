@@ -27,10 +27,14 @@
 */
 
 import app from "./app.js";
+import seed from "../prisma/seed.js";
 
 const execute = async () => {
-    app.listen(3000, () => {
-        console.log("Server started on port 3000");
+    await seed();
+
+    app.listen(app.get("port"), () => {
+        console.log("Server started on port " + app.get("port"));
     })
 }
+
 execute();

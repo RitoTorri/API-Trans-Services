@@ -3,6 +3,8 @@ import express from "express";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
 
 // import routes
 import authRoute from "./modules/auth/auth.route.js";
@@ -18,12 +20,9 @@ import providerRoute from "./modules/provider/provider.route.js";
 import providerInvoicesRoute from "./modules/provider_invoices/provider.invoices.route.js";
 import repairRoute from "./modules/repairs/repairs.route.js";
 
-// nuevos módulos
-import expenseTypesRoute from "./modules/expense_types/expense.types.route.js";
-import retentionsRoute from "./modules/retentions/retentions.route.js";
-
 const app = express();
 
+app.set("port", process.env.PORT || 3000);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("combined"));
@@ -63,8 +62,5 @@ app.use(urlApiBase, reportsRoute);
 app.use(urlApiBase, providerRoute);
 app.use(urlApiBase, providerInvoicesRoute);
 app.use(urlApiBase, repairRoute);
-// nuevos módulos
-app.use(urlApiBase, expenseTypesRoute);
-app.use(urlApiBase, retentionsRoute);
 
 export default app;

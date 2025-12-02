@@ -14,7 +14,7 @@ router.post('/offered/services',
     controller.addService
 );
 
-router.get('/offered/services/search',
+router.post('/offered/services/search',
     validationToken,
     authorization(['Administrador', 'SuperUsuario']),
     middlewares.getServicesMiddleware,

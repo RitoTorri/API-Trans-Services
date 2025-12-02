@@ -7,7 +7,7 @@ import authorization from '../../shared/middlewares/authorization.middleware.js'
 const router = express.Router();
 const controller = new ProviderInvoicesController();
 
-// 📌 Crear factura + compra + retenciones + gasto automático
+// 📌 Crear factura + cálculo de subtotal, impuestos, total y gasto automático
 router.post('/provider-invoice/:provider_id',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
@@ -50,7 +50,7 @@ router.get('/provider-invoices-deleted',
   (req, res) => controller.findDeleted(req, res)
 );
 
-// 📌 Restaurar factura eliminada (soft delete)
+// 📌 Restaurar factura eliminada (solo por ID)
 router.put('/provider-invoice/restore/:id',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
@@ -65,20 +65,19 @@ router.delete('/provider-invoice/:id',
   (req, res) => controller.delete(req, res)
 );
 
-// 📌 Consultar retenciones de una compra
-router.get('/purchase-invoice/:purchase_invoice_id/retentions',
+// 📌 Cambiar estado de una factura
+router.patch('/provider-invoice/:id/status',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
-  (req, res) => controller.findRetentions(req, res)
+  (req, res) => controller.updateStatus(req, res)
 );
 
-// 📌 Consultar factura completa con compra, retenciones y gasto automático
+// 📌 Consultar factura completa con gasto automático (incluye desglose)
 router.get('/provider-invoices/:id/full',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
   async (req, res) => {
     try {
-      // ✅ El controller ya envía la respuesta, no hacemos res.json() aquí
       await controller.findInvoiceFull(req, res);
     } catch (error) {
       return res.status(500).json({
