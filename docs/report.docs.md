@@ -243,3 +243,59 @@ GET http://localhost:3000/api/trans/services/reports/employees/pdf
 ```
 
 **Respuesta:** Es la descarga del pdf.
+
+### 9. Reporte de vehiculos en pdf
+**INFO:** Este reporte te devuelve un pdf con todos los vehiculos registrados.
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/vehicles/pdf`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/vehicles/pdf
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 10. Reporte de gastos en pdf
+**INFO:** Este reporte te devuelve un pdf con todos los gastos registrados.
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/expenses/pdf/:year/:month`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros URL:**
+- `year` (integer): Año a consultar
+- `month` (integer): Mes a consultar
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/expenses/pdf/2025/11
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 11. Reporte de ganancias en pdf
+**INFO:** Este reporte te devuelve un pdf con todos los ganancias registrados.
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/revenue/pdf/:year/:month`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros URL:**
+- `year` (integer): Año a consultar
+- `month` (integer): Mes a consultar
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/revenue/pdf/2025/12
+```
+
+**Respuesta:** Es la descarga del pdf.

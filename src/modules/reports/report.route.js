@@ -64,5 +64,25 @@ router.get('/reports/employees/pdf',
     controller.getPdfReportEmployees
 );
 
+router.get('/reports/provider/pdf',
+    controller.getPdfReportProviders
+);
+
+router.get('/reports/vehicles/pdf',
+    controller.getPdfReportVehicles
+);
+
+router.get('/reports/expenses/pdf/:year/:month',
+    middlewares.ValidateYear,
+    middlewares.ValidateMonth,
+    controller.getPdfReportExpenses
+);
+
+router.get('/reports/revenue/pdf/:year/:month',
+    middlewares.ValidateYear,
+    middlewares.ValidateMonth,
+    controller.getPdfReportRevenue
+);
+
 
 export default router;

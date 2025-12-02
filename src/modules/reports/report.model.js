@@ -15,6 +15,21 @@ class ReportsModel {
         } catch (error) { throw error; }
     }
 
+    async getAnnualExpensesFullReport(year, month) {
+        try {
+            return await prisma.$queryRaw`
+                SELECT EXTRACT(YEAR FROM e.created_at) || '-' || EXTRACT(MONTH FROM e.created_at) || '-' || EXTRACT(DAY FROM e.created_at) AS "Fecha", 
+                te.name,
+                e.description AS "Descripcion",
+                SUM(total) AS "Gasto_Mensual" FROM expenses e
+                INNER JOIN expense_types te ON te.id = e.id_expense_type
+                WHERE EXTRACT(YEAR FROM e.created_at) = ${year} 
+                    AND EXTRACT(MONTH FROM e.created_at) = ${month}
+                GROUP BY("Fecha", te.name, "Descripcion")
+            `
+        } catch (error) { throw error; }
+    }
+
     async getAnnualRevenueReport(year) {
         try {
             return await prisma.$queryRaw`
@@ -22,6 +37,18 @@ class ReportsModel {
                 SUM(amount) AS "Ganancia Mensual" FROM revenue 
                 WHERE EXTRACT(YEAR FROM date) = ${year}
                 GROUP BY("Fecha")
+            `
+        } catch (error) { throw error; }
+    }
+
+    async getAnnualRevenueFullReport(year, month) {
+        try {
+            return await prisma.$queryRaw`
+                SELECT  EXTRACT(YEAR FROM date) || '-' || EXTRACT(MONTH FROM date) || '-' || EXTRACT(DAY FROM date) AS "Fecha",
+                description AS "Descripcion", amount
+                FROM revenue WHERE 
+                    EXTRACT(YEAR FROM date) = ${year}
+                    AND EXTRACT(MONTH FROM date) = ${month}
             `
         } catch (error) { throw error; }
     }

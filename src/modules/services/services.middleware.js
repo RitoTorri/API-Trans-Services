@@ -60,7 +60,14 @@ const getServicesMiddleware = (req, res, next) => {
         return next();
     }
 
-    if (filterSearch === "paid" || filterSearch === "canceled" || filterSearch === "pending") {
+    if (filterSearch === "pagado" || filterSearch === "cancelado" || filterSearch === "pendiente") {
+
+        if (filterSearch === "pagado") req.filterSearch = { payment_status: "paid" };
+
+        else if (filterSearch === "cancelado") req.filterSearch = { payment_status: "canceled" };
+
+        else if (filterSearch === "pendiente") req.filterSearch = { payment_status: "pending" };
+
         req.filterSearch = { payment_status: filterSearch };
         return next();
     }

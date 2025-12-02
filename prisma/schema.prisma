@@ -7,6 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/*
+  REPORTES DE PDF REALIZADOS
+  - Reporte de clientes X
+  - Reporte de empleados X
+  - Reporte de vehículos X 
+  - Reporte de proveedores
+  - Reporte de servicios
+  - Reporte de gastos X
+  - Reporte de ganancias X
+*/
+
 // Tabla de usuarios
 model users {
   id         Int      @id @default(autoincrement())

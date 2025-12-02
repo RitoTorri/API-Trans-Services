@@ -13,6 +13,9 @@ const clients = new ClientsModel();
 import EmployeesModel from "../employee/employee.model.js";
 const employees = new EmployeesModel();
 
+// Importacion de vehículos
+import vehiclesModel from "../vehicles/vehicles.model.js";
+
 
 class ReportsService {
     constructor() { }
@@ -68,6 +71,44 @@ class ReportsService {
         try {
             const data = await employees.getAllEmployees({ is_active: true, filterSearch: 'all' });
             const html = await htmls.htmlEmployeesReport(data);
+            const pdf = await generarPDF(html);
+
+            return pdf;
+        } catch (error) { throw error; }
+    }
+
+    async getPdfReportProviders() {
+        try {
+
+        } catch (error) { throw error; }
+    }
+
+    async getPdfReportVehicles() {
+        try {
+            const data = await vehiclesModel.getAllInfoVehicles();
+            const html = await htmls.htmlVehiclesReport(data);
+            const pdf = await generarPDF(html);
+
+            return pdf;
+        } catch (error) { throw error; }
+    }
+
+    async getPdfReportExpenses(year, month) {
+        try {
+            const data = await model.getAnnualExpensesFullReport(year, month);
+
+            const html = await htmls.htmlExpensesReport(data);
+            const pdf = await generarPDF(html);
+
+            return pdf;
+        } catch (error) { throw error; }
+    }
+
+    async getPdfReportRevenue(year, month) {
+        try {
+            const data = await model.getAnnualRevenueFullReport(year, month);
+
+            const html = await htmls.htmlRevenueReport(data);
             const pdf = await generarPDF(html);
 
             return pdf;
