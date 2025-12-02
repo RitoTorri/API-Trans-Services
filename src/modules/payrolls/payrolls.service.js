@@ -182,13 +182,13 @@ class PayrollsService {
 
         // Calculamos el resultado obtenido con retenciones
         let ivss = isrCalculator(assignments, payroll.ivss);
-        ivss = ivss.toFixed(2);
+        ivss = ivss;
 
         let pie = isrCalculator(assignments, payroll.pie);
-        pie = pie.toFixed(2);
+        pie = pie;
 
         let faov = isrCalculator(assignments, payroll.faov);
-        faov = faov.toFixed(2);
+        faov = faov;
 
         // Creamos los objetos retenciones para devolver
         let ivssObj = {

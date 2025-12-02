@@ -27,5 +27,16 @@ router.get('/reports/clients/service/ranking',
     controller.getClientServiceRanking
 );
 
+router.get('/reports/employees/services/borrowed',
+    controller.getEmployeesWithMoreServices
+);
+
+router.get('/reports/expenses/details/:year/:month',
+    middlewares.ValidateYear,
+    middlewares.ValidateMonth,
+    controller.getExpenseDetails
+);
+
+// Proveedores a los que se le ha pagado mas servicios
 
 export default router;

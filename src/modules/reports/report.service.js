@@ -21,6 +21,18 @@ class ReportsService {
             return await model.getClientServiceRanking();
         } catch (error) { throw error; }
     }
+
+    async getEmployeesWithMoreServices() {
+        try {
+            return await model.getEmployeesWithMoreServices();
+        } catch (error) { throw error; }
+    }
+
+    async getExpenseDetails(year, month) {
+        try {
+            return await model.getExpenseDetails(year, month);
+        } catch (error) { throw error; }
+    }
 }
 
 export default ReportsService;

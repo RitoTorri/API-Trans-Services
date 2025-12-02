@@ -19,7 +19,6 @@ class ServicesModel {
                 const retentionsCreated = await prisma.services_retentions.create({
                     data: retentions
                 });
-
                 return [serviceCreated, retentionsCreated];
             });
         } catch (error) { throw error; }

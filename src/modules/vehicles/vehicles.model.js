@@ -2,12 +2,12 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 class vehicles {
-    constructor(){}
+    constructor() { }
 
-    async createVehicle(vehicleData){
+    async createVehicle(vehicleData) {
         try {
             return await prisma.vehicles.create(
-                {data: vehicleData},
+                { data: vehicleData },
             );
         } catch (error) {
             throw error;
@@ -29,7 +29,7 @@ class vehicles {
     async findAllVehicles() {
         try {
             return await prisma.vehicles.findMany({
-                orderBy: { id: 'asc' } 
+                orderBy: { id: 'asc' }
             });
         } catch (error) {
             throw error;
@@ -40,12 +40,12 @@ class vehicles {
         try {
             return await prisma.vehicles.findUnique({
                 where: {
-                    license_plate: licensePlate, 
+                    license_plate: licensePlate,
                 },
-            
+
                 include: {
-                    employees: true, 
-                    vehicle_types: true, 
+                    employees: true,
+                    vehicle_types: true,
                 }
             });
         } catch (error) {
@@ -81,6 +81,13 @@ class vehicles {
         }
     }
 
+    async getVehicleById(id) {
+        try {
+            return await prisma.vehicles.findUnique({
+                where: { id: id }
+            });
+        } catch (error) { throw error; }
+    }
 }
 
 export default new vehicles();
