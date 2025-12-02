@@ -53,14 +53,10 @@ router.get('/reports/providers/:year/:month',
 
 // PDFS 
 router.get('/reports/clients/pdf',
-    TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
     controller.getPdfReportClients
 );
 
 router.get('/reports/employees/pdf',
-    TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
     controller.getPdfReportEmployees
 );
 

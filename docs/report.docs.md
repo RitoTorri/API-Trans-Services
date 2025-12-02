@@ -213,9 +213,9 @@ GET http://localhost:3000/api/trans/services/reports/providers/2025/11
 
 
 ### 7. Reporte de Clientes en pdf
-**INFO:** Este reporte te devuelve un pdf con todos los clientes registrados.
-**Método:** `GET`  
-**Endpoint:** `http://localhost:3000/api/trans/services/reports/clients/pdf`  
+**INFO:** Este reporte te devuelve un pdf con todos los clientes registrados.  
+**Método:** `GET`    
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/clients/pdf`    
 **Headers:**
 ```
 Authorization: Bearer {token}
@@ -229,7 +229,7 @@ GET http://localhost:3000/api/trans/services/reports/clients/pdf
 **Respuesta:** Es la descarga del pdf.
 
 ### 8. Reporte de Empleados en pdf
-**INFO:** Este reporte te devuelve un pdf con todos los empleados registrados.
+**INFO:** Este reporte te devuelve un pdf con todos los empleados registrados.  
 **Método:** `GET`  
 **Endpoint:** `http://localhost:3000/api/trans/services/reports/employees/pdf`  
 **Headers:**
@@ -245,7 +245,7 @@ GET http://localhost:3000/api/trans/services/reports/employees/pdf
 **Respuesta:** Es la descarga del pdf.
 
 ### 9. Reporte de vehiculos en pdf
-**INFO:** Este reporte te devuelve un pdf con todos los vehiculos registrados.
+**INFO:** Este reporte te devuelve un pdf con todos los vehiculos registrados.  
 **Método:** `GET`  
 **Endpoint:** `http://localhost:3000/api/trans/services/reports/vehicles/pdf`  
 **Headers:**
@@ -261,7 +261,7 @@ GET http://localhost:3000/api/trans/services/reports/vehicles/pdf
 **Respuesta:** Es la descarga del pdf.
 
 ### 10. Reporte de gastos en pdf
-**INFO:** Este reporte te devuelve un pdf con todos los gastos registrados.
+**INFO:** Este reporte te devuelve un pdf con todos los gastos registrados.  
 **Método:** `GET`  
 **Endpoint:** `http://localhost:3000/api/trans/services/reports/expenses/pdf/:year/:month`  
 **Headers:**
@@ -281,7 +281,7 @@ GET http://localhost:3000/api/trans/services/reports/expenses/pdf/2025/11
 **Respuesta:** Es la descarga del pdf.
 
 ### 11. Reporte de ganancias en pdf
-**INFO:** Este reporte te devuelve un pdf con todos los ganancias registrados.
+**INFO:** Este reporte te devuelve un pdf con todos los ganancias registrados.  
 **Método:** `GET`  
 **Endpoint:** `http://localhost:3000/api/trans/services/reports/revenue/pdf/:year/:month`  
 **Headers:**
