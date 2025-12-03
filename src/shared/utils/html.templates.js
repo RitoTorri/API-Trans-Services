@@ -704,7 +704,7 @@ const htmlEmployeesReport = (data) => {
             </div>
         </div>
 
-        <p id="clientes-cantidad">Cantidad de empleados: 3 | Generado: 15 de Noviembre, 2023</p>
+        <p id="clientes-cantidad">Cantidad de empleados: ${data.length} | Generado: ${new Date().toLocaleString()}</p>
 
         <table>
             <thead>
@@ -718,28 +718,44 @@ const htmlEmployeesReport = (data) => {
                 </tr>
             </thead>
             <tbody id="clientes-lista">
-                ${data && data.length > 0
-            ? data.map(item => `
+            ${data && data.length > 0
+            ? data.map(item => {
+                // Inicializar variables para correo y teléfono
+                let email = '';
+                let phone = '';
+
+                // Procesar los contactos si existen
+                if (item.employee_contacts && Array.isArray(item.employee_contacts)) {
+                    item.employee_contacts.forEach(contact => {
+                        if (contact.contact_info) {
+                            // Detectar si es correo (contiene @) o teléfono
+                            if (contact.contact_info.includes('@')) {
+                                email = contact.contact_info;
+                            } else {
+                                phone = contact.contact_info;
+                            }
+                        }
+                    });
+                }
+
+                return `
                         <tr>
                             <td>${item.name || ''}</td>
                             <td>${item.lastname || ''}</td>
                             <td>${item.ci || ''}</td>
                             <td>${item.rol || ''}</td>
-                            ${item.employee_contacts && Array.isArray(item.employee_contacts)
-                    ? item.employee_contacts.map(contact => `
-                                    <td>${contact.contact_info || ''}</td>
-                                `).join('')
-                    : '<td></td>'
-                }
+                            <td>${email}</td>
+                            <td>${phone}</td>
                         </tr>
-                    `).join('')
+                    `;
+            }).join('')
             : `<tr>
-                        <td colspan="10" style="text-align: center; padding: 30px; color: #666;">
-                            No hay empleados en el sistema
-                        </td>
-                    </tr>`
+                    <td colspan="10" style="text-align: center; padding: 30px; color: #666;">
+                        No hay empleados en el sistema
+                    </td>
+                </tr>`
         }
-            </tbody>
+        </tbody>
         </table>
 
         <div class="pdf-info">
