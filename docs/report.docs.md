@@ -176,7 +176,7 @@ GET http://localhost:3000/api/trans/services/reports/expenses/details/2025/11
 ```
 
 ### 6. Reporte de los proveedores al que se les a comprado mas
-**INFO:** Este reporte muestra los proveedores al que se les a comprado mas. Los proveedores retornados se hacen por el año y mes actual.
+**INFO:** Este reporte muestra los 3 proveedores a los que se les a comprado mas. Los proveedores retornados se hacen por el año y mes actual.  
 **Método:** `GET`  
 **Endpoint:** `http://localhost:3000/api/trans/services/reports/providers/:year/:month`
 **Headers:**
@@ -296,6 +296,38 @@ Authorization: Bearer {token}
 **Ejemplo de URL:**
 ```
 GET http://localhost:3000/api/trans/services/reports/revenue/pdf/2025/12
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 12. Reporte de proveedores a los que se les debe dinero
+**INFO:** Este reporte muestra los proveedores a los que se les debe dinero.
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/debt/providers/pdf`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de la URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/debt/providers/pdf
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 13. Reporte de proveedores
+**INFO:** Este reporte muestra los datos de todos los proveedores.
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/pdf/providers`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de la URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/pdf/providers
 ```
 
 **Respuesta:** Es la descarga del pdf.
