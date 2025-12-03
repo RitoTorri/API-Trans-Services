@@ -34,4 +34,10 @@ router.delete(
     controller.deleteVehicle
 );
 
+router.put(
+    '/reactivate/:license_plate',
+    validateLicensePlateParam,
+    controller.reactivateVehicle.bind(controller)
+);
+
 export default router;

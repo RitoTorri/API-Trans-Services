@@ -10,6 +10,7 @@ class vehiclesController {
         this.updateVehicle = this.updateVehicle.bind(this); 
         this.deleteVehicle = this.deleteVehicle.bind(this);
         this.listAll = this.listAll.bind(this);
+        this.reactivateVehicle = this.reactivateVehicle.bind(this);
        
     }
 
@@ -134,6 +135,38 @@ class vehiclesController {
                 });
             }
             console.error('Error al eliminar el vehículo:', error);
+            return responses.ErrorInternal(res, { error: error.message || 'Error inesperado.' });
+        }
+    }
+
+    async reactivateVehicle(req, res) {
+        const { license_plate } = req.params;
+
+        try {
+            const vehicle = await this.vehiclesService.reactivateVehicle(license_plate);
+
+            return responses.QuerySuccess(res, {
+                message: `El vehículo con placa ${license_plate} ha sido reactivado exitosamente.`,
+                is_active: vehicle.is_active,
+            });
+
+        } catch (error) {
+            if (error.message === "VEHICLE_NOT_FOUND") {
+                return responses.ItemNotFound(res, {
+                    error: 'VEHICLE_NOT_FOUND',
+                    message: `No se encontró el vehículo con la placa ${license_plate}.`
+                });
+            }
+            
+            if (error.message === "VEHICLE_ALREADY_ACTIVE") {
+                // 409 Conflict: Es un error de negocio, ya estaba como lo pedían.
+                return responses.Conflict(res, {
+                    error: 'VEHICLE_ALREADY_ACTIVE',
+                    message: `El vehículo con placa ${license_plate} ya estaba activo.`
+                });
+            }
+            
+            console.error('Error al reactivar el vehículo:', error);
             return responses.ErrorInternal(res, { error: error.message || 'Error inesperado.' });
         }
     }
