@@ -77,9 +77,13 @@ class ReportsService {
         } catch (error) { throw error; }
     }
 
-    async getPdfReportProviders() {
+    async getPdfReportProvidersDebt() {
         try {
+            const data = await model.getPdfReportProvidersDebt();
+            const html = await htmls.htmlProvidersReportDebt(data);
+            const pdf = await generarPDF(html);
 
+            return pdf;
         } catch (error) { throw error; }
     }
 
@@ -109,6 +113,17 @@ class ReportsService {
             const data = await model.getAnnualRevenueFullReport(year, month);
 
             const html = await htmls.htmlRevenueReport(data);
+            const pdf = await generarPDF(html);
+
+            return pdf;
+        } catch (error) { throw error; }
+    }
+
+    // Este reporte muestra los datos de todos los proveedores
+    async getPdfReportProviders() {
+        try {
+            const data = await model.getPdfReportProviders();
+            const html = await htmls.htmlProvidersReport(data);
             const pdf = await generarPDF(html);
 
             return pdf;

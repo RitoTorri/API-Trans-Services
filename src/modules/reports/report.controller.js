@@ -59,7 +59,7 @@ class ReportsController {
         }
     }
 
-    async getProvidersReport(req, res) {
+    async getProvidersReport(req, res) { // Muestra los 3 proveedores a los que se le realizan mas compras
         try {
             const { year, month } = req.params;
             const result = await service.getProvidersReport(parseInt(year), parseInt(month));
@@ -97,8 +97,14 @@ class ReportsController {
         }
     }
 
-    async getPdfReportProviders(req, res) {
+    // Este reporte muestra los proveedores a los que se les debe dinero
+    async getPdfReportProvidersDebt(req, res) {
         try {
+            const pdf = await service.getPdfReportProvidersDebt();
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="reporte_provedores_deudas.pdf"');
+            res.send(pdf);
 
         } catch (error) {
             return responses.ErrorInternal(res, error.message);
@@ -146,6 +152,20 @@ class ReportsController {
         }
     }
 
+
+    // Este reporte muestra los datos de todos los proveedores
+    async getPdfReportProviders(req, res) {
+        try {
+            const pdf = await service.getPdfReportProviders();
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="reporte_providers.pdf"');
+            res.send(pdf);
+
+        } catch (error) {
+            return responses.ErrorInternal(res, error.message);
+        }
+    }
 }
 
 export default ReportsController;

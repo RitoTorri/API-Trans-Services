@@ -80,5 +80,15 @@ router.get('/reports/revenue/pdf/:year/:month',
     controller.getPdfReportRevenue
 );
 
+// Este reporte muestra los proveedores a los que se les debe dinero
+router.get('/reports/debt/providers/pdf',
+    controller.getPdfReportProvidersDebt
+);
+
+// Este reporte muestra los datos de todos los proveedores
+router.get('/reports/pdf/providers',
+    controller.getPdfReportProviders
+);
+
 
 export default router;
