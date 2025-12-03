@@ -105,6 +105,18 @@ class vehicles {
             });
         } catch (error) { throw error; }
     }
+
+    async getAllInfoVehicles() {
+        try {
+            return await prisma.vehicles.findMany({
+                where: { is_active: true },
+                include: {
+                    vehicle_types: true,
+                    employees: true,
+                }
+            })
+        } catch (error) { throw error; }
+    }
 }
 
 export default new vehicles();

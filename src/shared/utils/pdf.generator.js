@@ -22,10 +22,10 @@ async function generarPDF(htmlContenido) {
 
         // 👇 MÁRGENES MÁS PEQUEÑOS para que no corte
         margin: {
-            top: '10mm',    // Reducido de 20mm
-            right: '10mm',  // Reducido de 15mm
-            bottom: '10mm', // Reducido de 20mm
-            left: '10mm'    // Reducido de 15mm
+            top: '5mm',    // Reducido de 20mm
+            right: '5mm',  // Reducido de 15mm
+            bottom: '5mm', // Reducido de 20mm
+            left: '5mm'    // Reducido de 15mm
         },
         preferCSSPageSize: true,
         scale: 0.95

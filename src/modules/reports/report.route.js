@@ -53,15 +53,41 @@ router.get('/reports/providers/:year/:month',
 
 // PDFS 
 router.get('/reports/clients/pdf',
-    TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
     controller.getPdfReportClients
 );
 
 router.get('/reports/employees/pdf',
-    TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
     controller.getPdfReportEmployees
+);
+
+router.get('/reports/provider/pdf',
+    controller.getPdfReportProviders
+);
+
+router.get('/reports/vehicles/pdf',
+    controller.getPdfReportVehicles
+);
+
+router.get('/reports/expenses/pdf/:year/:month',
+    middlewares.ValidateYear,
+    middlewares.ValidateMonth,
+    controller.getPdfReportExpenses
+);
+
+router.get('/reports/revenue/pdf/:year/:month',
+    middlewares.ValidateYear,
+    middlewares.ValidateMonth,
+    controller.getPdfReportRevenue
+);
+
+// Este reporte muestra los proveedores a los que se les debe dinero
+router.get('/reports/debt/providers/pdf',
+    controller.getPdfReportProvidersDebt
+);
+
+// Este reporte muestra los datos de todos los proveedores
+router.get('/reports/pdf/providers',
+    controller.getPdfReportProviders
 );
 
 
