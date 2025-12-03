@@ -169,3 +169,38 @@
 **Ejemplo:** `DELETE http://localhost:3000/api/trans/services/vehicles/deleteVehicle/XYA-987`
 
 **Nota:** Esta operación marca el campo `is_active` del vehículo como `false`.
+
+### 5. Reactivar Vehículo por Placa
+**Método:** PUT  
+**Endpoint:** `http://localhost:3000/api/trans/services/reactivate/:license_plate`  
+**Headers:** `Authorization: Bearer {token}`  
+**Parámetros URL:** `license_plate (string): Placa única del vehículo a reactivar (ej: XYA-987).`
+
+**Ejemplo:** `PUT http://localhost:3000/api/trans/services/reactivate/XYA-987`
+
+**Body:**
+Esta ruta no requiere un cuerpo de petición (Body).
+
+**Resultado Esperado (200 OK - Reactivado):**
+```json
+{
+  "success": true,
+  "code": "REQUEST_SUCCESSFUL",
+  "message": "The request was successful.",
+  "details": {
+    "message": "El vehículo con placa XYA-987 ha sido reactivado exitosamente.",
+    "is_active": true
+  }
+}
+
+**Resultado Esperado (409 Conflict - Ya Activo):**
+
+{
+  "success": false,
+  "code": "VEHICLE_ALREADY_ACTIVE",
+  "message": "Internal error.",
+  "details": {
+    "error": "VEHICLE_ALREADY_ACTIVE",
+    "message": "El vehículo con placa XYA-987 ya estaba activo."
+  }
+}
