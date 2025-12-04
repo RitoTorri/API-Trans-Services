@@ -114,7 +114,7 @@ class ProviderInvoicesController {
       return responses.QuerySuccess(res, result);
       } catch (error) {
       if (
-        error.message === 'Invoice not found.' ||
+        error.message === 'Factura no encontrada.' ||
         error.message === 'Transición inválida: pendiente solo puede pasar a pagado o cancelado.' ||
         error.message.startsWith('No se puede modificar una factura')
         ) {
