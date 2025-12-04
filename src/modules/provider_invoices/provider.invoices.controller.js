@@ -100,17 +100,31 @@ class ProviderInvoicesController {
     }
   }
 
-    async updateStatus(req, res) {
+  async updateStatus(req, res) {
     try {
       const id = Number(req.params.id);
       const { status } = req.body;
 
+      // Validación explícita del campo status
+      if (!status || typeof status !== 'string') {
+        return responses.BadRequest(res, 'Campo "status" requerido y debe ser texto.');
+      }
+
       const result = await service.updateStatus(id, status);
       return responses.QuerySuccess(res, result);
-    } catch (error) {
+      } catch (error) {
+      if (
+        error.message === 'Factura no encontrada.' ||
+        error.message === 'Transición inválida: pendiente solo puede pasar a pagado o cancelado.' ||
+        error.message.startsWith('No se puede modificar una factura')
+        ) {
+        return responses.ItemNotFound(res, error.message);
+      }
+
       return responses.ErrorInternal(res, error.message);
     }
   }
+
   
   // 📌 Nuevo método: factura completa con gasto automático
   async findInvoiceFull(req, res) {
