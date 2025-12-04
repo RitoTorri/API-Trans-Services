@@ -85,6 +85,35 @@ class vehiclesServices{
         }
     }
 
+    async reactivateVehicle(license_plate) {
+        try {
+            // Intenta reactivar el vehículo
+            const vehicle = await this.vehiclesModel.reactivateByPlate(license_plate);
+            return vehicle;
+
+        } catch (error) {
+            // P2025 es el código de error de Prisma si no encuentra el registro
+            if (error.code === 'P2025') {
+                
+                // Verificamos si existe pero está activo (error de semántica)
+                const existingVehicle = await this.vehiclesModel.findByPlate(license_plate);
+                
+                if (!existingVehicle) {
+                    // Si no existe en absoluto
+                    throw new Error("VEHICLE_NOT_FOUND");
+                }
+
+                if (existingVehicle.is_active === true) {
+                    // Si existe pero ya está activo
+                    throw new Error("VEHICLE_ALREADY_ACTIVE");
+                }
+            }
+
+            // Si es otro error de Prisma o error desconocido, lo lanzamos
+            throw error;
+        }
+    }
+
 }
 
 export default new vehiclesServices();
