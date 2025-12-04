@@ -135,18 +135,15 @@ class ReportsModel {
                 SELECT 
                     p.name AS proveedor,
                     p.rif,
-                    STRING_AGG(DISTINCT CASE WHEN pc.contact_info LIKE '0%' THEN pc.contact_info END, ', ') AS telefonos,
+                    STRING_AGG(DISTINCT CASE WHEN pc.contact_info NOT LIKE '%@%' THEN pc.contact_info END, ', ') AS telefonos,
                     STRING_AGG(DISTINCT CASE WHEN pc.contact_info LIKE '%@%' THEN pc.contact_info END, ', ') AS correos,
-                    SUM(DISTINCT pi.subtotal) AS subtotal_pendiente,
-                    SUM(DISTINCT it.amount) AS impuestos_pendientes,
-                    SUM(DISTINCT pi.subtotal + COALESCE(it.amount,0)) AS total_adeudado
+                    SUM(pi.subtotal) AS subtotal_pendiente,
+                    SUM(it.amount) AS impuestos_pendientes,
+                    SUM(pi.subtotal + COALESCE(it.amount,0)) AS total_adeudado
                 FROM providers p
-                JOIN provider_invoices pi 
-                    ON p.id = pi.provider_id
-                LEFT JOIN provider_contacts pc 
-                    ON p.id = pc.provider_id
-                LEFT JOIN invoice_taxes it 
-                    ON pi.id = it.provider_invoice_id
+                JOIN provider_invoices pi ON p.id = pi.provider_id
+                LEFT JOIN provider_contacts pc ON p.id = pc.provider_id
+                LEFT JOIN invoice_taxes it ON pi.id = it.provider_invoice_id
                 WHERE pi.status = 'pendiente'
                 GROUP BY p.id, p.name, p.rif;
             `
