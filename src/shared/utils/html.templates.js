@@ -712,9 +712,9 @@ const htmlEmployeesReport = (data) => {
                     <th>Nombre</th>
                     <th>Apellido</th>
                     <th>Cédula</th>
-                    <th>Rol</th>
-                    <th>Contacto 1</th>
-                    <th>Contacto 2</th>
+                    <th>Cargo</th>
+                    <th>Correo</th>
+                    <th>Telefono</th>
                 </tr>
             </thead>
             <tbody id="clientes-lista">
@@ -1984,7 +1984,7 @@ const htmlExpensesReport = (data) => {
                                 <td>${item.Fecha || ''}</td>
                                 <td>${item.name || ''}</td>
                                 <td>${item.Descripcion || ''}</td>
-                                <td>${item.Gasto_Mensual || '0.00'}</td>
+                                <td>${item.Gasto_Mensual || '0.00'} Bs</td>
                             </tr>
                         `).join('');
 
@@ -2392,7 +2392,7 @@ const htmlRevenueReport = (data) => {
                         <tr>
                             <td>${item.Fecha || 'N/A'}</td>
                             <td>${item.Descripcion || 'N/A'}</td>
-                            <td>$${monto.toFixed(2)}</td>
+                            <td>${monto.toFixed(2)} Bs</td>
                         </tr>`;
             }
 
@@ -2400,7 +2400,7 @@ const htmlRevenueReport = (data) => {
             filasHTML += `
                     <tr class="total-row">
                         <td colspan="2" style="text-align: right;">TOTAL GENERAL:</td>
-                        <td>$${totalGeneral.toFixed(2)}</td>
+                        <td>${totalGeneral.toFixed(2)}</td>
                     </tr>`;
 
             return filasHTML;
@@ -2797,9 +2797,9 @@ const htmlProvidersReportDebt = (data) => {
                             <td>${item.rif || ''}</td>
                             <td>${item.correos || ''}</td>
                             <td>${item.telefonos || ''}</td>
-                            <td>$${item.subtotal_pendiente}</td>
-                            <td>$${item.impuestos_pendientes}</td>
-                            <td>$${item.total_adeudado}</td>
+                            <td>${item.subtotal_pendiente} Bs</td>
+                            <td>${item.impuestos_pendientes} Bs</td>
+                            <td>${item.total_adeudado} Bs</td>
                         </tr>
                     `).join('');
             }
