@@ -37,7 +37,7 @@ class ServicesController {
 
     async getServices(req, res) {
         try {
-            const result = await service.getServices(req.filterSearch);
+            const result = await service.getServices(req.filter);
             return responses.QuerySuccess(res, result);
 
         } catch (error) {
