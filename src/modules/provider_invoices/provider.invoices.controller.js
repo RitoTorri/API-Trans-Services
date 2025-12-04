@@ -110,7 +110,7 @@ class ProviderInvoicesController {
         return responses.BadRequest(res, 'Campo "status" requerido y debe ser texto.');
       }
 
-      const result = await service.updateStatus(id, status);
+      const result = await service.updateStatus(id, status);      
       return responses.QuerySuccess(res, result);
       } catch (error) {
       if (
