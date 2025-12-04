@@ -7,82 +7,62 @@ import authorization from '../../shared/middlewares/authorization.middleware.js'
 const router = express.Router();
 const controller = new ProviderController();
 
-// 📌 Crear proveedor
+// 📌 Crear proveedor con contactos
 router.post('/provider',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
   middleware.validateProvider,
-  controller.create
+  (req, res) => controller.create(req, res)
 );
 
 // 📌 Listar proveedores activos
 router.get('/providers',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
-  controller.findAll
+  (req, res) => controller.findAll(req, res)
 );
 
-// 📌 Buscar proveedores por nombre
+// 📌 Buscar proveedores activos por nombre
 router.get('/provider/search/:name',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
-  controller.findByName
+  (req, res) => controller.findByName(req, res)
 );
 
-// 📌 Actualizar proveedor
+// 📌 Buscar proveedores inactivos por nombre
+router.get('/provider/inactive/search/:name',
+  validateTokenAccess,
+  authorization(['Administrador', 'SuperUsuario']),
+  (req, res) => controller.findInactiveByName(req, res)
+);
+
+// 📌 Actualizar proveedor y contactos
 router.patch('/provider/:id',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
   middleware.validateProviderUpdate,
-  controller.update
+  (req, res) => controller.update(req, res)
 );
 
 // 📌 Eliminar proveedor (soft delete)
 router.delete('/provider/:id',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
-  controller.delete
+  (req, res) => controller.delete(req, res)
 );
 
 // 📌 Listar proveedores eliminados
 router.get('/providers-deleted',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
-  controller.findDeleted
+  (req, res) => controller.findDeleted(req, res)
 );
 
-// 📌 Restaurar proveedor eliminado
+// 📌 Restaurar proveedor eliminado (solo con ID)
 router.put('/provider/restore/:id',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
-  controller.restore
-);
-// 📌 Agregar contacto
-router.post('/provider/:id/contacts',
-  validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
-  (req, res) => controller.addContact(req, res)
-);
-
-// 📌 Actualizar contacto
-router.patch('/provider/:id/contacts/:contact_id',
-  validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
-  (req, res) => controller.updateContact(req, res)
-);
-
-// 📌 Eliminar contacto
-router.delete('/provider/:id/contacts/:contact_id',
-  validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
-  (req, res) => controller.deleteContact(req, res)
-);
-
-// 📌 Listar contactos
-router.get('/provider/:id/contacts',
-  validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
-  (req, res) => controller.listContacts(req, res)
+  (req, res) => controller.restore(req, res)
 );
 
 export default router;

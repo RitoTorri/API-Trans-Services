@@ -10,14 +10,13 @@
 Authorization: Bearer {token}
 ```
 
-**Parámetros del Body:**
+**Parámetros de la URL:**
 - `year` (integer): Año a consultar
 
-**Ejemplo de Body:**
-```json
-{
-    "year": "2025"
-}
+**Ejemplo de la URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/expenses/annual/2025
+```
 
 ```
 
@@ -81,9 +80,9 @@ GET http://localhost:3000/api/trans/services/reports/revenue/annual/2025
 ---
 
 ### 3. Reporte de Clientes con mayor número de servicios
-**info:** Este reporte muestra los clientes con mayor número de servicios solicitados. Los clientes retornados se hacen por el año y mes actual. No tiene filtro de busqueda.  
+**info:** Este reporte muestra los clientes con mayor número de servicios solicitados. Los clientes retornados se hacen por el año y mes actual. 
 **Método:** `GET`  
-**Endpoint:** `http://localhost:3000/api/trans/services/reports/clients/service/ranking`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/clients/service/ranking/:year/:month`
 **Headers:**
 ```
 Authorization: Bearer {token}
@@ -91,7 +90,7 @@ Authorization: Bearer {token}
 
 **Ejemplo de URL:**
 ```
-GET http://localhost:3000/api/trans/services/reports/clients/service/ranking
+GET http://localhost:3000/api/trans/services/reports/clients/service/ranking/2025/11
 ```
 
 **Respuesta:**
@@ -112,9 +111,9 @@ GET http://localhost:3000/api/trans/services/reports/clients/service/ranking
 ```
 
 ### 4. Reportes de empleados con mayor número de servicios
-**info:** Este reporte muestra los empleados con mayor número de servicios o viajes realizados. Los empleados retornados se hacen por el año y mes actual. No tiene filtro de busqueda. Se retornan los primeros 3.  
+**info:** Este reporte muestra los empleados con mayor número de servicios o viajes realizados. Los empleados retornados se hacen por el año y mes actual. Se retornan los primeros 3.  
 **Método:** `GET`  
-**Endpoint:** `http://localhost:3000/api/trans/services/reports/employees/services/borrowed`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/employees/services/borrowed/:year/:month`
 **Headers:**
 ```
 Authorization: Bearer {token}
@@ -122,7 +121,7 @@ Authorization: Bearer {token}
 
 **Ejemplo de URL:**
 ```
-GET http://localhost:3000/api/trans/services/reports/employees/services/borrowed
+GET http://localhost:3000/api/trans/services/reports/employees/services/borrowed/2025/11
 ```
 
 **Respuesta:**
@@ -175,3 +174,160 @@ GET http://localhost:3000/api/trans/services/reports/expenses/details/2025/11
     ]
 }
 ```
+
+### 6. Reporte de los proveedores al que se les a comprado mas
+**INFO:** Este reporte muestra los 3 proveedores a los que se les a comprado mas. Los proveedores retornados se hacen por el año y mes actual.  
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/providers/:year/:month`
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros de la URL:**
+- `year` (integer): Año a consultar
+- `month` (integer): Mes a consultar
+
+**Ejemplo de la URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/providers/2025/11
+```
+
+**Respuesta:**
+```json
+{
+    "success": true,
+    "code": "REQUEST_SUCCESSFUL",
+    "message": "The request was successful.",
+    "details": [
+        {
+            "Nombre de proveedor": "Distribuidora Lara",
+            "RIF": "J-11223344-5",
+            "Periodo": "2025-11",
+            "Cantidad de compras realizadas": "3",
+            "Total de gastos": "61.64"
+        }
+    ]
+}
+```
+
+
+### 7. Reporte de Clientes en pdf
+**INFO:** Este reporte te devuelve un pdf con todos los clientes registrados.  
+**Método:** `GET`    
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/clients/pdf`    
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/clients/pdf
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 8. Reporte de Empleados en pdf
+**INFO:** Este reporte te devuelve un pdf con todos los empleados registrados.  
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/employees/pdf`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/employees/pdf
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 9. Reporte de vehiculos en pdf
+**INFO:** Este reporte te devuelve un pdf con todos los vehiculos registrados.  
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/vehicles/pdf`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/vehicles/pdf
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 10. Reporte de gastos en pdf
+**INFO:** Este reporte te devuelve un pdf con todos los gastos registrados.  
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/expenses/pdf/:year/:month`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros URL:**
+- `year` (integer): Año a consultar
+- `month` (integer): Mes a consultar
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/expenses/pdf/2025/11
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 11. Reporte de ganancias en pdf
+**INFO:** Este reporte te devuelve un pdf con todos los ganancias registrados.  
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/revenue/pdf/:year/:month`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Parámetros URL:**
+- `year` (integer): Año a consultar
+- `month` (integer): Mes a consultar
+
+**Ejemplo de URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/revenue/pdf/2025/12
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 12. Reporte de proveedores a los que se les debe dinero
+**INFO:** Este reporte muestra los proveedores a los que se les debe dinero.
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/debt/providers/pdf`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de la URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/debt/providers/pdf
+```
+
+**Respuesta:** Es la descarga del pdf.
+
+### 13. Reporte de proveedores
+**INFO:** Este reporte muestra los datos de todos los proveedores.
+**Método:** `GET`  
+**Endpoint:** `http://localhost:3000/api/trans/services/reports/pdf/providers`  
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Ejemplo de la URL:**
+```
+GET http://localhost:3000/api/trans/services/reports/pdf/providers
+```
+
+**Respuesta:** Es la descarga del pdf.

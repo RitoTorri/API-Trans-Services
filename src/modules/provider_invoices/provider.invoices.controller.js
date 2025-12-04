@@ -71,16 +71,11 @@ class ProviderInvoicesController {
     }
   }
 
+  // 🔹 Restaurar factura eliminada solo con ID
   async restore(req, res) {
     try {
       const id = parseInt(req.params.id);
-      const { control_number } = req.body;
-
-      if (!control_number) {
-        return responses.BadRequest(res, 'Missing control_number for restoration.');
-      }
-
-      const result = await service.restore(id, control_number);
+      const result = await service.restore(id);
       return responses.QuerySuccess(res, result);
     } catch (error) {
       if (
@@ -89,11 +84,6 @@ class ProviderInvoicesController {
       ) {
         return responses.ItemNotFound(res, error.message);
       }
-
-      if (error.message === 'Control number already exists.') {
-        return responses.BadRequest(res, error.message);
-      }
-
       return responses.ErrorInternal(res, error.message);
     }
   }
@@ -110,35 +100,50 @@ class ProviderInvoicesController {
     }
   }
 
-  async findRetentions(req, res) {
+  async updateStatus(req, res) {
     try {
-      const purchase_invoice_id = parseInt(req.params.purchase_invoice_id);
-      const result = await service.getPurchaseWithRetentions(purchase_invoice_id);
+      const id = Number(req.params.id);
+      const { status } = req.body;
+
+      // Validación explícita del campo status
+      if (!status || typeof status !== 'string') {
+        return responses.BadRequest(res, 'Campo "status" requerido y debe ser texto.');
+      }
+
+      const result = await service.updateStatus(id, status);      
+      return responses.QuerySuccess(res, result);
+      } catch (error) {
+      if (
+        error.message === 'Factura no encontrada.' ||
+        error.message === 'Transición inválida: pendiente solo puede pasar a pagado o cancelado.' ||
+        error.message.startsWith('No se puede modificar una factura')
+        ) {
+        return responses.ItemNotFound(res, error.message);
+      }
+
+      return responses.ErrorInternal(res, error.message);
+    }
+  }
+
+  
+  // 📌 Nuevo método: factura completa con gasto automático
+  async findInvoiceFull(req, res) {
+    try {
+      const id = Number(req.params.id);
+      if (Number.isNaN(id)) {
+        return responses.BadRequest(res, 'ID de factura inválido.');
+      }
+
+      const result = await service.findInvoiceFull(id);
+      if (!result) {
+        return responses.ItemNotFound(res, 'Factura no encontrada');
+      }
+
       return responses.QuerySuccess(res, result);
     } catch (error) {
       return responses.ErrorInternal(res, error.message);
     }
   }
-
-  // 📌 Nuevo método: factura completa con compras, retenciones y gasto automático
-  async findInvoiceFull(req, res) {
-  try {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id)) {
-      return responses.BadRequest(res, 'ID de factura inválido.');
-    }
-
-    const result = await service.findInvoiceFull(id);
-    if (!result) {
-      return responses.ItemNotFound(res, 'Factura no encontrada');
-    }
-
-    return responses.QuerySuccess(res, result);
-  } catch (error) {
-    return responses.ErrorInternal(res, error.message);
-  }
-}
-
 }
 
 export default ProviderInvoicesController;

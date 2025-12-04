@@ -33,7 +33,7 @@ Content-Type: application/json
 ---
 
 ### 2. Listar todos los servicios
-**Método:** `GET`  
+**Método:** `POST`. Es post para poder enviar el filtro de busqueda por el body.
 **Endpoint:** `http://localhost:3000/api/trans/services/offered/services/search`
 **Headers:**
 ```

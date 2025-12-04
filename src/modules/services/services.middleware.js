@@ -56,23 +56,32 @@ const getServicesMiddleware = (req, res, next) => {
     }
 
     if (Object.keys(filterSearch).length === 0) {
-        req.filterSearch = {};
+        req.filter = {};
         return next();
     }
 
-    if (filterSearch === "paid" || filterSearch === "canceled" || filterSearch === "pending") {
-        req.filterSearch = { payment_status: filterSearch };
+    if (filterSearch.toLowerCase() === "pagado") {
+        req.filter = { payment_status: "paid" };
+        return next();
+    }
+
+    if (filterSearch.toLowerCase() === "pendiente") {
+        req.filter = { payment_status: "pending" };
+        return next();
+    }
+
+    if (filterSearch.toLowerCase() === "cancelado") {
+        req.filter = { payment_status: "canceled" };
         return next();
     }
 
     if (!validators.formatNamesInvalid(filterSearch)) {
-        req.filterSearch = { name_client: filterSearch };
-        console.log(req.filterSearch);
+        req.filter = { name_client: filterSearch };
         return next();
     }
 
     if (!validators.formatDateInvalid(filterSearch.dateStart) && !validators.formatDateInvalid(filterSearch.dateEnd)) {
-        req.filterSearch = { dateStart: filterSearch.dateStart, dateEnd: filterSearch.dateEnd };
+        req.filter = { dateStart: filterSearch.dateStart, dateEnd: filterSearch.dateEnd };
         return next();
     }
 

@@ -1,0 +1,147 @@
+# Módulo Facturas (Provider Invoices)
+
+## Descripción general
+El módulo Provider Invoices gestiona las facturas de proveedores: creación con impuestos, cálculo de totales, asociación automática de gastos, búsquedas y filtros, cambio de estado, eliminación lógica y restauración. Al marcar una factura como "pagado" se crea automáticamente un gasto en la tabla expenses con tipo "Compras". Todos los endpoints están protegidos con token y autorización de roles: Administrador y SuperUsuario.
+
+## Modelo de datos
+### Tabla provider_invoices:
+- id (PK)
+- provider_id (FK → providers.id)
+- control_number (string, ≤30)
+- invoice_number (string, ≤30)
+- invoice_date (date)
+- subtotal (decimal, 10,2)
+- total_amount (decimal, 10,2)
+- status (enum: pendiente, pagado, cancelado)
+- created_at (timestamp)
+
+### Tabla invoice_taxes:
+- id (PK)
+- provider_invoice_id (FK → provider_invoices.id)
+- code (string, ≤10)
+- name (string, ≤100)
+- percentage (decimal, 5,2)
+- amount (decimal, 10,2)
+- created_at (timestamp)
+
+### Tabla provider_invoices_retentions:
+- id (PK)
+- provider_invoice_id (FK → provider_invoices.id)
+- retention_code (string, ≤30)
+- base_amount (decimal, 10,2)
+- rate_retention (decimal, 10,2)
+- total_retention (decimal, 10,2)
+- created_at (timestamp)
+
+### Tabla expenses:
+- id (PK)
+- id_expense_type (FK → expense_types.id)
+- description (string, ≤255)
+- total (decimal, 10,2)
+- created_at (timestamp)
+
+## Validaciones
+### Creación:
+- provider_id numérico válido (en URL).
+- Campos obligatorios: control_number, invoice_number, invoice_date, subtotal, taxes (array).
+- Formato: control_number e invoice_number texto válido, invoice_date fecha válida.
+- Numéricos: subtotal tipo number y ≥ 0.
+- Impuestos: cada tax requiere code, name, percentage; percentage tipo number y ≥ 0.
+
+### Eliminación:
+- id numérico válido.
+
+### Reglas de estado:
+- Estado inicial: pendiente.
+- Transiciones permitidas: pendiente → pagado (crea gasto automático), pendiente → cancelado.
+- Restricciones: facturas en estado pagado o cancelado no deben modificarse.
+
+## Autenticación y autorización
+- Todos los endpoints requieren header Authorization: Bearer <token>.
+- Autorización de roles: Administrador, SuperUsuario.
+
+## Endpoints
+
+### Crear factura con impuestos y gasto automático
+**URL:** POST /api/trans/services/provider-invoice/:provider_id  
+**Headers:** Authorization: Bearer <token>  
+**Body:**
+```json
+{
+  "control_number": "C-004",
+  "invoice_number": "F-004",
+  "invoice_date": "2025-12-01",
+  "subtotal": 1200,
+  "taxes": [
+    { "code": "iva", "name": "impuesto al valor agregado", "percentage": 16 }
+  ]
+}
+```
+
+### Listar todas las facturas activas
+**URL:** GET /api/trans/services/provider-invoices  
+**Headers:** Authorization: Bearer <token>
+
+### Listar facturas por proveedor
+**URL:** GET /api/trans/services/provider-invoices/provider/:provider_id  
+**Headers:** Authorization: Bearer <token>
+
+### Filtrar facturas por rango de fechas
+**URL:** GET /api/trans/services/provider-invoices-range?start=YYYY-MM-DD&end=YYYY-MM-DD  
+**Headers:** Authorization: Bearer <token>
+
+### Buscar por número fiscal o control
+**URL:** GET /api/trans/services/provider-invoices/search/:value  
+**Headers:** Authorization: Bearer <token>
+
+### Listar facturas eliminadas (soft deleted)
+**URL:** GET /api/trans/services/provider-invoices-deleted  
+**Headers:** Authorization: Bearer <token>
+
+### Restaurar factura eliminada
+**URL:** PUT /api/trans/services/provider-invoice/restore/:id  
+**Headers:** Authorization: Bearer <token>
+
+### Soft delete: marcar factura como eliminada
+**URL:** DELETE /api/trans/services/provider-invoice/:id  
+**Headers:** Authorization: Bearer <token>
+
+### Cambiar estado de una factura
+**URL:** PATCH /api/trans/services/provider-invoice/:id/status  
+**Headers:** Authorization: Bearer <token>  
+**Body:**
+```json
+{
+  "status": "pagado"
+}
+```
+
+### Consultar factura completa con gasto automático
+**URL:** GET /api/trans/services/provider-invoices/:id/full  
+**Headers:** Authorization: Bearer <token>
+
+## Flujo recomendado de pruebas
+1. Crear factura con impuestos (estado inicial pendiente).
+2. Listar facturas y verificar creación.
+3. Cambiar estado a "pagado" y confirmar creación de gasto automático.
+4. Consultar factura completa (:id/full) para ver impuestos y gasto asociado.
+5. Probar búsqueda por número/control y por rango de fechas.
+6. Eliminar factura (soft delete) y verificar en listado de eliminadas.
+7. Restaurar factura eliminada y confirmar en listado general.
+
+## Respuestas y errores comunes
+- Provider not found. → al crear, si el proveedor no existe.
+- Invoice not found. → id inexistente en operaciones de consulta/eliminar/restaurar.
+- Invoice is not marked as deleted. → al restaurar una factura que no está eliminada.
+- Missing start or end date. → en filtros por rango de fechas sin parámetros.
+- Invalid invoice id. → id inválido en delete/restore.
+- ID de factura inválido. → en findInvoiceFull con id NaN.
+- No se puede modificar una factura con estado 'pagado' o 'cancelado'. → restricción de transición.
+- Transición inválida: pendiente solo puede pasar a pagado o cancelado. → validación de estado.
+
+## Notas de implementación
+- Conversión de fecha: el controller transforma invoice_date a Date antes de crear.
+- Creación de gasto: en updateStatus a "pagado" se inserta en expenses con tipo "Compras" y descripción "Compra al <Proveedor> - Factura <Número>".
+- Unicidad práctica del gasto: la descripción con el número de factura ayuda a evitar duplicados sin cambios de schema.
+- Soft delete: se marca control_number con prefijo deleted_<timestamp>.
+- Seguridad: validateTokenAccess y authorization(['Administrador', 'SuperUsuario']) aplicados en todas las rutas.
