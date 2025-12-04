@@ -61,20 +61,77 @@ class ProviderInvoicesService {
     };
   }
 
+  // 🔹 Listar todas las facturas con proveedor (solo name y rif) e impuestos
   async findAll() {
-    return await model.findAll();
+    return await prisma.provider_invoices.findMany({
+      include: {
+        provider: {
+          select: {
+            name: true,
+            rif: true
+          }
+        },
+        invoice_taxes: true
+      }
+    });
   }
 
+  // 🔹 Buscar facturas por proveedor con datos del proveedor (solo name y rif)
   async findByProvider(provider_id) {
-    return await model.findByProviderId(provider_id);
+    return await prisma.provider_invoices.findMany({
+      where: { provider_id },
+      include: {
+        provider: {
+          select: {
+            name: true,
+            rif: true
+          }
+        },
+        invoice_taxes: true
+      }
+    });
   }
 
+  // 🔹 Buscar facturas por rango de fechas con proveedor (solo name y rif)
   async findByDateRange(start, end) {
-    return await model.findByDateRange(start, end);
+    return await prisma.provider_invoices.findMany({
+      where: {
+        invoice_date: {
+          gte: new Date(start),
+          lte: new Date(end)
+        }
+      },
+      include: {
+        provider: {
+          select: {
+            name: true,
+            rif: true
+          }
+        },
+        invoice_taxes: true
+      }
+    });
   }
 
+  // 🔹 Buscar factura por número/control con proveedor (solo name y rif)
   async searchByNumber(value) {
-    return await model.findByInvoiceOrControlNumber(value);
+    return await prisma.provider_invoices.findMany({
+      where: {
+        OR: [
+          { invoice_number: { contains: value } },
+          { control_number: { contains: value } }
+        ]
+      },
+      include: {
+        provider: {
+          select: {
+            name: true,
+            rif: true
+          }
+        },
+        invoice_taxes: true
+      }
+    });
   }
 
   async findDeleted() {
@@ -99,62 +156,77 @@ class ProviderInvoicesService {
   }
 
   // 🔹 Cambiar estado de factura (pendiente → pagado → cancelado)
-// 🔹 Cambiar estado de factura (pendiente → pagado → cancelado)
-async updateStatus(id, status) {
-  const invoice = await model.findById(id);
-  if (!invoice) throw new Error('Invoice not found.');
+  async updateStatus(id, status) {
+    const invoice = await prisma.provider_invoices.findUnique({
+      where: { id },
+      include: {
+        provider: {
+          select: {
+            name: true,
+            rif: true
+          }
+        }
+      }
+    });
+    if (!invoice) throw new Error('Invoice not found.');
 
-  // 🔹 Restricciones de transición
-  if (invoice.status === 'pagado' || invoice.status === 'cancelado') {
-    throw new Error(`No se puede modificar una factura con estado '${invoice.status}'.`);
-  }
+    // Restricciones de transición
+    if (invoice.status === 'pagado' || invoice.status === 'cancelado') {
+      throw new Error(`No se puede modificar una factura con estado '${invoice.status}'.`);
+    }
 
-  if (invoice.status === 'pendiente' && !['pagado', 'cancelado'].includes(status)) {
-    throw new Error(`Transición inválida: pendiente solo puede pasar a pagado o cancelado.`);
-  }
+    if (invoice.status === 'pendiente' && !['pagado', 'cancelado'].includes(status)) {
+      throw new Error(`Transición inválida: pendiente solo puede pasar a pagado o cancelado.`);
+    }
 
-  const updated = await prisma.provider_invoices.update({
-    where: { id },
-    data: { status }
-  });
-
-  // 🔹 Crear gasto automático solo si pasa a pagado
-  if (status === 'pagado') {
-    const descripcionGasto = `Compra al ${invoice.provider.name} - Factura ${invoice.invoice_number}`;
-
-    // Buscar tipo de gasto "compras"
-    let expenseType = await prisma.expense_types.findFirst({
-      where: { name: "compras" }
+    const updated = await prisma.provider_invoices.update({
+      where: { id },
+      data: { status }
     });
 
-    // Si no existe, lo creamos
-    if (!expenseType) {
-      expenseType = await prisma.expense_types.create({
+    // Crear gasto automático solo si pasa a pagado
+    if (status === 'pagado') {
+      const descripcionGasto = `Compra al ${invoice.provider.name} - Factura ${invoice.invoice_number}`;
+
+      // Buscar tipo de gasto "compras"
+      let expenseType = await prisma.expense_types.findFirst({
+        where: { name: "compras" }
+      });
+
+      if (!expenseType) {
+        expenseType = await prisma.expense_types.create({
+          data: {
+            name: "compras",
+            description: "Gastos por compras de proveedores"
+          }
+        });
+      }
+
+      await prisma.expenses.create({
         data: {
-          name: "compras",
-          description: "Gastos por compras de proveedores"
+          id_expense_type: expenseType.id,
+          description: descripcionGasto,
+          total: Number(invoice.total_amount)
         }
       });
     }
 
-    // Crear gasto en la tabla expenses
-    await prisma.expenses.create({
-      data: {
-        id_expense_type: expenseType.id,
-        description: descripcionGasto,
-        total: Number(invoice.total_amount)
-      }
-    });
+    return updated;
   }
 
-  return updated;
-}
-
-
-
-  // 🔹 Consulta completa de factura con impuestos y gasto automático
+  // 🔹 Consulta completa de factura con impuestos y gasto automático (proveedor solo name y rif)
   async findInvoiceFull(id) {
-    const invoice = await model.findById(id); // incluye provider
+    const invoice = await prisma.provider_invoices.findUnique({
+      where: { id },
+      include: {
+        provider: {
+          select: {
+            name: true,
+            rif: true
+          }
+        }
+      }
+    });
     if (!invoice) return null;
 
     const taxes = await prisma.invoice_taxes.findMany({
