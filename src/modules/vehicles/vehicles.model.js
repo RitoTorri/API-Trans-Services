@@ -14,6 +14,18 @@ class vehicles {
         }
     }
 
+    async findVehicleById(vehicleId) {
+        try {
+            return await prisma.vehicles.findUnique({
+                where: {
+                    id: vehicleId, 
+                },
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async findAllVehicles() {
         try {
             return await prisma.vehicles.findMany({

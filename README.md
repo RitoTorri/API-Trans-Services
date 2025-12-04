@@ -1,4 +1,4 @@
-# API Trans-Services - Proyecto 4to Semestre
+# API Trans-Services
 
 ### IMPORTANTE  
 
@@ -36,12 +36,17 @@ AL ya haber instalado el proyecto debes de crear un archivo `.env` para guardar 
    
 2. **SECRET_KEY:** Es la clave/llave que contienen los tokens de acceso.
 
+3. **PORT:** Que es el puerto de ejecución de la API.
+
 ```bash
 # Conexión a la base de datos
 DATABASE_URL="postgresql://postgres:password@localhost:5432/nombre-de-la-base-de-datos"
 
 # Llave secreta para JWT
 secret_key=LlaveSecreta
+
+# Puerto
+PORT:3000
 ```
 ---
 
