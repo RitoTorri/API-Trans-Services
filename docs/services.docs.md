@@ -16,24 +16,31 @@ Content-Type: application/json
 - `price` (number): Precio del servicio
 - `start_date` (date): Fecha de inicio del servicio
 - `end_date` (date): Fecha de fin del servicio
-- `isrl` (number): Impuesto sobre la renta
 
 **Ejemplo de Body:**
 ```json
-{
-    "vehicle_id": 1,
-    "client_id": 1,
-    "price": 1200,
-    "start_date": "2025-11-03",
-    "end_date": "2025-11-30",
-    "isrl": 10
-}
+    "services": [
+        {
+            "vehicle_id": 1,
+            "client_id": 1,
+            "price": 1200,
+            "start_date": "2025-11-03",
+            "end_date": "2025-11-30"
+        },
+        {
+            "vehicle_id": 1,
+            "client_id": 1,
+            "price": 1200,
+            "start_date": "2025-11-03",
+            "end_date": "2025-11-30"
+        }
+    ]
 ```
-
+**Nota:** Se debe de mandar un arreglo llamado services, este contendra los objetos de los servicios que se van a crear. No es obligatorio enviar multriples objetos, por lo menos se requiere 1.
 ---
 
 ### 2. Listar todos los servicios
-**Método:** `POST`. Es post para poder enviar el filtro de busqueda por el body.
+**Método:** `POST`. Es post para poder enviar el filtro de busqueda por el body.  
 **Endpoint:** `http://localhost:3000/api/trans/services/offered/services/search`
 **Headers:**
 ```
@@ -59,7 +66,7 @@ Busqueda por fechas:
 
 Busqueda por estado:
 ```json
-    "filterSearch": "paid"
+    "filterSearch": "pagado" o "pendiente" o "cancelado"
 ```
 
 Busqueda por nombre del cliente:
@@ -86,11 +93,6 @@ Busqueda por nombre del cliente:
             "client": {
                 "name": "Richard",
                 "rif": "V-1234567-0"
-            },
-            "retentions": {
-                "code_retention": "isrl",
-                "rate_retention": "2",
-                "total_retention": "260.02"
             },
             "vehicle": {
                 "license_plate": "xxxx"

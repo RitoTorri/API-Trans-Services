@@ -221,7 +221,6 @@ model tax_parameters {
   created_at  DateTime @default(now())
 
   payrolls_retentions          payrolls_retentions[]
-  services_retentions          services_retentions[]
   provider_invoices_retentions provider_invoices_retentions[]
 
   @@map("tax_parameters")
@@ -254,27 +253,10 @@ model services {
 
   vehicles            vehicles              @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
   clients             clients               @relation(fields: [client_id], references: [id], onDelete: Cascade)
-  services_retentions services_retentions[]
 
   @@map("services")
 }
 
-model services_retentions {
-  // Relaciones
-  id             Int    @id @default(autoincrement())
-  service_id     Int    @db.Integer
-  code_retention String @db.VarChar(30)
-
-  // Datos
-  base_amount     Decimal  @db.Decimal(10, 2)
-  total_retention Decimal  @db.Decimal(10, 2) // Total de retención
-  created_at      DateTime @default(now())
-
-  services   services   @relation(fields: [service_id], references: [id], onDelete: Cascade)
-  retentions tax_parameters @relation(fields: [code_retention], references: [code], onDelete: Cascade)
-
-  @@map("services_retentions")
-}
 
 // Ingresos
 model revenue {

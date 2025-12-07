@@ -4,23 +4,26 @@ const prisma = new PrismaClient();
 class ServicesModel {
     constructor() { }
 
-    async addService(service, retentions) {
+    async addService(services) {
         try {
+            // Crear servicio
             return await prisma.$transaction(async (e) => {
-                // Crear servicio
-                const serviceCreated = await prisma.services.create({
-                    data: service
-                });
+                let results = [];
+                let CountServices = await this.getCountServices(); // Extraemos el conteo de servicios
 
-                // Agregamos el id del servicio a las retenciones
-                retentions.service_id = serviceCreated.id;
+                for (const service of services) {
+                    // Agregamos las propiedades de factura
+                    service.invoice_number = `TRS-${new Date().getFullYear()}-${CountServices + 1}`;
+                    service.invoice_date = new Date();
 
-                // Crear retenciones
-                const retentionsCreated = await prisma.services_retentions.create({
-                    data: retentions
-                });
-                return [serviceCreated, retentionsCreated];
+                    const result = await e.services.create({ data: service }); // Crear servicio
+
+                    CountServices++; // Incrementamos el contador de servicios
+                    results.push(result); // Agregamos el resultado al array de resultados
+                }
+                return results.length;
             });
+
         } catch (error) { throw error; }
     }
 
@@ -30,7 +33,6 @@ class ServicesModel {
                 where: filter,
                 include: {
                     clients: { select: { name: true, rif: true } },
-                    services_retentions: { select: { code_retention: true, rate_retention: true, total_retention: true } },
                     vehicles: { select: { license_plate: true } }
                 }
             });
@@ -46,24 +48,15 @@ class ServicesModel {
                     data: { payment_status: status }
                 });
 
-                // Buscamos las retenciones de ese servicio
-                const servicesRetentions = await prisma.services_retentions.findFirst({
-                    where: { service_id: id }
-                });
-
                 // Buscamos el cliente que solicito el servicio
                 const client = await prisma.clients.findFirst({
                     where: { id: servicesUpdate.client_id }
-                });
-
-                // Calculamos el total de la ganancia 
-                let totalGanancia = servicesUpdate.price - servicesRetentions.total_retention;
+                });;
 
                 // Creamos el objeto de la ganancia
                 const revenue = {
                     description: `Servicio vendido a ${client.name}, ${client.rif}. Desde ${servicesUpdate.start_date.toISOString().split('T')[0]} hasta ${servicesUpdate.end_date.toISOString().split('T')[0]}`,
-                    amount: totalGanancia,
-                    category: "ganancia",
+                    amount: servicesUpdate.price,
                     date: new Date(),
                 };
 

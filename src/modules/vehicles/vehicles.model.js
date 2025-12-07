@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 class vehicles {
     constructor() {
         this.prisma = prisma;
-     }
+    }
 
     async createVehicle(vehicleData) {
         try {
@@ -20,7 +20,7 @@ class vehicles {
         try {
             return await prisma.vehicles.findUnique({
                 where: {
-                    id: vehicleId, 
+                    id: vehicleId,
                 },
             });
         } catch (error) {
@@ -89,11 +89,11 @@ class vehicles {
             where: {
                 // Buscamos el vehículo y aseguramos que esté inactivo para reactivarlo
                 license_plate: license_plate,
-                is_active: false, 
+                is_active: false,
             },
             data: {
                 is_active: true, // Cambiamos el estado a activo
-                
+
             },
         });
     }
@@ -116,6 +116,17 @@ class vehicles {
                 }
             })
         } catch (error) { throw error; }
+    }
+
+    async validateVehicleInUse(id, date_start, date_end) {
+        return prisma.$queryRaw`
+            SELECT * FROM services s
+            INNER JOIN vehicles v ON s.vehicle_id = v.id
+            WHERE
+                v.id = ${id} 
+                AND s.start_date::date = ${date_start}::date 
+                AND s.end_date::date = ${date_end}::date
+        `
     }
 }
 

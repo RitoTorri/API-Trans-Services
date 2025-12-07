@@ -1,38 +1,47 @@
 import ServicesModel from "./services.model.js";
 const model = new ServicesModel();
 
-// Importacion de retenciones
-import isrCalculator from "../../shared/utils/isr.calculator.js";
-
 // Importacion de clientes
 import ClientsModel from "../clients/clients.model.js";
 const clients = new ClientsModel();
 
 // Importacion de vehículos
 import VehiclesModel from "../vehicles/vehicles.model.js";
+import vehiclesModel from "../vehicles/vehicles.model.js";
 
 class ServicesService {
     constructor() { }
 
-    async addService(service, retention) {
+    async addService(services) {
         try {
-            // Validar si existe un cliente con ese rif
-            const client = await clients.getClientById(service.client_id);
-            if (!client) throw new Error("Client not found.");
+            // Validar que el vehiculo no se use en la misma fecha
+            for (let i = 0; i < services.length; i++) {
+                for (let j = i + 1; j < services.length; j++) {
+                    if (services[i].vehicle_id === services[j].vehicle_id) {
+                        // Si las fechas se solapan, error
+                        if (services[i].start_date <= services[j].end_date &&
+                            services[j].start_date <= services[i].end_date) {
+                            throw new Error(`You already have existing records with vehicle ${services[i].vehicle_id} on the same dates.This is not allowed.`);
+                        }
+                    }
+                }
+            }
 
-            // Validar si existe un vehículo con ese id
-            const vehicle = await VehiclesModel.getVehicleById(service.vehicle_id);
-            if (!vehicle) throw new Error("Vehicle not found.");
+            for (const service of services) {
+                // Validar si existe un cliente con ese rif
+                const client = await clients.getClientById(service.client_id);
+                if (!client) throw new Error("Client not found.");
 
-            // Agregamos las propiedades de factura
-            const servicesExists = await model.getCountServices();
-            service.invoice_number = `TRS-${new Date().getFullYear()}-${servicesExists + 1}`;
-            service.invoice_date = new Date();
+                // Validar si existe un vehículo con ese id
+                const vehicle = await VehiclesModel.getVehicleById(service.vehicle_id);
+                if (!vehicle) throw new Error("Vehicle not found.");
 
-            // Cremoas el objeto a guardar en retencion
-            retention.total_retention = isrCalculator(service.price, retention.rate_retention);
+                // Validamos que el vehiculo no tenga otro servicio en curso
+                const vehicleInUse = await vehiclesModel.validateVehicleInUse(service.vehicle_id, service.start_date.toISOString().split('T')[0], service.end_date.toISOString().split('T')[0]);
+                if (vehicleInUse.length > 0) throw new Error(`Vehicle in use.`);
+            }
 
-            return await model.addService(service, retention);
+            return await model.addService(services);
         } catch (error) { throw error; }
     }
 
@@ -64,17 +73,16 @@ class ServicesService {
                 return {
                     services: {
                         id: result.id,
-                        star_date: result.start_date,
-                        end_date: result.end_date,
+                        star_date: result.start_date.toISOString().split('T')[0],
+                        end_date: result.end_date.toISOString().split('T')[0],
                         price: result.price,
                         invoice_number: result.invoice_number,
-                        invoice_date: result.invoice_date,
+                        invoice_date: result.invoice_date.toISOString().split('T')[0],
                         payment_status: result.payment_status
                     },
                     client: result.clients,
-                    retentions: result.services_retentions[0],
                     vehicle: result.vehicles,
-                    totalAmount: result.price - result.services_retentions.map(s => s.total_retention)[0]
+                    totalAmount: result.price
                 }
             });
         } catch (error) { throw error; }
@@ -94,7 +102,7 @@ class ServicesService {
                 return await model.updatePaymentStatusPaid(id, status);
             }
 
-            const result = await model.updatePaymentStatusCanceled(id);
+            await model.updatePaymentStatusCanceled(id);
             return "Service canceled successfully.";
         } catch (error) { throw error; }
     }

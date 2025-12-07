@@ -8,26 +8,32 @@ class ServicesController {
 
     async addService(req, res) {
         try {
-            // Este contienen los datos del servicio
-            const serviceObj = {
-                vehicle_id: parseInt(req.body.vehicle_id),
-                client_id: parseInt(req.body.client_id),
-                price: parseFloat(req.body.price),
-                start_date: new Date(req.body.start_date),
-                end_date: new Date(req.body.end_date),
-            };
+            // Destructurar los datos de la petición
+            const services = req.body.services;
 
-            // Este contienen los datos de la retencion aplicada al servicio
-            const retention = {
-                code_retention: "isrl",
-                base_amount: serviceObj.price,
-                rate_retention: req.body.isrl,
-            }
+            // Mapeo de conversión de datos
+            const servicesNew = services.map(service => {
+                return {
+                    vehicle_id: parseInt(service.vehicle_id),
+                    client_id: parseInt(service.client_id),
+                    price: parseFloat(service.price),
+                    start_date: new Date(service.start_date),
+                    end_date: new Date(service.end_date),
+                }
+            });
 
-            const result = await service.addService(serviceObj, retention);
-            return responses.QuerySuccess(res, result);
+            const result = await service.addService(servicesNew);
+            return responses.QuerySuccess(res, `${result} services has been registered successfully.`);
 
         } catch (error) {
+            if (error.message === "Vehicle in use.") {
+                return responses.ResConflict(res, "Vehicle already has a service in progress.");
+            }
+
+            if (error.message === "Vehicle not found.") {
+                return responses.ItemNotFound(res, "Vehicle not found. Please, check the vehicle id.");
+            }
+
             if (error.message === "Client not found.") {
                 return responses.ItemNotFound(res, "Client not found. Please, check the client id.");
             }

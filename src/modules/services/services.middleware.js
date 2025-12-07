@@ -2,48 +2,40 @@ import responses from '../../shared/utils/responses.js';
 import validators from '../../shared/utils/format.data.js';
 
 const addServiceMiddleware = (req, res, next) => {
-    const {
-        vehicle_id,           // id_vehículo
-        client_id,            // id_cliente
-        start_date,           // fecha_de_inicio
-        end_date,             // fecha_de_fin
-        price,                // precio
-        isrl,                 // impuesto sobre la renta
-    } = req.body;
+    const { services } = req.body;
 
-    let errors = [];
+    for (const service of services) {
+        let errors = [];
 
-    if (!vehicle_id || !client_id || !price || !start_date || !end_date || !isrl) {
-        return responses.BadRequest(res, 'Missing required fields');
+        if (!service.vehicle_id || !service.client_id || !service.price || !service.start_date || !service.end_date) {
+            return responses.BadRequest(res, 'Missing required fields.');
+        }
+
+        if (validators.formatNumberInvalid(service.vehicle_id)) {
+            errors.push("Invalid vehicle id. Id must be a number.");
+        }
+
+        if (validators.formatNumberInvalid(service.client_id)) {
+            errors.push("Invalid client id. Id must be a number.");
+        }
+
+        if (validators.formatMoneyInvalid(service.price)) {
+            errors.push("Invalid price. Price must be a number.");
+        }
+
+        if (validators.formatDateInvalid(service.start_date)) {
+            errors.push("Invalid start date. Start date must be a date.");
+        }
+
+        if (validators.formatDateInvalid(service.end_date)) {
+            errors.push("Invalid end date. End date must be a date.");
+        }
+
+        if (errors.length > 0) {
+            return responses.BadRequest(res, errors);
+        }
     }
 
-    if (validators.formatNumberInvalid(vehicle_id)) {
-        errors.push("Invalid vehicle id. Id must be a number.");
-    }
-
-    if (validators.formatNumberInvalid(client_id)) {
-        errors.push("Invalid client id. Id must be a number.");
-    }
-
-    if (validators.formatMoneyInvalid(price)) {
-        errors.push("Invalid price. Price must be a number.");
-    }
-
-    if (validators.formatDateInvalid(start_date)) {
-        errors.push("Invalid start date. Start date must be a date.");
-    }
-
-    if (validators.formatDateInvalid(end_date)) {
-        errors.push("Invalid end date. End date must be a date.");
-    }
-
-    if (validators.formatMoneyInvalid(isrl)) {
-        errors.push("Invalid isrl. Isrl must be a number.");
-    }
-
-    if (errors.length > 0) {
-        return responses.BadRequest(res, errors);
-    }
     return next();
 }
 
@@ -55,33 +47,33 @@ const getServicesMiddleware = (req, res, next) => {
         return responses.BadRequest(res, 'Missing required fields: filterSearch');
     }
 
-    if (Object.keys(filterSearch).length === 0) {
+    else if (!validators.formatDateInvalid(filterSearch.dateStart) && !validators.formatDateInvalid(filterSearch.dateEnd)) {
+        req.filter = { dateStart: filterSearch.dateStart, dateEnd: filterSearch.dateEnd };
+        return next();
+    }
+
+    else if (Object.keys(filterSearch).length === 0) {
         req.filter = {};
         return next();
     }
 
-    if (filterSearch.toLowerCase() === "pagado") {
+    else if (filterSearch.toLowerCase() === "pagado") {
         req.filter = { payment_status: "paid" };
         return next();
     }
 
-    if (filterSearch.toLowerCase() === "pendiente") {
+    else if (filterSearch.toLowerCase() === "pendiente") {
         req.filter = { payment_status: "pending" };
         return next();
     }
 
-    if (filterSearch.toLowerCase() === "cancelado") {
+    else if (filterSearch.toLowerCase() === "cancelado") {
         req.filter = { payment_status: "canceled" };
         return next();
     }
 
-    if (!validators.formatNamesInvalid(filterSearch)) {
+    else if (!validators.formatNamesInvalid(filterSearch)) {
         req.filter = { name_client: filterSearch };
-        return next();
-    }
-
-    if (!validators.formatDateInvalid(filterSearch.dateStart) && !validators.formatDateInvalid(filterSearch.dateEnd)) {
-        req.filter = { dateStart: filterSearch.dateStart, dateEnd: filterSearch.dateEnd };
         return next();
     }
 

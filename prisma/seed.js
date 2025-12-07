@@ -24,6 +24,15 @@ export default async function main() {
     skipDuplicates: true
   });
 
+  await prisma.vehicle_types.createMany({
+    data: [
+      { type_name: "Bus", description: "Tipo de vehículo para gran cantidad de personas" },
+      { type_name: "Van", description: "Tipo de vehículo para menos personas" },
+      { type_name: "Auto Particular", description: "Tipo de vehículo para menos personas" },
+    ],
+    skipDuplicates: true
+  });
+
   // Script de creacion del super usuario
   await prisma.users.createMany({
     data: [
