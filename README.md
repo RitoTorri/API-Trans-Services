@@ -1,75 +1,104 @@
 # API Trans-Services
 
-### IMPORTANTE  
+## 📋 Descripción  
 
-1. Si vas a hacer cambios recuerda en hacerlo en ramas distintas. Si vas a fusionar avisale al team.
-2. Debes de tener instalado PostgreSQL, Yarn, Node.js.
-3. Si vas a hacer un nuevo modulo debes de seguir la misma arquitectura de archivos que los demas modulos.
+APIREST del Sistema Contable para Trans Services C.A. Backend especializado que gestiona y automatiza todos los procesos del área financiera y contable de la empresa.
 
----
+## 🛠 Stack Tecnológico
 
-### INSTALACIÓN DEL PROYECTO
+<div align="center">
 
-Ejecuta los siguentes comandos para instalar el proyecto:
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Yarn](https://img.shields.io/badge/Yarn-2C8EBB?style=for-the-badge&logo=yarn&logoColor=white)](https://yarnpkg.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/es/docs/Web/JavaScript)
+
+</div>
+
+## 👥 Roles de la API
+
+**Importante:** La API tiene un `SuperUsuario` creado por defecto. Por ende, al inicar sesión debes de mandar los siguientes datos para entrar como el Super Usuario:
+
+- **Usuario**: `super`
+- **Contraseña**: `super`
+
+| Rol | Permisos | Descripción |
+|-----|----------|-------------|
+| **SuperUsuario** | 🔓 **Acceso Total** | Control completo sobre todas las funcionalidades del sistema |
+| **Administrador** | 📊 **Gestión Limitada** | Permisos para crear y consultar registros contables |
+| **Invitado** | 👁️ **Solo Lectura** | Visualización exclusiva de datos públicos |
+
+## ⚠️ Lineamientos de Desarrollo
+
+1. **🔀 Gestión de Ramas**  
+   Realiza cambios en ramas separadas. Notifica al equipo antes de fusionar.
+
+2. **📁 Estructura Modular**  
+   Nuevos módulos deben seguir la arquitectura establecida para mantener consistencia.
+
+## 📥 Instalación y Configuración
+
+### Pre-requisitos
+
+<div align="center">
+
+[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Yarn](https://img.shields.io/badge/Yarn-1.22+-2C8EBB?style=for-the-badge&logo=yarn&logoColor=white)](https://yarnpkg.com/)
+
+</div>
+
+### Instalación del Proyecto
+
 ```bash
-# Clonas el repositorio
+# 1. Clonar repositorio
 git clone https://github.com/RitoTorri/API-Trans-Services
+cd API-Trans-Services
 
-# instala las dependencias
-yarn install 
+# 2. Instalar dependencias
+yarn install
 ```
----
 
-### CONFIGURAR LA BASE DE DATOS
+### Configuración de Base de Datos
 
-AL ya haber instalado el proyecto debes de crear un archivo `.env` para guardar datos sensibles. El `.env` tendra:
-1. **DATABASE_URL:**  
-    `postgres`: El usuario de tu deb, por defecto es postgres.
-   
-    `password`: Va la contraseña que te pide postgre al ejecutar o abrir el server.
-   
-    `localhost`: Host de tu base de datos.
-   
-    `5432`: Puerto de la db.
-   
-    `nombre-de-la-base-de-datos`: Va el nombre que le colocaste a la bases de datos al crearla en PostgreSQL.
-   
-2. **SECRET_KEY:** Es la clave/llave que contienen los tokens de acceso.
+Crea un archivo `.env` en la raíz del proyecto con:
 
-3. **PORT:** Que es el puerto de ejecución de la API.
+```env
+# 🔗 Conexión a PostgreSQL
+DATABASE_URL="postgresql://USUARIO:CONTRASEÑA@localhost:5432/NOMBRE_BD"
+
+# 🔐 Llave secreta para JWT
+SECRET_KEY=tu_llave_secreta_aqui
+
+# 🌐 Puerto de la API
+PORT=3000
+```
+
+**Explicación de DATABASE_URL:**
+- **USUARIO**: `postgres` (usuario por defecto)
+- **CONTRASEÑA**: Contraseña de tu PostgreSQL
+- **localhost**: Host de la base de datos
+- **5432**: Puerto predeterminado de PostgreSQL
+- **NOMBRE_BD**: Nombre de tu base de datos creada
+
+### Configuración de Prisma
 
 ```bash
-# Conexión a la base de datos
-DATABASE_URL="postgresql://postgres:password@localhost:5432/nombre-de-la-base-de-datos"
-
-# Llave secreta para JWT
-secret_key=LlaveSecreta
-
-# Puerto
-PORT:3000
-```
----
-
-### CONFIGURACIÓN DE PRISMA
-
-Luego de crear el `.env` ejecuta los siguientes comandos para la configuracion de prisma:
-```bash
-# Genera el cliente de prisma
+# Genera el cliente de Prisma
 npx prisma generate
 
-# Lleva el chema de prisma a la base de datos
+# Sincroniza el esquema con la base de datos
 npx prisma db push
 ```
----
 
-### EJECUCIÓN DEL SERVIDOR
+### Ejecución del Servidor
 
-Para ejecutar el server usa los comandos:
 ```bash
-# Desarrollo
+# 🧪 Modo Desarrollo (con recarga automática)
 yarn dev
 
-# Producción
+# 🚀 Modo Producción
 yarn start
 ```
----

@@ -12,7 +12,7 @@ export default async function main() {
     skipDuplicates: true
   });
 
-  // Retenciones básicas
+  // Retenciones e impuestos basicos
   await prisma.retentions.createMany({
     data: [
       { code: "isrl", name: "Impuesto sobre la renta", percentage: "", description: "Retención ISLR" },
@@ -23,5 +23,15 @@ export default async function main() {
     skipDuplicates: true
   });
 
-  console.log("✅ Tipos de gasto y retenciones iniciales creados");
+  // Script de creacion del super usuario
+  await prisma.users.create({
+    data: {
+      username: "super",
+      password: "super",
+      rol: "SuperUsuario"
+    },
+    skipDuplicates: true
+  });
+
+  console.log("Seed data has been inserted.");
 }
