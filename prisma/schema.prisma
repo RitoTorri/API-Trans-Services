@@ -36,6 +36,7 @@ model employees {
   lastname   String   @db.VarChar(40)
   ci         String   @unique @db.VarChar(13)
   rol        String   @db.VarChar(30)
+  salary_biweekly  Decimal  @db.Decimal(10, 2)
   is_active  Boolean  @default(true)
   created_at DateTime @default(now()) @map("created_at")
 
@@ -193,7 +194,7 @@ model provider_invoices_retentions {
   created_at          DateTime @default(now())
 
   provider_invoice provider_invoices @relation(fields: [provider_invoice_id], references: [id], onDelete: Cascade)
-  retention        retentions        @relation(fields: [retention_code], references: [code], onDelete: Cascade)
+  retention        tax_parameters        @relation(fields: [retention_code], references: [code], onDelete: Cascade)
 
   @@map("provider_invoices_retentions")
 }
@@ -212,9 +213,10 @@ model expenses {
 }
 
 // Retenciones
-model retentions {
+model tax_parameters {
   code        String   @id @db.VarChar(30)
   name        String   @db.VarChar(50)
+  percentage  Decimal @db.Decimal(10, 2) // Procentaje
   description String   @db.VarChar(100)
   created_at  DateTime @default(now())
 
@@ -222,7 +224,7 @@ model retentions {
   services_retentions          services_retentions[]
   provider_invoices_retentions provider_invoices_retentions[]
 
-  @@map("retentions")
+  @@map("tax_parameters")
 }
 
 // Tipos de gastos
@@ -265,12 +267,11 @@ model services_retentions {
 
   // Datos
   base_amount     Decimal  @db.Decimal(10, 2)
-  rate_retention  Decimal  @db.Decimal(10, 2) // Tasa de retención
   total_retention Decimal  @db.Decimal(10, 2) // Total de retención
   created_at      DateTime @default(now())
 
   services   services   @relation(fields: [service_id], references: [id], onDelete: Cascade)
-  retentions retentions @relation(fields: [code_retention], references: [code], onDelete: Cascade)
+  retentions tax_parameters @relation(fields: [code_retention], references: [code], onDelete: Cascade)
 
   @@map("services_retentions")
 }
@@ -301,7 +302,7 @@ model payrolls {
   integral_salary Decimal  @default(0) @db.Decimal(10, 2)
   annual_earnings Decimal  @default(0) @db.Decimal(10, 2)
   monthly_salary  Decimal  @db.Decimal(10, 2)
-  assignments     Decimal  @db.Decimal(10, 2)
+  assignments     Decimal  @db.Decimal(10, 2) // Salario quincenal
   created_at      DateTime @default(now())
 
   employee            employees             @relation(fields: [employee_id], references: [id], onDelete: Cascade)
@@ -316,11 +317,10 @@ model payrolls_retentions {
   retention_code String
 
   base_amount     Decimal @db.Decimal(10, 2) // monto de referencia
-  rate_retention  Decimal @db.Decimal(10, 2) // Tasa de retención
   total_retention Decimal @db.Decimal(10, 2) // Total de retención
 
   created_at DateTime @default(now())
 
   payroll   payrolls   @relation(fields: [payroll_id], references: [id], onDelete: Cascade)
-  retention retentions @relation(fields: [retention_code], references: [code], onDelete: Cascade)
+  retention tax_parameters @relation(fields: [retention_code], references: [code], onDelete: Cascade)
 }
