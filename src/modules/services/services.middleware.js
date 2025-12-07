@@ -31,6 +31,10 @@ const addServiceMiddleware = (req, res, next) => {
             errors.push("Invalid end date. End date must be a date.");
         }
 
+        if (service.start_date > service.end_date) {
+            errors.push("Invalid dates. Start date must be less than end date.");
+        }
+
         if (errors.length > 0) {
             return responses.BadRequest(res, errors);
         }
