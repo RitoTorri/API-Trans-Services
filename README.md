@@ -19,10 +19,17 @@ APIREST del Sistema Contable para Trans Services C.A. Backend especializado que 
 
 ## 👥 Roles de la API
 
-**Importante:** La API tiene un `SuperUsuario` creado por defecto. Por ende, al inicar sesión debes de mandar los siguientes datos para entrar como el Super Usuario:
+**Importante:** La API tiene un usuarios registrados por defecto. Por ende, al inicar sesión debes de mandar los siguientes datos para entrar como el Super Usuario:
 
-- **Usuario**: `super`
-- **Contraseña**: `super`
+- **Super Usuario:**
+  - Usuario: `super`
+  - Contraseña: `super`
+- **Administrador:**
+  - Usuario: `admin`
+  - Contraseña: `admin`
+- **Invitado:**
+  - Usuario: `invitado`
+  - Contraseña: `invitado`
 
 | Rol | Permisos | Descripción |
 |-----|----------|-------------|

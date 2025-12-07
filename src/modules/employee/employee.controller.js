@@ -22,14 +22,15 @@ class ControllerEmployee {
     async createEmployee(req, res) {
         try {
             // Destructurar los datos de la petición
-            const { name, lastname, ci, rol, contacts } = req.body;
+            const { name, lastname, ci, rol, salary_biweekly, contacts } = req.body;
 
             // Objeto con los datos del empleado
             const employee = {
                 name: name,
                 lastname: lastname,
                 ci: ci,
-                rol: rol
+                rol: rol,
+                salary_biweekly: salary_biweekly,
             };
             const contactsEmployee = contacts;
 
@@ -72,7 +73,7 @@ class ControllerEmployee {
         try {
             // Destructurar los datos de la petición
             const { id } = req.params;
-            const { name, lastname, ci, rol, contacts } = req.body;
+            const { name, lastname, ci, rol, salary_biweekly, contacts } = req.body;
 
             let employee = { id: parseInt(id) }
 
@@ -80,6 +81,7 @@ class ControllerEmployee {
             if (lastname) employee.lastname = lastname;
             if (ci) employee.ci = ci;
             if (rol) employee.rol = rol;
+            if (salary_biweekly) employee.salary_biweekly = salary_biweekly;
 
             const result = await service.updateEmployee(employee, (contacts) ? contacts : []);
             return responses.QuerySuccess(res, result);

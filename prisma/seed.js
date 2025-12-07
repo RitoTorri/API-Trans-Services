@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 export default async function main() {
@@ -13,23 +14,36 @@ export default async function main() {
   });
 
   // Retenciones e impuestos basicos
-  await prisma.retentions.createMany({
+  await prisma.tax_parameters.createMany({
     data: [
-      { code: "isrl", name: "Impuesto sobre la renta", percentage: "", description: "Retención ISLR" },
-      { code: "ivss", name: "Seguro Social", percentage: "", description: "Retención IVSS" },
-      { code: "faov", name: "Fondo de Ahorro", percentage: "", description: "Retención FAOV" },
-      { code: "pie", name: "Paro forzoso", percentage: "", description: "Retención PIE" }
+      { code: "isrl", name: "Impuesto sobre la renta", percentage: 2, description: "Retención del impuesto sobre la renta" },
+      { code: "sso", name: "Seguro Social Obligatorio", percentage: 0.04, description: "Retención del Seguro Social Obligatorio" },
+      { code: "faov", name: "Fondo de Ahorro Obligatorio de Vivienda", percentage: 0.01, description: "Retención del Fondo de Ahorro Obligatorio de Vivienda" },
+      { code: "pie", name: "Paro Forzoso Quincenal", percentage: 0.005, description: "Retención PIE" },
+      { code: "iva", name: "Impuesto al Valor Agregado", percentage: 0.16, description: "Impuesto al Valor Agregado" },
     ],
     skipDuplicates: true
   });
 
   // Script de creacion del super usuario
-  await prisma.users.create({
-    data: {
-      username: "super",
-      password: "super",
-      rol: "SuperUsuario"
-    },
+  await prisma.users.createMany({
+    data: [
+      {
+        username: "super",
+        password: bcrypt.hashSync("super", 10),
+        rol: "SuperUsuario"
+      },
+      {
+        username: "admin",
+        password: bcrypt.hashSync("admin", 10),
+        rol: "Administrador"
+      },
+      {
+        username: "invitado",
+        password: bcrypt.hashSync("invitado", 10),
+        rol: "Invitado"
+      }
+    ],
     skipDuplicates: true
   });
 

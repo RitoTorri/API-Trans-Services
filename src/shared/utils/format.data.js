@@ -35,7 +35,7 @@ const formatCiInvalid = (data) => {
 }
 
 const formatMoneyInvalid = (data) => {
-    const expression = /^[0-9.,]+$/
+    const expression = /^[0-9.]+$/
     return !expression.test(data) ? true : false
 }
 
