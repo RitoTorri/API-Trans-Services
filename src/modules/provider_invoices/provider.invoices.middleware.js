@@ -3,41 +3,24 @@ import validators from '../../shared/utils/format.data.js';
 
 const validateCreate = (req, res, next) => {
   const provider_id = Number(req.params.provider_id); // ✅ viene de la URL
-  const { control_number, invoice_number, invoice_date, subtotal, taxes } = req.body;
+  const { invoice_date, subtotal } = req.body;
   let errors = [];
 
   // 🔹 Validaciones básicas
   if (
     Number.isNaN(provider_id) ||
-    !control_number ||
-    !invoice_number ||
     !invoice_date ||
-    subtotal === undefined ||
-    !Array.isArray(taxes)
+    subtotal === undefined
   ) {
-    return responses.BadRequest(res, 'Missing required fields or taxes must be an array.');
+    return responses.BadRequest(res, 'Faltan campos obligatorios.');
   }
 
   // 🔹 Validaciones de formato
-  if (validators.formatNumberInvalid(provider_id)) errors.push('Invalid provider_id.');
-  if (validators.formatTextInvalid(control_number)) errors.push('Invalid control_number.');
-  if (validators.formatTextInvalid(invoice_number)) errors.push('Invalid invoice_number.');
-  if (validators.formatDateInvalid(invoice_date)) errors.push('Invalid invoice_date.');
+  if (validators.formatNumberInvalid(provider_id)) errors.push('ID de proveedor inválido.');
+  if (validators.formatDateInvalid(invoice_date)) errors.push('Fecha de factura inválida.');
 
   // 🔹 Validaciones numéricas
-  if (typeof subtotal !== 'number' || subtotal < 0) errors.push('Invalid subtotal.');
-
-  // 🔹 Validar impuestos detallados (invoice_taxes)
-  taxes.forEach((tax, index) => {
-    if (!tax.code || !tax.name || tax.percentage === undefined) {
-      errors.push(`Tax at index ${index} is missing required fields.`);
-    }
-    if (validators.formatTextInvalid(tax.code)) errors.push(`Invalid tax code at index ${index}.`);
-    if (validators.formatTextInvalid(tax.name)) errors.push(`Invalid tax name at index ${index}.`);
-    if (typeof tax.percentage !== 'number' || tax.percentage < 0) {
-      errors.push(`Invalid tax percentage at index ${index}.`);
-    }
-  });
+  if (typeof subtotal !== 'number' || subtotal < 0) errors.push('Subtotal inválido.');
 
   if (errors.length > 0) return responses.ParametersInvalid(res, errors);
 
@@ -49,7 +32,7 @@ const validateCreate = (req, res, next) => {
 const validateDelete = (req, res, next) => {
   const { id } = req.params;
   if (validators.formatNumberInvalid(id)) {
-    return responses.BadRequest(res, 'Invalid invoice id.');
+    return responses.BadRequest(res, 'ID de factura inválido.');
   }
   next();
 };

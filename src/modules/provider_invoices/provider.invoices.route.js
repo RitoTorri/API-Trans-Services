@@ -36,11 +36,11 @@ router.get('/provider-invoices-range',
   (req, res) => controller.findByDateRange(req, res)
 );
 
-// 📌 Buscar por número fiscal o control
+// 📌 Buscar por número de control
 router.get('/provider-invoices/search/:value',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
-  (req, res) => controller.searchByNumber(req, res)
+  (req, res) => controller.searchByControlNumber(req, res)
 );
 
 // 📌 Listar facturas eliminadas (soft deleted)

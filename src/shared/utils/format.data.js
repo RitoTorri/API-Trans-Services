@@ -64,9 +64,16 @@ const formatUserNameInvalid = username => {
     return !expression.test(username) ? true : false
 }
 
+const formatDescriptionInvalid = (data) => {
+    // Solo letras, números, espacios, puntos, comas y paréntesis
+    const expression = /^[A-Za-z0-9\s().,]+$/
+    return !expression.test(data) ? true : false
+}
+
+
 export default {
     formatEmailInvalid, formatPasswordInvalid, formatNamesInvalid,
     formatNumberInvalid, formatTextInvalid, formatCiInvalid,
     formatMoneyInvalid, formatDateInvalid, formatYearInvalid, formatMonthInvalid,
-    formatRifInvalid, formatUserNameInvalid
+    formatRifInvalid, formatUserNameInvalid, formatDescriptionInvalid
 }
