@@ -55,7 +55,7 @@ Content-Type: application/json
     "lastname": "string",
     "ci": "string",
     "rol": "string",
-    "salary_biweekly": "Float",
+    "salary_monthly": "Float",
     "date_of_entry": "Date",
     "contacts": [
         {
@@ -91,7 +91,7 @@ Content-Type: application/json
     "lastname": "string",
     "ci": "string",
     "rol": "string",
-    "salary_biweekly": "Float",
+    "salary_monthly": "Float",
     "date_of_entry": "Date",
     "contacts": [
         {

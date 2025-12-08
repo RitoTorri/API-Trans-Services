@@ -13,11 +13,6 @@ Content-Type: application/json
 - `employee_id` (integer): ID del empleado asociado a esta nómina
 - `period_start` (date): Fecha de inicio del período de nómina
 - `period_end` (date): Fecha de fin del período de nómina
-- `daily_salary` (number): Salario base diario
-- `total_days_paid` (number): Total de días pagados en el período
-- `ivss` (number): Deducción por seguro social 
-- `pie` (number): Deducción por paro forzoso
-- `faov` (number): Aporte al fondo de ahorro
 
 Las retenciones de seguro social, paro forzoso y aporte al fondo de... pueden estar en formato decimal o entero: 10.00, 2.23, 100, etc.
 
@@ -27,11 +22,6 @@ Las retenciones de seguro social, paro forzoso y aporte al fondo de... pueden es
     "employee_id": "1",
     "period_start": "2025-11-03",
     "period_end": "2025-11-30",
-    "daily_salary": "1200",
-    "total_days_paid": "30",
-    "ivss": "10",
-    "pie": "10",
-    "faov": "10"
 }
 ```
 
@@ -53,7 +43,7 @@ Las retenciones de seguro social, paro forzoso y aporte al fondo de... pueden es
         "integral_salary": "0",
         "annual_earnings": "0",
         "assements": "65",
-        "ivss": "3.7",
+        "sso": "3.7",
         "pie": "0.46",
         "faov": "1",
         "total_deductions": "3.36",
@@ -137,7 +127,7 @@ Busqueda por estado:
                 "salary_biweekly": "65",
                 "monthly_salary": "130",
                 "deductions": {
-                    "ivss": "3.7",
+                    "sso": "3.7",
                     "pie": "0.46",
                     "faov": "1"
                 },
@@ -195,81 +185,6 @@ PATCH http://localhost:3000/api/trans/services/payrolls/1/paid
             "total_deductions": "3.36",
             "net_salary": "61.64",
             "created_at": "2025-11-16T00:04:26.423Z"
-        }
-    }
-}
-```
-
----
-
-### 4. Actualizar los datos de una Nomina
-** IMPORTANTE **: Solo puedes actualizar los datos de una nomina si está en estado "draft". No se pueden actualizar los datos de una persona que esta en la nomina, solo se cambia las retenciones, salarios, etc. Envie el objeto completo como en el ejemplo de abajo, aunque los datos no se vayan a actualizar envie el objeto tal cual en la explicación de los parametros del body.
-**Método:** `PATCH`  
-**Endpoint:** `http://localhost:3000/api/trans/services/payrolls/:id`
-**Headers:**
-```
-Authorization: Bearer {token}
-Content-Type: application/json
-```
-
-**Parámetros del URL:**
-- `id` (integer): ID de la nomina
-
-**Ejemplo de URL:**
-```
-PATCH http://localhost:3000/api/trans/services/payrolls/1
-```
-
-**Parámetros del Body:**
-- `period_start` (date): Fecha de inicio del período de nómina
-- `period_end` (date): Fecha de fin del período de nómina
-- `daily_salary` (number): Salario base diario
-- `total_days_paid` (number): Total de días pagados en el período
-- `ivss` (number): Deducción por seguro social 
-- `pie` (number): Deducción por paro forzoso
-- `faov` (number): Aporte al fondo de ahorro
-
-Las retenciones de seguro social, paro forzoso y aporte al fondo de... pueden estar en formato decimal o entero: 10.00, 2.23, 100, etc.
-
-**Ejemplo de Body:**
-```json
-{
-    "period_start": "2024-04-01",
-    "period_end": "2024-04-15",
-    "daily_salary": "4.33",
-    "total_days_paid": "15",
-    "ivss": "3.7",
-    "pie": "0.46",
-    "faov": "1"
-}
-```
-
-**Respuesta:**
-```json
-{
-    "success": true,
-    "code": "REQUEST_SUCCESSFUL",
-    "message": "The request was successful.",
-    "details": {
-        "message": "payroll update succefully.",
-        "data": {
-            "id": 52,
-            "status": "draft",
-            "employee_id": 1,
-            "period_start": "2024-04-01T00:00:00.000Z",
-            "period_end": "2024-04-15T00:00:00.000Z",
-            "daily_salary": "4.33",
-            "total_days_paid": "15",
-            "monthly_salary": "130",
-            "integral_salary": "0",
-            "annual_earnings": "0",
-            "assements": "65",
-            "ivss": "3.7",
-            "pie": "0.46",
-            "faov": "1",
-            "total_deductions": "3.36",
-            "net_salary": "61.64",
-            "created_at": "2025-11-16T00:27:07.971Z"
         }
     }
 }
