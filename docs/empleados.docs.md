@@ -56,10 +56,13 @@ Content-Type: application/json
     "ci": "string",
     "rol": "string",
     "salary_biweekly": "Float",
+    "date_of_entry": "Date",
     "contacts": [
         {
             "contact_info": "string",
-            "contact_info": "string"
+        },
+        {
+            "contact_info": "string",
         }
     ]
 }
@@ -89,6 +92,7 @@ Content-Type: application/json
     "ci": "string",
     "rol": "string",
     "salary_biweekly": "Float",
+    "date_of_entry": "Date",
     "contacts": [
         {
             "id": "integer",

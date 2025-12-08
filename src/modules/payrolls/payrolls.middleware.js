@@ -3,10 +3,10 @@ import validators from "../../shared/utils/format.data.js";
 
 const addPayrolls = async (req, res, next) => {
     // Destructuracion de los parametros
-    const { employee_id, period_start, period_end, daily_salary, total_days_paid, ivss, pie, faov } = req.body;
+    const { employee_id, period_start, period_end } = req.body;
     let errors = [];
 
-    if (!employee_id || !period_start || !period_end || !daily_salary || !total_days_paid || !ivss || !pie || !faov) {
+    if (!employee_id || !period_start || !period_end) {
         return responses.BadRequest(res, "Incomplete request. The following parameters are required: employee_id, period_start, period_end, daily_salary, total_days_paid, ivss, pie, faov.");
     }
 
@@ -20,26 +20,6 @@ const addPayrolls = async (req, res, next) => {
 
     if (validators.formatDateInvalid(period_end)) {
         errors.push("period_end is invalid. period_end must be a date.");
-    }
-
-    if (validators.formatMoneyInvalid(daily_salary)) {
-        errors.push("daily_salary is invalid. daily_salary must be a number.");
-    }
-
-    if (validators.formatNumberInvalid(total_days_paid)) {
-        errors.push("total_days_paid is invalid. total_days_paid must be a number.");
-    }
-
-    if (validators.formatMoneyInvalid(ivss)) {
-        errors.push("ivss is invalid. ivss must be a number.");
-    }
-
-    if (validators.formatMoneyInvalid(pie)) {
-        errors.push("pie is invalid. pie must be a number.");
-    }
-
-    if (validators.formatMoneyInvalid(faov)) {
-        errors.push("faov is invalid. faov must be a number.");
     }
 
     if (errors.length > 0) return responses.BadRequest(res, errors);
@@ -98,47 +78,4 @@ const updatePayrollState = async (req, res, next) => {
     next();
 }
 
-const updatePayrolls = async (req, res, next) => {
-    const { id } = req.params;
-    const { period_start, period_end, daily_salary, total_days_paid, ivss, pie, faov } = req.body;
-    let errors = [];
-
-    if (!id) return responses.BadRequest(res, "Incomplete request. The following parameters are required: id.");
-
-    if (validators.formatNumberInvalid(id)) {
-        errors.push("id invalid. id must be a number.");
-    }
-
-    if (validators.formatDateInvalid(period_start)) {
-        errors.push("period_start invalid. period_start must be a date.");
-    }
-
-    if (validators.formatDateInvalid(period_end)) {
-        errors.push("period_end invalid. period_end must be a date.");
-    }
-
-    if (validators.formatMoneyInvalid(daily_salary)) {
-        errors.push("daily_salary invalid. daily_salary must be a number.");
-    }
-
-    if (validators.formatNumberInvalid(total_days_paid)) {
-        errors.push("total_days_paid invalid. total_days_paid must be a number.");
-    }
-
-    if (validators.formatMoneyInvalid(ivss)) {
-        errors.push("ivss invalid. ivss must be a number.");
-    }
-
-    if (validators.formatMoneyInvalid(pie)) {
-        errors.push("pie invalid. pie must be a number.");
-    }
-
-    if (validators.formatMoneyInvalid(faov)) {
-        errors.push("faov invalid. faov must be a number.");
-    }
-
-    if (errors.length > 0) return responses.BadRequest(res, errors);
-    next();
-}
-
-export default { addPayrolls, getPayrolls, updatePayrollState, updatePayrolls };
+export default { addPayrolls, getPayrolls, updatePayrollState };

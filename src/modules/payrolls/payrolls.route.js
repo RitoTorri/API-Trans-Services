@@ -9,7 +9,6 @@ import TokenValidation from '../../shared/middlewares/validate.token.middleware.
 const router = express.Router();
 const controller = new PayrollsController();
 
-
 router.post('/payrolls',
     TokenValidation,
     authorization(['Administrador', 'SuperUsuario']),
@@ -31,14 +30,6 @@ router.patch('/payrolls/:id/:status',
     authorization(['Administrador', 'SuperUsuario']),
     middlewares.updatePayrollState,
     controller.updatePayrollState
-);
-
-// Actualiza Datos de la nomina
-router.patch('/payrolls/:id',
-    TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
-    middlewares.updatePayrolls,
-    controller.updatePayrolls
 );
 
 export default router;

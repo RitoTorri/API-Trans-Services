@@ -42,11 +42,11 @@ const middlewareGetEmployee = (req, res, next) => {
 
 const middlewareCreateEmployee = (req, res, next) => {
 
-    const { name, lastname, ci, rol, salary_biweekly, contacts } = req.body;
+    const { name, lastname, ci, rol, salary_monthly, date_of_entry, contacts } = req.body;
     let errors = []; // Array para almacenar los errores
 
-    if (!name || !lastname || !ci || !rol || !salary_biweekly || !contacts) {
-        return responses.BadRequest(res, "Parameters invalid. name, lastname, ci, salary_biweekly and contacts are required.");
+    if (!name || !lastname || !ci || !rol || !salary_monthly || !date_of_entry || !contacts) {
+        return responses.BadRequest(res, "Parameters invalid. name, lastname, ci, salary_monthly and contacts are required.");
     }
 
     if (validators.formatNamesInvalid(name)) errors.push("Error: name is invalid.");
@@ -57,7 +57,9 @@ const middlewareCreateEmployee = (req, res, next) => {
 
     if (validators.formatNamesInvalid(rol)) errors.push("Error: rol is invalid.");
 
-    if (validators.formatMoneyInvalid(salary_biweekly)) errors.push("Error: salary_biweekly is invalid.");
+    if (validators.formatMoneyInvalid(salary_monthly)) errors.push("Error: salary_monthlys invalid.");
+
+    if (validators.formatDateInvalid(date_of_entry)) errors.push("Error: date_of_entry is invalid.");
 
     for (let i = 0; i < contacts.length; i++) {
         if (!validators.formatEmailInvalid(contacts[i].contact_info)) continue;
@@ -87,13 +89,13 @@ const middlewareDeleteEmployee = (req, res, next) => {
 const middlewareUpdateEmployee = (req, res, next) => {
     // Destructurar los datos de la petición
     const { id } = req.params;
-    const { name, lastname, ci, rol, salary_biweekly, contacts } = req.body;
+    const { name, lastname, ci, rol, salary_monthly, date_of_entry, contacts } = req.body;
 
     let object = { id: parseInt(id) };
     let errors = [];
 
     if (!id) return responses.BadRequest(res, "Parameters invalid. id is required.");
-    if (!name && !lastname && !ci && !salary_biweekly && !rol && !contacts) return responses.BadRequest(res, "Parameters invalid. We need at least one field to update.");
+    if (!name && !lastname && !ci && !salary_monthly && !rol && !date_of_entry && !contacts) return responses.BadRequest(res, "Parameters invalid. We need at least one field to update.");
 
     if (name) {
         if (validators.formatNamesInvalid(name)) errors.push("Error: name is invalid.");
@@ -115,9 +117,14 @@ const middlewareUpdateEmployee = (req, res, next) => {
         else object = { ...object, rol: rol };
     }
 
-    if (salary_biweekly) {
-        if (validators.formatMoneyInvalid(salary_biweekly)) errors.push("Error: salary_biweekly is invalid.");
-        else object = { ...object, salary_biweekly: salary_biweekly };
+    if (salary_monthly) {
+        if (validators.formatMoneyInvalid(salary_monthly)) errors.push("Error: salary_monthly is invalid.");
+        else object = { ...object, salary_monthly: salary_monthly };
+    }
+
+    if (date_of_entry) {
+        if (validators.formatDateInvalid(date_of_entry)) errors.push("Error: date_of_entry is invalid.");
+        else object = { ...object, date_of_entry: date_of_entry };
     }
 
     if (contacts) {

@@ -22,7 +22,7 @@ class ControllerEmployee {
     async createEmployee(req, res) {
         try {
             // Destructurar los datos de la petición
-            const { name, lastname, ci, rol, salary_biweekly, contacts } = req.body;
+            const { name, lastname, ci, rol, salary_monthly, date_of_entry, contacts } = req.body;
 
             // Objeto con los datos del empleado
             const employee = {
@@ -30,7 +30,8 @@ class ControllerEmployee {
                 lastname: lastname,
                 ci: ci,
                 rol: rol,
-                salary_biweekly: salary_biweekly,
+                salary_monthly: salary_monthly,
+                date_of_entry: new Date(date_of_entry)
             };
             const contactsEmployee = contacts;
 
@@ -46,7 +47,7 @@ class ControllerEmployee {
                 return responses.ResConflict(res, "Contact info already exists.");
             }
 
-            return responses.ErrorInternal(res, "Error Internal Server");
+            return responses.ErrorInternal(res, error.message);
         }
     }
 
@@ -73,7 +74,7 @@ class ControllerEmployee {
         try {
             // Destructurar los datos de la petición
             const { id } = req.params;
-            const { name, lastname, ci, rol, salary_biweekly, contacts } = req.body;
+            const { name, lastname, ci, rol, salary_monthly, date_of_entry, contacts } = req.body;
 
             let employee = { id: parseInt(id) }
 
@@ -81,7 +82,8 @@ class ControllerEmployee {
             if (lastname) employee.lastname = lastname;
             if (ci) employee.ci = ci;
             if (rol) employee.rol = rol;
-            if (salary_biweekly) employee.salary_biweekly = salary_biweekly;
+            if (salary_monthly) employee.salary_monthly = salary_monthly;
+            if (date_of_entry) employee.date_of_entry = date_of_entry;
 
             const result = await service.updateEmployee(employee, (contacts) ? contacts : []);
             return responses.QuerySuccess(res, result);

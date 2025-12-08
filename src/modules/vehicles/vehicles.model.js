@@ -118,16 +118,18 @@ class vehicles {
         } catch (error) { throw error; }
     }
 
-    // Esta funcion retorna todos los vehiculos que tienen servicios ára esa fecha
+    // Esta funcion retorna todos los vehiculos que tienen servicios en esa fecha
     async validateVehicleInUse(id, date_start, date_end) {
         return prisma.$queryRaw`
             SELECT * FROM vehicles v
             INNER JOIN services s ON s.vehicle_id = v.id
-            WHERE
-                v.id = ${id} 
-                AND s.start_date::date = ${date_start}::date 
-                AND s.end_date::date = ${date_end}::date
-        `
+            WHERE v.id = ${id}
+            AND s.status = 'pending'
+            AND (
+                s.start_date::date <= ${date_end}::date 
+                AND s.end_date::date >= ${date_start}::date
+            )
+        `;
     }
 }
 

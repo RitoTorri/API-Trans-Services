@@ -7,7 +7,7 @@ export default async function main() {
   await prisma.expense_types.createMany({
     data: [
       { name: "compras", description: "Gastos por compras de proveedores" },
-      { name: "nomina", description: "Pago de empleados" },
+      { name: "nominas", description: "Pago de empleados" },
       { name: "servicios", description: "Servicios contratados" }
     ],
     skipDuplicates: true

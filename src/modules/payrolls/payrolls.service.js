@@ -1,11 +1,13 @@
 // imports
 import modelEmployee from '../employee/employee.model.js';
 import modelPayrolls from './payrolls.model.js';
+import modelTaxParameters from '../tax_parameters/tax.parameters.model.js';
 import isrCalculator from '../../shared/utils/isr.calculator.js';
 
 // variables e instancias
 const model = new modelPayrolls();
 const employeeModel = new modelEmployee();
+const taxParametersModel = new modelTaxParameters();
 
 class PayrollsService {
     constructor() { }
@@ -16,17 +18,20 @@ class PayrollsService {
             const employee = await employeeModel.getEmployeeById(payroll.employee_id);
             if (!employee) throw new Error('Employee not found.');
 
-            /* 
-              Calculamos las retenciones aplicadas y las ganancias mensuales, quincenales y anuales
-              Esto me devuel un array de objetos que contienen los datos de la nomina y las retenciones 
-              de esa nomina
-            */
-            const payrollFinal = this.CalculatePayrolls(payroll);
+            const employeeWithPayroll = await await model.validatedDuplicatePayroll(payroll.employee_id, payroll.period_start, payroll.period_end);
+            if (employeeWithPayroll) throw new Error('Employee already has a payroll.');
 
-            // Sacamos las retenciones de la nomina
-            delete payrollFinal[0].ivss;
-            delete payrollFinal[0].pie;
-            delete payrollFinal[0].faov;
+            // Calculo de salario diario y total de días pagados
+            payroll.daily_salary = (employee.salary_monthly / 30).toFixed(2);
+            payroll.total_days_paid = 15;
+            payroll.monthly_salary = employee.salary_monthly;
+            payroll.assignments = Math.round(parseFloat(payroll.daily_salary) * payroll.total_days_paid);
+
+            /* 
+              Esta funcion calcula el total a reterner de la asignacion de la nomina.
+              Tambien retorna el salario neto de la nomina
+            */
+            const payrollFinal = await this.CalculatePayrolls(payroll);
 
             // EL 0 es el payroll y el 1 es las retenciones de la nomina
             return await model.addPayrolls(payrollFinal[0], payrollFinal[1]);
@@ -58,12 +63,12 @@ class PayrollsService {
 
             // Mensaje burda de grande. Pero retorna los necesario para el frontend
             return result.map(result => {
-                let year = new Date().getFullYear() - new Date(result.employee.created_at).getFullYear();
-                let month = new Date().getMonth() - new Date(result.employee.created_at).getMonth();
-                let ivssResult = parseFloat(result.payrolls_retentions[0].total_retention);
+                let year = new Date().getFullYear() - new Date(result.employee.date_of_entry).getFullYear();
+                let month = new Date().getMonth() - new Date(result.employee.date_of_entry).getMonth();
+                let ssoResult = parseFloat(result.payrolls_retentions[0].total_retention);
                 let pieResult = parseFloat(result.payrolls_retentions[1].total_retention);
                 let faovResult = parseFloat(result.payrolls_retentions[2].total_retention);
-                let totalDeductions = ivssResult + pieResult + faovResult;
+                let totalDeductions = ssoResult + pieResult + faovResult;
                 let netSalaryResult = parseFloat(result.assignments) - parseFloat(totalDeductions);
 
                 return {
@@ -73,12 +78,12 @@ class PayrollsService {
                         name: result.employee.name,
                         ci: result.employee.ci,
                         rol: result.employee.rol,
-                        old_date: `Años ${year} y Meses ${month}`, // Antigüedad en años
-                        date_of_entry: result.employee.created_at // Año de ingreso
+                        old_date: `${year} años y ${month} meses`, // Antigüedad en años
+                        date_of_entry: result.employee.date_of_entry.toISOString().split('T')[0] // Año de ingreso
                     },
                     Payment_period: {
-                        from: result.period_start,
-                        to: result.period_end
+                        from: result.period_start.toISOString().split('T')[0],
+                        to: result.period_end.toISOString().split('T')[0]
                     },
                     details: {
                         salary_daily: result.daily_salary,
@@ -90,7 +95,7 @@ class PayrollsService {
                         salary_biweekly: result.assignments,
                         monthly_salary: result.monthly_salary,
                         deductions: {
-                            ivss: ivssResult,
+                            sso: ssoResult,
                             pie: pieResult,
                             faov: faovResult
                         },
@@ -145,80 +150,49 @@ class PayrollsService {
         } catch (error) { throw error; }
     }
 
-    async updatePayrolls(payroll) {
-        try {
-            // Verificamos que exita la nomina
-            const existPayroll = await model.getPayrollById(payroll.id);
-            if (!existPayroll) throw new Error('Payroll not found.');
-
-            if (existPayroll.status !== "draft") throw new Error('This payroll can not modify.');
-
-            /* 
-                Calculamos las retenciones aplicadas y las ganancias mensuales, quincenales y anuales
-                Esto me devuel un array de objetos que contienen los datos de la nomina y las retenciones 
-                de esa nomina
-            */
-            const payrollFinal = this.CalculatePayrolls(payroll);
-
-            // sacamos el id de la nomina para no actualizarla
-            const id = payrollFinal[0].id;
-            delete payrollFinal[0].id;
-
-            // Eliminamos las retenciones del objeto de la nomina
-            delete payrollFinal[0].ivss;
-            delete payrollFinal[0].pie;
-            delete payrollFinal[0].faov;
-
-            // EL 0 es el payroll y el 1 es las retenciones de la nomina
-            return await model.updatePayrolls(id, payrollFinal[0], payrollFinal[1]);
-        } catch (error) { throw error; }
-    }
-
-    CalculatePayrolls(payroll) {
-        let assignments = Math.round(payroll.daily_salary * payroll.total_days_paid); // salario quincenal
-        let monthly_salary = assignments * 2; // salario mensual
-
+    async CalculatePayrolls(payroll) {
         let retentions = [];
 
-        // Calculamos el resultado obtenido con retenciones
-        let ivss = isrCalculator(assignments, payroll.ivss);
-        ivss = ivss;
+        // Busca las retenciones de la db
+        const taxParameters = await taxParametersModel.getTaxParameters();
 
-        let pie = isrCalculator(assignments, payroll.pie);
-        pie = pie;
+        // Sacamos los codigo y porcentaje de retenciones
+        const SSO = taxParameters.find(tax => tax.code === "sso");
+        const PIE = taxParameters.find(tax => tax.code === "pie");
+        const FAOV = taxParameters.find(tax => tax.code === "faov");
 
-        let faov = isrCalculator(assignments, payroll.faov);
-        faov = faov;
+        // Calculamos el total a retener
+        const sso = isrCalculator(payroll.assignments, SSO.percentage);
+        const pie = isrCalculator(payroll.assignments, PIE.percentage);
+        const faov = isrCalculator(payroll.assignments, FAOV.percentage);
 
         // Creamos los objetos retenciones para devolver
-        let ivssObj = {
-            retention_code: "ivss",
-            base_amount: assignments,
-            rate_retention: payroll.ivss,
-            total_retention: ivss
+        let ssoObj = {
+            retention_code: SSO.code,
+            base_amount: payroll.assignments,
+            rate_retention: SSO.percentage,
+            total_retention: sso
         }
 
         let pieObj = {
-            retention_code: "pie",
-            base_amount: assignments,
-            rate_retention: payroll.pie,
+            retention_code: PIE.code,
+            base_amount: payroll.assignments,
+            rate_retention: PIE.percentage,
             total_retention: pie
         }
 
         let faovObj = {
-            retention_code: "faov",
-            base_amount: assignments,
-            rate_retention: payroll.faov,
+            retention_code: FAOV.code,
+            base_amount: payroll.assignments,
+            rate_retention: FAOV.percentage,
             total_retention: faov
         }
 
-        retentions.push(ivssObj);
+        retentions.push(ssoObj);
         retentions.push(pieObj);
         retentions.push(faovObj);
 
-        payroll.assignments = assignments;
-        payroll.monthly_salary = monthly_salary;
-
+        payroll.net_salary = parseFloat(payroll.assignments) - (parseFloat(sso) + parseFloat(pie) + parseFloat(faov));
         return [payroll, retentions];
     }
 }
