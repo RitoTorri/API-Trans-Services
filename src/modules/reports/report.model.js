@@ -112,8 +112,8 @@ class ReportsModel {
                     p.name AS "Nombre de proveedor",
                     p.rif AS "RIF",
                     TO_CHAR(pi.invoice_date, 'YYYY-MM') AS "Periodo",
-                    COUNT(pi.id) AS "Cantidad de compras realizadas",
-                    SUM(pi.total_amount) AS "Total de gastos"
+                    COUNT(pi.id)::integer AS "Cantidad de compras realizadas",
+                    SUM(pi.total_amount)::decimal(10,2) AS "Total de gastos"
                 FROM provider_invoices pi
                 JOIN providers p ON pi.provider_id = p.id
                 WHERE pi.status = 'pagado'
