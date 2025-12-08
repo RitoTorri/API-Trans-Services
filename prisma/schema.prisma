@@ -31,7 +31,6 @@ model users {
 
 // Empleados
 model employees {
-<<<<<<< HEAD
   id         Int      @id @default(autoincrement())
   name       String   @db.VarChar(40)
   lastname   String   @db.VarChar(40)
@@ -41,16 +40,6 @@ model employees {
   date_of_entry DateTime @default(now())
   is_active  Boolean  @default(true)
   created_at DateTime @default(now()) @map("created_at")
-=======
-  id              Int      @id @default(autoincrement())
-  name            String   @db.VarChar(40)
-  lastname        String   @db.VarChar(40)
-  ci              String   @unique @db.VarChar(13)
-  rol             String   @db.VarChar(30)
-  salary_biweekly Decimal  @db.Decimal(10, 2)
-  is_active       Boolean  @default(true)
-  created_at      DateTime @default(now()) @map("created_at")
->>>>>>> Cris/facturass
 
   employee_contacts employee_contacts[]
   payrolls          payrolls[]
@@ -210,22 +199,11 @@ model expenses {
 model tax_parameters {
   code        String   @id @db.VarChar(30)
   name        String   @db.VarChar(50)
-<<<<<<< HEAD
   percentage  Decimal @db.Decimal(10, 3) // Procentaje
-  description String   @db.VarChar(100)
   created_at  DateTime @default(now())
 
   payrolls_retentions          payrolls_retentions[]
-  provider_invoices_retentions provider_invoices_retentions[]
-=======
-  percentage  Decimal  @db.Decimal(10, 2) // Procentaje
-  description String   @db.VarChar(100)
-  created_at  DateTime @default(now())
-
-  payrolls_retentions payrolls_retentions[]
-  services_retentions services_retentions[]
-  invoice_taxes       invoice_taxes[]
->>>>>>> Cris/facturass
+  invoice_taxes                invoice_taxes[]
 
   @@map("tax_parameters")
 }
@@ -261,25 +239,6 @@ model services {
   @@map("services")
 }
 
-<<<<<<< HEAD
-=======
-model services_retentions {
-  // Relaciones
-  id             Int    @id @default(autoincrement())
-  service_id     Int    @db.Integer
-  code_retention String @db.VarChar(30)
-
-  // Datos
-  base_amount     Decimal  @db.Decimal(10, 2)
-  total_retention Decimal  @db.Decimal(10, 2) // Total de retención
-  created_at      DateTime @default(now())
-
-  services   services       @relation(fields: [service_id], references: [id], onDelete: Cascade)
-  retentions tax_parameters @relation(fields: [code_retention], references: [code], onDelete: Cascade)
-
-  @@map("services_retentions")
-}
->>>>>>> Cris/facturass
 
 // Ingresos
 model revenue {

@@ -16,10 +16,10 @@ export default async function main() {
   // Retenciones e impuestos basicos
   await prisma.tax_parameters.createMany({
     data: [
-      { code: "sso", name: "Seguro Social Obligatorio", percentage: 0.04, description: "Retención del Seguro Social Obligatorio" },
-      { code: "faov", name: "Fondo de Ahorro Obligatorio de Vivienda", percentage: 0.01, description: "Retención del Fondo de Ahorro Obligatorio de Vivienda" },
-      { code: "pie", name: "Paro Forzoso Quincenal", percentage: 0.005, description: "Retención PIE" },
-      { code: "iva", name: "Impuesto al Valor Agregado", percentage: 0.16, description: "Impuesto al Valor Agregado" },
+      { code: "sso", name: "Seguro Social Obligatorio", percentage: 0.04 },
+      { code: "faov", name: "Fondo de Ahorro Obligatorio de Vivienda", percentage: 0.01 },
+      { code: "pie", name: "Paro Forzoso Quincenal", percentage: 0.005 },
+      { code: "iva", name: "Impuesto al Valor Agregado", percentage: 0.16 },
     ],
     skipDuplicates: true
   });
