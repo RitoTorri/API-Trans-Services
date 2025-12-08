@@ -2,59 +2,62 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 class ProviderInvoicesModel {
-  // Crear factura + impuestos + gasto automático
+  // Crear factura + IVA + gasto automático con control_number auto‑incremental
   async createWithExpense(data) {
-    const {
-      provider_id,
-      control_number,
-      invoice_number,
-      invoice_date,
-      subtotal,
-      taxes,
-      total_amount,
-      status
-    } = data;
+    const { provider_id, invoice_date, subtotal, status } = data;
 
     return await prisma.$transaction(async (tx) => {
-      // 1) Crear factura del proveedor con include para traer el nombre
+      // 1) Buscar último control_number
+      const lastInvoice = await tx.provider_invoices.findFirst({
+        orderBy: { id: 'desc' }
+      });
+
+      let nextNumber = 1;
+      if (lastInvoice) {
+        const lastControl = parseInt(lastInvoice.control_number.replace('CN-', ''));
+        nextNumber = lastControl + 1;
+      }
+
+      const control_number = `CN-${String(nextNumber).padStart(5, '0')}`;
+
+      // 2) Buscar IVA en el catálogo
+      const ivaParam = await tx.tax_parameters.findUnique({
+        where: { code: "iva" }
+      });
+      if (!ivaParam) throw new Error('IVA no está definido en el catálogo de impuestos.');
+
+      // 3) Calcular IVA y total
+      const ivaAmount = subtotal * ivaParam.percentage;
+      const totalAmount = subtotal + ivaAmount;
+
+      // 4) Crear factura
       const providerInvoice = await tx.provider_invoices.create({
         data: {
           provider_id,
           control_number,
-          invoice_number,
           invoice_date,
           subtotal,
-          total_amount,
+          total_amount: totalAmount,
           status
         },
         include: { provider: true }
       });
 
-      // 2) Registrar impuestos detallados
-      let totalTaxes = 0;
-      if (Array.isArray(taxes)) {
-        for (const tax of taxes) {
-          const amount = (subtotal * tax.percentage) / 100;
-          totalTaxes += amount;
-
-          await tx.invoice_taxes.create({
-            data: {
-              provider_invoice_id: providerInvoice.id,
-              code: tax.code,
-              name: tax.name,
-              percentage: tax.percentage,
-              amount
-            }
-          });
+      // 5) Registrar impuesto aplicado
+      await tx.invoice_taxes.create({
+        data: {
+          provider_invoice_id: providerInvoice.id,
+          tax_code: ivaParam.code,
+          amount: ivaAmount
         }
-      }
+      });
 
-      // 3) Crear gasto automático general con descripción del proveedor
-      const descripcionGasto = `Compra al ${providerInvoice.provider.name}`;
+      // 6) Crear gasto automático general con descripción del proveedor
+      const descripcionGasto = `Compra al ${providerInvoice.provider.name} - Control ${control_number}`;
       const expense = await tx.expenses.create({
         data: {
           description: descripcionGasto,
-          total: subtotal + totalTaxes,
+          total: totalAmount,
           id_expense_type: 1 // ⚠️ Ajusta según tu catálogo de tipos de gasto
         }
       });
@@ -63,7 +66,7 @@ class ProviderInvoicesModel {
         provider_invoice: providerInvoice,
         expense: {
           id: expense.id,
-          total: Number(subtotal + totalTaxes),
+          total: Number(totalAmount),
           description: descripcionGasto
         }
       };
@@ -77,7 +80,7 @@ class ProviderInvoicesModel {
   async findById(id) {
     return await prisma.provider_invoices.findFirst({
       where: { id },
-      include: { provider: true } // 🔹 ahora incluye el proveedor
+      include: { provider: true }
     });
   }
 
@@ -108,13 +111,11 @@ class ProviderInvoicesModel {
     });
   }
 
-  async findByInvoiceOrControlNumber(value) {
+  // 🔹 Buscar solo por número de control
+  async findByControlNumber(value) {
     return await prisma.provider_invoices.findMany({
       where: {
-        OR: [
-          { invoice_number: { contains: value } },
-          { control_number: { contains: value } }
-        ],
+        control_number: { contains: value },
         control_number: { not: { startsWith: 'deleted_' } }
       },
       orderBy: { invoice_date: 'desc' }
@@ -124,9 +125,9 @@ class ProviderInvoicesModel {
   // Restaurar factura eliminada solo con ID
   async restore(id) {
     const invoice = await prisma.provider_invoices.findFirst({ where: { id } });
-    if (!invoice) throw new Error('Invoice not found.');
+    if (!invoice) throw new Error('Factura no encontrada.');
     if (!invoice.control_number.startsWith('deleted_')) {
-      throw new Error('Invoice is not marked as deleted.');
+      throw new Error('La factura no está marcada como eliminada.');
     }
 
     const restoredControlNumber = invoice.control_number.replace(/^deleted_\d+/, '');

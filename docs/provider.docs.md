@@ -31,6 +31,20 @@ El módulo Provider gestiona proveedores y sus contactos: creación, búsqueda, 
 
 ## Endpoints
 
+### Crear proveedor con contactos
+URL: POST /api/trans/services/provider  
+Headers: Authorization: Bearer <token>
+Content-Type: application/json 
+Body:
+{
+  "name": "Proveedor Ejemplo",
+  "rif": "J-12345678-9",
+  "contacts": [
+    { "contact_info": "correo@ejemplo.com" },
+    { "contact_info": "0414-1234567" }
+  ]
+}
+
 ### Listar proveedores activos
 **URL:** GET /api/trans/services/providers  
 **Headers:** Authorization: Bearer <token>
@@ -45,7 +59,8 @@ El módulo Provider gestiona proveedores y sus contactos: creación, búsqueda, 
 
 ### Actualizar proveedor y contactos
 **URL:** PATCH /api/trans/services/provider/:id  
-**Headers:** Authorization: Bearer <token>  
+**Headers:** Authorization: Bearer <token>
+**Content-Type:** application/json
 **Body:**
 ```json
 {

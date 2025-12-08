@@ -13,7 +13,7 @@ class ProviderInvoicesController {
       const result = await service.create(body);
       return responses.ItemCreated(res, result);
     } catch (error) {
-      if (error.message === 'Provider not found.') {
+      if (error.message === 'Proveedor no encontrado.') {
         return responses.ItemNotFound(res, error.message);
       }
       return responses.ErrorInternal(res, error.message);
@@ -43,7 +43,7 @@ class ProviderInvoicesController {
     try {
       const { start, end } = req.query;
       if (!start || !end) {
-        return responses.BadRequest(res, 'Missing start or end date.');
+        return responses.BadRequest(res, 'Falta fecha de inicio o fin.');
       }
       const result = await service.findByDateRange(start, end);
       return responses.QuerySuccess(res, result);
@@ -52,10 +52,10 @@ class ProviderInvoicesController {
     }
   }
 
-  async searchByNumber(req, res) {
+  async searchByControlNumber(req, res) {
     try {
       const { value } = req.params;
-      const result = await service.searchByNumber(value);
+      const result = await service.searchByControlNumber(value);
       return responses.QuerySuccess(res, result);
     } catch (error) {
       return responses.ErrorInternal(res, error.message);
@@ -71,7 +71,6 @@ class ProviderInvoicesController {
     }
   }
 
-  // 🔹 Restaurar factura eliminada solo con ID
   async restore(req, res) {
     try {
       const id = parseInt(req.params.id);
@@ -79,8 +78,8 @@ class ProviderInvoicesController {
       return responses.QuerySuccess(res, result);
     } catch (error) {
       if (
-        error.message === 'Invoice not found.' ||
-        error.message === 'Invoice is not marked as deleted.'
+        error.message === 'Factura no encontrada.' ||
+        error.message === 'La factura no está marcada como eliminada.'
       ) {
         return responses.ItemNotFound(res, error.message);
       }
@@ -93,7 +92,7 @@ class ProviderInvoicesController {
       const result = await service.delete(parseInt(req.params.id));
       return responses.QuerySuccess(res, result);
     } catch (error) {
-      if (error.message === 'Invoice not found.') {
+      if (error.message === 'Factura no encontrada.') {
         return responses.ItemNotFound(res, error.message);
       }
       return responses.ErrorInternal(res, error.message);
@@ -105,28 +104,24 @@ class ProviderInvoicesController {
       const id = Number(req.params.id);
       const { status } = req.body;
 
-      // Validación explícita del campo status
       if (!status || typeof status !== 'string') {
         return responses.BadRequest(res, 'Campo "status" requerido y debe ser texto.');
       }
 
-      const result = await service.updateStatus(id, status);      
+      const result = await service.updateStatus(id, status);
       return responses.QuerySuccess(res, result);
-      } catch (error) {
+    } catch (error) {
       if (
         error.message === 'Factura no encontrada.' ||
         error.message === 'Transición inválida: pendiente solo puede pasar a pagado o cancelado.' ||
         error.message.startsWith('No se puede modificar una factura')
-        ) {
+      ) {
         return responses.ItemNotFound(res, error.message);
       }
-
       return responses.ErrorInternal(res, error.message);
     }
   }
 
-  
-  // 📌 Nuevo método: factura completa con gasto automático
   async findInvoiceFull(req, res) {
     try {
       const id = Number(req.params.id);
@@ -136,7 +131,7 @@ class ProviderInvoicesController {
 
       const result = await service.findInvoiceFull(id);
       if (!result) {
-        return responses.ItemNotFound(res, 'Factura no encontrada');
+        return responses.ItemNotFound(res, 'Factura no encontrada.');
       }
 
       return responses.QuerySuccess(res, result);

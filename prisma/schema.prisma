@@ -7,16 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/*
-  REPORTES DE PDF REALIZADOS
-  - Reporte de clientes X
-  - Reporte de empleados X
-  - Reporte de vehículos X 
-  - Reporte de proveedores X
-  - Reporte de servicios
-  - Reporte de gastos X
-  - Reporte de ganancias X
-*/
+/**
+ * REPORTES DE PDF REALIZADOS
+ * - Reporte de clientes X
+ * - Reporte de empleados X
+ * - Reporte de vehículos X
+ * - Reporte de proveedores X
+ * - Reporte de servicios
+ * - Reporte de gastos X
+ * - Reporte de ganancias X
+ */
 
 // Tabla de usuarios
 model users {
@@ -31,6 +31,7 @@ model users {
 
 // Empleados
 model employees {
+<<<<<<< HEAD
   id         Int      @id @default(autoincrement())
   name       String   @db.VarChar(40)
   lastname   String   @db.VarChar(40)
@@ -40,6 +41,16 @@ model employees {
   date_of_entry DateTime @default(now())
   is_active  Boolean  @default(true)
   created_at DateTime @default(now()) @map("created_at")
+=======
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar(40)
+  lastname        String   @db.VarChar(40)
+  ci              String   @unique @db.VarChar(13)
+  rol             String   @db.VarChar(30)
+  salary_biweekly Decimal  @db.Decimal(10, 2)
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now()) @map("created_at")
+>>>>>>> Cris/facturass
 
   employee_contacts employee_contacts[]
   payrolls          payrolls[]
@@ -155,16 +166,15 @@ model provider_invoices {
   id             Int           @id @default(autoincrement())
   provider_id    Int
   control_number String        @db.VarChar(30)
-  invoice_number String        @db.VarChar(30)
   invoice_date   DateTime
   subtotal       Decimal       @db.Decimal(10, 2)
   total_amount   Decimal       @db.Decimal(10, 2)
   status         InvoiceStatus @default(pendiente)
+  description    String?       @db.VarChar(255) // 🔹 Nuevo campo libre
   created_at     DateTime      @default(now())
 
-  provider                     providers                      @relation(fields: [provider_id], references: [id], onDelete: Cascade)
-  invoice_taxes                invoice_taxes[]
-  provider_invoices_retentions provider_invoices_retentions[]
+  provider      providers       @relation(fields: [provider_id], references: [id], onDelete: Cascade)
+  invoice_taxes invoice_taxes[]
 
   @@map("provider_invoices")
 }
@@ -173,31 +183,14 @@ model provider_invoices {
 model invoice_taxes {
   id                  Int      @id @default(autoincrement())
   provider_invoice_id Int
-  code                String   @db.VarChar(10) // Ej: IVA, ISLR, FAOV
-  name                String   @db.VarChar(100) // Ej: Impuesto al Valor Agregado
-  percentage          Decimal  @db.Decimal(5, 2) // Ej: 16.00 (%)
+  tax_code            String   @db.VarChar(30) // referencia al catálogo
   amount              Decimal  @db.Decimal(10, 2)
   created_at          DateTime @default(now())
 
   provider_invoice provider_invoices @relation(fields: [provider_invoice_id], references: [id], onDelete: Cascade)
+  tax_parameter    tax_parameters    @relation(fields: [tax_code], references: [code], onDelete: Cascade)
 
   @@map("invoice_taxes")
-}
-
-// 🔹 Retenciones aplicadas a facturas de proveedores
-model provider_invoices_retentions {
-  id                  Int      @id @default(autoincrement())
-  provider_invoice_id Int
-  retention_code      String   @db.VarChar(30)
-  base_amount         Decimal  @db.Decimal(10, 2)
-  rate_retention      Decimal  @db.Decimal(10, 2)
-  total_retention     Decimal  @db.Decimal(10, 2)
-  created_at          DateTime @default(now())
-
-  provider_invoice provider_invoices @relation(fields: [provider_invoice_id], references: [id], onDelete: Cascade)
-  retention        tax_parameters        @relation(fields: [retention_code], references: [code], onDelete: Cascade)
-
-  @@map("provider_invoices_retentions")
 }
 
 // 🔹 Gastos generales
@@ -217,12 +210,22 @@ model expenses {
 model tax_parameters {
   code        String   @id @db.VarChar(30)
   name        String   @db.VarChar(50)
+<<<<<<< HEAD
   percentage  Decimal @db.Decimal(10, 3) // Procentaje
   description String   @db.VarChar(100)
   created_at  DateTime @default(now())
 
   payrolls_retentions          payrolls_retentions[]
   provider_invoices_retentions provider_invoices_retentions[]
+=======
+  percentage  Decimal  @db.Decimal(10, 2) // Procentaje
+  description String   @db.VarChar(100)
+  created_at  DateTime @default(now())
+
+  payrolls_retentions payrolls_retentions[]
+  services_retentions services_retentions[]
+  invoice_taxes       invoice_taxes[]
+>>>>>>> Cris/facturass
 
   @@map("tax_parameters")
 }
@@ -258,6 +261,25 @@ model services {
   @@map("services")
 }
 
+<<<<<<< HEAD
+=======
+model services_retentions {
+  // Relaciones
+  id             Int    @id @default(autoincrement())
+  service_id     Int    @db.Integer
+  code_retention String @db.VarChar(30)
+
+  // Datos
+  base_amount     Decimal  @db.Decimal(10, 2)
+  total_retention Decimal  @db.Decimal(10, 2) // Total de retención
+  created_at      DateTime @default(now())
+
+  services   services       @relation(fields: [service_id], references: [id], onDelete: Cascade)
+  retentions tax_parameters @relation(fields: [code_retention], references: [code], onDelete: Cascade)
+
+  @@map("services_retentions")
+}
+>>>>>>> Cris/facturass
 
 // Ingresos
 model revenue {
@@ -306,6 +328,6 @@ model payrolls_retentions {
 
   created_at DateTime @default(now())
 
-  payroll   payrolls   @relation(fields: [payroll_id], references: [id], onDelete: Cascade)
+  payroll   payrolls       @relation(fields: [payroll_id], references: [id], onDelete: Cascade)
   retention tax_parameters @relation(fields: [retention_code], references: [code], onDelete: Cascade)
 }
