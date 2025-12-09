@@ -83,7 +83,7 @@ class ControllerEmployee {
             if (ci) employee.ci = ci;
             if (rol) employee.rol = rol;
             if (salary_monthly) employee.salary_monthly = salary_monthly;
-            if (date_of_entry) employee.date_of_entry = date_of_entry;
+            if (date_of_entry) employee.date_of_entry = new Date(date_of_entry);
 
             const result = await service.updateEmployee(employee, (contacts) ? contacts : []);
             return responses.QuerySuccess(res, result);
