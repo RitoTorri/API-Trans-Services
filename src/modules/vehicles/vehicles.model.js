@@ -48,6 +48,7 @@ class vehicles {
                 include: {
                     employees: true,
                     vehicle_types: true,
+                    vehicle_model: true,
                 }
             });
         } catch (error) {
@@ -113,6 +114,7 @@ class vehicles {
                 include: {
                     vehicle_types: true,
                     employees: true,
+                    vehicle_model: true,
                 }
             })
         } catch (error) { throw error; }
