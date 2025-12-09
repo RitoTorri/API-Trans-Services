@@ -569,6 +569,11 @@ const htmlEmployeesReport = (data) => {
                 text-transform: uppercase;
                 font-size: 0.95rem;
                 border-right: 1px solid rgba(255, 255, 255, 0.2);
+                /* NUEVAS PROPIEDADES PARA EVITAR SALTOS */
+                white-space: nowrap;      /* Evita saltos de línea */
+                overflow: hidden;         /* Oculta contenido que se sale */
+                text-overflow: ellipsis;  /* Agrega "..." si es muy largo */
+                max-width: 150px;         /* Ancho máximo opcional */
             }
 
             th:last-child {
@@ -713,6 +718,8 @@ const htmlEmployeesReport = (data) => {
                     <th>Apellido</th>
                     <th>Cédula</th>
                     <th>Cargo</th>
+                    <th>Sueldo</th>
+                    <th>Fecha Ingreso</th>
                     <th>Correo</th>
                     <th>Telefono</th>
                 </tr>
@@ -744,6 +751,8 @@ const htmlEmployeesReport = (data) => {
                             <td>${item.lastname || ''}</td>
                             <td>${item.ci || ''}</td>
                             <td>${item.rol || ''}</td>
+                            <td>${item.salary_monthly || ''}Bs</td>
+                            <td>${item.date_of_entry.toISOString().split('T')[0] || ''}</td>
                             <td>${email}</td>
                             <td>${phone}</td>
                         </tr>
