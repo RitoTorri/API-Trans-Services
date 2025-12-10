@@ -124,7 +124,7 @@ class vehicles {
             SELECT * FROM vehicles v
             INNER JOIN services s ON s.vehicle_id = v.id
             WHERE v.id = ${id}
-            AND s.status = 'pending'
+            AND s.payment_status = 'pending'
             AND (
                 s.start_date::date <= ${date_end}::date 
                 AND s.end_date::date >= ${date_start}::date
