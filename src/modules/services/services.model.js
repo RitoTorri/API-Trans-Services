@@ -33,7 +33,12 @@ class ServicesModel {
                 where: filter,
                 include: {
                     clients: { select: { name: true, rif: true } },
-                    vehicles: { select: { license_plate: true } }
+                    vehicles: {
+                        select: {
+                            license_plate: true,
+                            employees: true,
+                        }
+                    }
                 }
             });
         } catch (error) { throw error; }

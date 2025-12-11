@@ -81,7 +81,11 @@ class ServicesService {
                         payment_status: result.payment_status
                     },
                     client: result.clients,
-                    vehicle: result.vehicles,
+                    vehicle: {
+                        license_plate: result.vehicles.license_plate,
+                        name_driver: result.vehicles.employees.name,
+                        lastname_driver: result.vehicles.employees.lastname
+                    },
                     totalAmount: result.price
                 }
             });
