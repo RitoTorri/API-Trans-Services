@@ -9,6 +9,9 @@ const clients = new ClientsModel();
 import VehiclesModel from "../vehicles/vehicles.model.js";
 import vehiclesModel from "../vehicles/vehicles.model.js";
 
+// Importacion de conversion
+import conversion from "../../shared/utils/dollar.methods.js";
+
 class ServicesService {
     constructor() { }
 
@@ -69,7 +72,7 @@ class ServicesService {
             }
 
             const result = await model.getServices(filterSearch);
-            return result.map(result => {
+            return await Promise.all(result.map(async result => {
                 return {
                     services: {
                         id: result.id,
@@ -86,9 +89,10 @@ class ServicesService {
                         name_driver: result.vehicles.employees.name,
                         lastname_driver: result.vehicles.employees.lastname
                     },
-                    totalAmount: result.price
+                    totalAmount: result.price,
+                    totalAmountBs: result.price_bs === null ? await conversion.conversionDolarToBsToday(result.price) : result.price_bs
                 }
-            });
+            }));
         } catch (error) { throw error; }
     }
 

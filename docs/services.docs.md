@@ -100,6 +100,7 @@ Busqueda por nombre del cliente:
                 "lastname_driver": "Cortez"
             },
             "totalAmount": 12740.88
+            "totalAmountBs": 12740.88
         }
 ```
 

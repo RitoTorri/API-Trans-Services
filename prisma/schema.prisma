@@ -7,17 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/**
- * REPORTES DE PDF REALIZADOS
- * - Reporte de clientes X
- * - Reporte de empleados X
- * - Reporte de vehículos X
- * - Reporte de proveedores X
- * - Reporte de servicios
- * - Reporte de gastos X
- * - Reporte de ganancias X
- */
-
 // Tabla de usuarios
 model users {
   id         Int      @id @default(autoincrement())
@@ -188,6 +177,7 @@ model expenses {
   id_expense_type Int
   description     String   @db.VarChar(255)
   total           Decimal  @db.Decimal(10, 2)
+  total_bs        Decimal  @db.Decimal(10, 2)
   created_at      DateTime @default(now())
 
   expense_type expense_types @relation(fields: [id_expense_type], references: [id], onDelete: Cascade)
@@ -230,6 +220,7 @@ model services {
   invoice_number String   @unique @db.VarChar(30)
   invoice_date   DateTime @default(now())
   price          Decimal  @default(0) @db.Decimal(10, 2)
+  price_bs       Decimal? @db.Decimal(10, 2)
   payment_status String   @default("pending") @db.VarChar(20)
   created_at     DateTime @default(now())
 
@@ -245,6 +236,7 @@ model revenue {
   id          Int      @id @default(autoincrement())
   description String   @db.VarChar(255)
   amount      Decimal  @db.Decimal(10, 2) // total
+  amount_bs   Decimal  @db.Decimal(10, 2) // total bs
   category    String   @default("servicio") @db.VarChar(100)
   date        DateTime // Fecha del revenue (no solo created_at)
   created_at  DateTime @default(now())
@@ -268,6 +260,7 @@ model payrolls {
   monthly_salary  Decimal  @db.Decimal(10, 2)
   assignments     Decimal  @db.Decimal(10, 2) // Salario quincenal
   net_salary      Decimal  @db.Decimal(10, 2)
+  net_salary_bs   Decimal?  @db.Decimal(10, 2)
 
   created_at      DateTime @default(now())
   employee            employees             @relation(fields: [employee_id], references: [id], onDelete: Cascade)

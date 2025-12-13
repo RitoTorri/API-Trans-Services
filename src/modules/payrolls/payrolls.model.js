@@ -1,6 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+// Conversion de dolares a Bs
+import conversion from "../../shared/utils/dollar.methods.js";
+
 class PayrollsModel {
     constructor() { }
 
@@ -56,8 +59,15 @@ class PayrollsModel {
                     data: {
                         id_expense_type: expenseType.id,
                         description: description,
-                        total: totalExpense
+                        total: totalExpense,
+                        total_bs: await conversion.conversionDolarToBsToday(totalExpense)
                     }
+                });
+
+                // Agregamos valor a bolivares a la nomina
+                await prisma.payrolls.update({
+                    where: { id: id },
+                    data: { net_salary_bs: expensesResult.total_bs }
                 });
 
                 return { data_expenses: expensesResult };

@@ -8,38 +8,28 @@ const router = express.Router();
 const controller = new ReportsController();
 
 router.get('/reports/expenses/annual/:year',
-    TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     controller.getAnnualExpensesReport
 );
 
 router.get('/reports/revenue/annual/:year',
-    TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     controller.getAnnualRevenueReport
 );
 
 router.get('/reports/clients/service/ranking/:year/:month',
-    TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     middlewares.ValidateMonth,
     controller.getClientServiceRanking
 );
 
 router.get('/reports/employees/services/borrowed/:year/:month',
-    TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     middlewares.ValidateMonth,
     controller.getEmployeesWithMoreServices
 );
 
 router.get('/reports/expenses/details/:year/:month',
-    TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     middlewares.ValidateMonth,
     controller.getExpenseDetails
