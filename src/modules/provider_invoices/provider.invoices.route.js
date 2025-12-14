@@ -18,28 +18,28 @@ router.post('/provider-invoice/:provider_id',
 // 📌 Listar todas las facturas
 router.get('/provider-invoices',
   validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
+  authorization(['Invitado', 'Administrador', 'SuperUsuario']),
   (req, res) => controller.findAll(req, res)
 );
 
 // 📌 Listar facturas por proveedor
 router.get('/provider-invoices/provider/:provider_id',
   validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
+  authorization(['Invitado', 'Administrador', 'SuperUsuario']),
   (req, res) => controller.findByProvider(req, res)
 );
 
 // 📌 Filtrar facturas por rango de fechas
 router.get('/provider-invoices-range',
   validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
+  authorization(['Invitado', 'Administrador', 'SuperUsuario']),
   (req, res) => controller.findByDateRange(req, res)
 );
 
 // 📌 Buscar por número de control
 router.get('/provider-invoices/search/:value',
   validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
+  authorization(['Invitado', 'Administrador', 'SuperUsuario']),
   (req, res) => controller.searchByControlNumber(req, res)
 );
 
@@ -54,7 +54,7 @@ router.patch('/provider-invoice/:id/status',
 // 📌 Filtrar facturas por estado
 router.get('/provider-invoices/status/:status',
   validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
+  authorization(['Invitado', 'Administrador', 'SuperUsuario']),
   (req, res) => controller.findByStatus(req, res)
 );
 
@@ -62,7 +62,7 @@ router.get('/provider-invoices/status/:status',
 // 📌 Consultar factura completa con impuestos y gasto automático
 router.get('/provider-invoices/:id/full',
   validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
+  authorization(['Invitado', 'Administrador', 'SuperUsuario']),
   async (req, res) => {
     try {
       await controller.findInvoiceFull(req, res);

@@ -56,12 +56,13 @@ class ControllerUsers {
     async updateUser(req, res) {
         try {
             const { id } = req.params;
-            const { username, rol } = req.body;
+            const { username, rol, password } = req.body;
 
             const user = { id: parseInt(id), }
 
             if (username) user.username = username;
             if (rol) user.rol = rol;
+            if (password) user.password = password;
 
             const result = await service.updateUser(user, req.user);
             return response.QuerySuccess(res, { message: "User updated successfully.", result: result });

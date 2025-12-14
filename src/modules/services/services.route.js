@@ -16,7 +16,7 @@ router.post('/offered/services',
 
 router.post('/offered/services/search',
     validationToken,
-    authorization(['Administrador', 'SuperUsuario']),
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.getServicesMiddleware,
     controller.getServices
 );

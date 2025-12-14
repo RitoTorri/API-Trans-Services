@@ -19,7 +19,7 @@ router.post('/payrolls',
 // filterSearch: { dateStart: 2002-10-10, dateEnd: 2002-10-10  } o {} desde del body
 router.post('/payrolls/search',
     TokenValidation,
-    authorization(['Administrador', 'SuperUsuario']),
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.getPayrolls,
     controller.getPayrolls
 );

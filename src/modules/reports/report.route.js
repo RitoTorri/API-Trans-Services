@@ -8,34 +8,46 @@ const router = express.Router();
 const controller = new ReportsController();
 
 router.get('/reports/expenses/annual/:year',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     controller.getAnnualExpensesReport
 );
 
 router.get('/reports/revenue/annual/:year',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     controller.getAnnualRevenueReport
 );
 
 router.get('/reports/clients/service/ranking/:year/:month',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     middlewares.ValidateMonth,
     controller.getClientServiceRanking
 );
 
 router.get('/reports/employees/services/borrowed/:year/:month',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     middlewares.ValidateMonth,
     controller.getEmployeesWithMoreServices
 );
 
 router.get('/reports/expenses/details/:year/:month',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     middlewares.ValidateMonth,
     controller.getExpenseDetails
 );
 
 router.get('/reports/providers/:year/:month',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     middlewares.ValidateMonth,
     controller.getProvidersReport
@@ -43,28 +55,40 @@ router.get('/reports/providers/:year/:month',
 
 // PDFS 
 router.get('/reports/clients/pdf',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     controller.getPdfReportClients
 );
 
 router.get('/reports/employees/pdf',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     controller.getPdfReportEmployees
 );
 
 router.get('/reports/provider/pdf',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     controller.getPdfReportProviders
 );
 
 router.get('/reports/vehicles/pdf',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     controller.getPdfReportVehicles
 );
 
 router.get('/reports/expenses/pdf/:year/:month',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     middlewares.ValidateMonth,
     controller.getPdfReportExpenses
 );
 
 router.get('/reports/revenue/pdf/:year/:month',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.ValidateYear,
     middlewares.ValidateMonth,
     controller.getPdfReportRevenue
@@ -72,11 +96,15 @@ router.get('/reports/revenue/pdf/:year/:month',
 
 // Este reporte muestra los proveedores a los que se les debe dinero
 router.get('/reports/debt/providers/pdf',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     controller.getPdfReportProvidersDebt
 );
 
 // Este reporte muestra los datos de todos los proveedores
 router.get('/reports/pdf/providers',
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     controller.getPdfReportProviders
 );
 

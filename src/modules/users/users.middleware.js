@@ -21,6 +21,10 @@ const addUserMiddleware = (req, res, next) => {
         errors.push('Invalid rol. Only letters and spaces are allowed.');
     }
 
+    if (rol !== "SuperUsuario" && rol !== "Administrador" && rol !== "Invitado") {
+        errors.push('Invalid rol. Only SuperUsuario, Administrador or Invitado are allowed.');
+    }
+
     if (errors.length > 0) return response.BadRequest(res, errors);
     next();
 }
@@ -39,14 +43,14 @@ const deleteUserMiddleware = (req, res, next) => {
 
 const updateUserMiddleware = (req, res, next) => {
     const { id } = req.params;
-    const { username, rol } = req.body;
+    const { username, password, rol } = req.body;
     let errors = [];
 
     if (!id) {
         return response.BadRequest(res, 'Missing parameters. Please send id.');
     }
 
-    if (!username && !rol) {
+    if (!username && !rol && !password) {
         return response.BadRequest(res, 'Missing parameters. Please send username or rol.');
     }
 
@@ -60,9 +64,19 @@ const updateUserMiddleware = (req, res, next) => {
         }
     }
 
+    if (password) {
+        if (validators.formatTextInvalid(password)) {
+            errors.push('Invalid password.');
+        }
+    }
+
     if (rol) {
         if (validators.formatNamesInvalid(rol)) {
             errors.push('Invalid rol. Only letters and spaces are allowed.');
+        }
+
+        if (rol !== "SuperUsuario" && rol !== "Administrador" && rol !== "Invitado") {
+            errors.push('Invalid rol. Only SuperUsuario, Administrador or Invitado are allowed.');
         }
     }
 

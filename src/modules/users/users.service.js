@@ -52,6 +52,12 @@ class ServiceUsers {
                 if (userName) throw new Error('Already exist username.');
             }
 
+            if (user.password) {
+                // encriptar la contraseña
+                const passwordHash = await bcrypt.hash(user.password, 10);
+                user.password = passwordHash;
+            }
+
             const id = user.id;
             delete user.id;
 
