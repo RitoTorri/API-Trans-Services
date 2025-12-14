@@ -204,3 +204,37 @@ Esta ruta no requiere un cuerpo de petición (Body).
     "message": "El vehículo con placa XYA-987 ya estaba activo."
   }
 }
+
+# 🔍 Módulo: Vehículos - Disponibilidad
+
+Este endpoint permite consultar qué vehículos y sus conductores asignados están **libres** para ser utilizados en un nuevo servicio durante un rango de fechas específico.
+
+## URL Base: /api/trans/vehicles
+
+---
+
+### 1. Consultar Vehículos Disponibles por Rango de Fechas
+
+Busca vehículos activos que no tienen un servicio registrado en la tabla `services` que se solape con el rango de fechas solicitado.
+
+* **Endpoint:** `GET /availableByDate`
+* **Acceso:** Auth Required (Si aplicable)
+* **Middleware Aplicado:** `validateAvailabilityQuery` (Verificación de formato y lógica de fechas).
+* **Query Parameters (Parámetros de Consulta):**
+    | Parámetro | Tipo | Requerido | Descripción |
+    | :--- | :--- | :--- | :--- |
+    | `startDate` | string | Sí | Fecha de inicio del rango de búsqueda (Formato: YYYY-MM-DD). |
+    | `endDate` | string | Sí | Fecha de fin del rango de búsqueda (Formato: YYYY-MM-DD). |
+* **Ejemplo de Uso:** `/api/trans/vehicles/availableByDate?startDate=2025-01-20&endDate=2025-01-25`
+
+#### Estructura de Respuesta Exitosa (200 OK)
+
+```json
+{
+  "success": true,
+  "code": "REQUEST_SUCCESSFUL",
+  "message": "Consulta de disponibilidad de vehículos exitosa.",
+  "details": [
+    // ... lista de vehículos disponibles
+  ]
+}
