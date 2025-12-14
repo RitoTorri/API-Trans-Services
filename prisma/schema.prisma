@@ -147,6 +147,7 @@ model provider_invoices {
   invoice_date   DateTime
   subtotal       Decimal       @db.Decimal(10, 2)
   total_amount   Decimal       @db.Decimal(10, 2)
+  total_bs       Decimal?      @db.Decimal(14, 2) // monto en bolívares, se calcula al pagar
   status         InvoiceStatus @default(pendiente)
   description    String?       @db.VarChar(255) // 🔹 Nuevo campo libre
   created_at     DateTime      @default(now())
@@ -259,7 +260,7 @@ model payrolls {
   monthly_salary  Decimal  @db.Decimal(10, 2)
   assignments     Decimal  @db.Decimal(10, 2) // Salario quincenal
   net_salary      Decimal  @db.Decimal(10, 2)
-  net_salary_bs   Decimal?  @db.Decimal(10, 2)
+  net_salary_bs   Decimal? @db.Decimal(10, 2)
 
   created_at          DateTime              @default(now())
   employee            employees             @relation(fields: [employee_id], references: [id], onDelete: Cascade)

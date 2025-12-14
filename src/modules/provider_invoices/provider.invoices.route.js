@@ -15,7 +15,7 @@ router.post('/provider-invoice/:provider_id',
   (req, res) => controller.create(req, res)
 );
 
-// 📌 Listar todas las facturas activas
+// 📌 Listar todas las facturas
 router.get('/provider-invoices',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
@@ -43,36 +43,23 @@ router.get('/provider-invoices/search/:value',
   (req, res) => controller.searchByControlNumber(req, res)
 );
 
-// 📌 Listar facturas eliminadas (soft deleted)
-router.get('/provider-invoices-deleted',
-  validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
-  (req, res) => controller.findDeleted(req, res)
-);
-
-// 📌 Restaurar factura eliminada (solo por ID)
-router.put('/provider-invoice/restore/:id',
-  validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
-  (req, res) => controller.restore(req, res)
-);
-
-// 📌 Soft delete: marcar factura como eliminada
-router.delete('/provider-invoice/:id',
-  validateTokenAccess,
-  authorization(['Administrador', 'SuperUsuario']),
-  middleware.validateDelete,
-  (req, res) => controller.delete(req, res)
-);
-
-// 📌 Cambiar estado de una factura
+// 📌 Cambiar estado de factura (pendiente → pagado o cancelado)
 router.patch('/provider-invoice/:id/status',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
+  middleware.validateStatusUpdate,
   (req, res) => controller.updateStatus(req, res)
 );
 
-// 📌 Consultar factura completa con gasto automático (incluye desglose)
+// 📌 Filtrar facturas por estado
+router.get('/provider-invoices/status/:status',
+  validateTokenAccess,
+  authorization(['Administrador', 'SuperUsuario']),
+  (req, res) => controller.findByStatus(req, res)
+);
+
+
+// 📌 Consultar factura completa con impuestos y gasto automático
 router.get('/provider-invoices/:id/full',
   validateTokenAccess,
   authorization(['Administrador', 'SuperUsuario']),
