@@ -1,10 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import ProviderInvoicesModel from './provider.invoices.model.js';
 import ProviderModel from '../provider/provider.model.js';
-import validators from '../../shared/utils/format.data.js' // 🔹 Import de validaciones
+import validators from '../../shared/utils/format.data.js';
+import conversion from "../../shared/utils/dollar.methods.js"; // 🔹 Import default
 
 const prisma = new PrismaClient();
-const model = new ProviderInvoicesModel();
 const providerModel = new ProviderModel();
 
 class ProviderInvoicesService {
@@ -15,31 +14,30 @@ class ProviderInvoicesService {
 
     const subtotal = data.subtotal ?? 0;
 
-  // 🔹 Validar descripción libre con util validators
-  if (data.description) {
-    if (typeof data.description !== 'string' || data.description.trim() === '') {
-      throw new Error('La descripción debe ser texto válido y no vacía.');
+    // Validar descripción libre
+    if (data.description) {
+      if (typeof data.description !== 'string' || data.description.trim() === '') {
+        throw new Error('La descripción debe ser texto válido y no vacía.');
+      }
+      if (data.description.length > 255) {
+        throw new Error('La descripción no puede superar los 255 caracteres.');
+      }
+      if (validators.formatDescriptionInvalid(data.description)) {
+        throw new Error('La descripción solo puede contener letras, números, espacios, puntos, comas y paréntesis.');
+      }
     }
-    if (data.description.length > 255) {
-      throw new Error('La descripción no puede superar los 255 caracteres.');
-  }
-    if (validators.formatDescriptionInvalid(data.description)) {
-      throw new Error('La descripción solo puede contener letras, números, espacios, puntos, comas y paréntesis.');
-    }
-  }
 
-
-    // 🔹 Buscar IVA en el catálogo
+    // Buscar IVA en el catálogo
     const ivaParam = await prisma.tax_parameters.findUnique({
       where: { code: "iva" }
     });
     if (!ivaParam) throw new Error('IVA no está definido en el catálogo de impuestos.');
 
-    // 🔹 Calcular IVA y total
+    // Calcular IVA y total
     const ivaAmount = subtotal * Number(ivaParam.percentage);
     const totalAmount = subtotal + ivaAmount;
 
-    // 🔹 Generar control_number automático
+    // Generar control_number automático
     const lastInvoice = await prisma.provider_invoices.findFirst({
       orderBy: { id: 'desc' }
     });
@@ -54,7 +52,7 @@ class ProviderInvoicesService {
     }
     const newControlNumber = `CN-${String(nextNumber).padStart(4, '0')}`;
 
-    // 🔹 Crear factura
+    // Crear factura
     const providerInvoice = await prisma.provider_invoices.create({
       data: {
         provider_id: data.provider_id,
@@ -67,7 +65,7 @@ class ProviderInvoicesService {
       }
     });
 
-    // 🔹 Registrar impuesto aplicado
+    // Registrar impuesto aplicado
     await prisma.invoice_taxes.create({
       data: {
         provider_invoice_id: providerInvoice.id,
@@ -85,7 +83,7 @@ class ProviderInvoicesService {
     };
   }
 
-  // 🔹 Listar todas las facturas
+  // Listar todas las facturas
   async findAll() {
     return await prisma.provider_invoices.findMany({
       include: {
@@ -95,7 +93,7 @@ class ProviderInvoicesService {
     });
   }
 
-  // 🔹 Buscar facturas por proveedor
+  // Buscar facturas por proveedor
   async findByProvider(provider_id) {
     return await prisma.provider_invoices.findMany({
       where: { provider_id },
@@ -106,7 +104,7 @@ class ProviderInvoicesService {
     });
   }
 
-  // 🔹 Buscar facturas por rango de fechas
+  // Buscar facturas por rango de fechas
   async findByDateRange(start, end) {
     return await prisma.provider_invoices.findMany({
       where: {
@@ -119,7 +117,7 @@ class ProviderInvoicesService {
     });
   }
 
-  // 🔹 Buscar factura por número de control
+  // Buscar factura por número de control
   async searchByControlNumber(value) {
     return await prisma.provider_invoices.findMany({
       where: {
@@ -132,28 +130,7 @@ class ProviderInvoicesService {
     });
   }
 
-  async findDeleted() {
-    return await model.findDeleted();
-  }
-
-  async restore(id) {
-    const invoice = await model.findById(id);
-    if (!invoice) throw new Error('Factura no encontrada.');
-    if (!invoice.control_number.startsWith('deleted_')) {
-      throw new Error('La factura no está marcada como eliminada.');
-    }
-
-    const restoredControlNumber = invoice.control_number.replace(/^deleted_\d+/, '');
-    return await model.restore(id, restoredControlNumber);
-  }
-
-  async delete(id) {
-    const invoice = await model.findById(id);
-    if (!invoice) throw new Error('Factura no encontrada.');
-    return await model.softDelete(id);
-  }
-
-  // 🔹 Cambiar estado de factura (pendiente → pagado → cancelado)
+  // Cambiar estado de factura (pendiente → pagado → cancelado)
   async updateStatus(id, status) {
     const invoice = await prisma.provider_invoices.findUnique({
       where: { id },
@@ -169,16 +146,26 @@ class ProviderInvoicesService {
       throw new Error('Transición inválida: pendiente solo puede pasar a pagado o cancelado.');
     }
 
+    let totalBs = null;
+
+    // Si pasa a pagado, calcular monto en Bs
+    if (status === 'pagado') {
+      totalBs = await conversion.conversionDolarToBsToday(invoice.total_amount);
+    }
+
     const updated = await prisma.provider_invoices.update({
       where: { id },
-      data: { status }
+      data: {
+        status,
+        total_bs: totalBs
+      }
     });
 
     // Crear gasto automático solo si pasa a pagado
-    if (status === 'pagado') {
-      const descripcionGasto = invoice.description 
-        ? invoice.description 
-        : `Compra al ${invoice.provider.name} - Control ${invoice.control_number}`;
+  if (status === 'pagado') {
+    const descripcionGasto = invoice.description
+      ? `${invoice.description} - Control ${invoice.control_number}`
+      : `Compra al ${invoice.provider.name} - Control ${invoice.control_number}`;
 
       let expenseType = await prisma.expense_types.findFirst({
         where: { name: "compras" }
@@ -196,7 +183,8 @@ class ProviderInvoicesService {
         data: {
           id_expense_type: expenseType.id,
           description: descripcionGasto,
-          total: Number(invoice.total_amount)
+          total: Number(invoice.total_amount), // USD
+          total_bs: Number(totalBs)            // Bs
         }
       });
     }
@@ -204,7 +192,24 @@ class ProviderInvoicesService {
     return updated;
   }
 
-  // 🔹 Consulta completa de factura con impuestos y gasto automático
+  // Buscar facturas por estado
+async findByStatus(status) {
+  const validStatuses = ['pendiente', 'pagado', 'cancelado'];
+  if (!validStatuses.includes(status)) {
+    throw new Error(`Estado inválido. Debe ser uno de: ${validStatuses.join(', ')}`);
+  }
+
+  return await prisma.provider_invoices.findMany({
+    where: { status },
+    include: {
+      provider: { select: { name: true, rif: true } },
+      invoice_taxes: { include: { tax_parameter: true } }
+    },
+    orderBy: { invoice_date: 'desc' }
+  });
+}
+
+  // Consulta completa de factura con impuestos y gasto automático
   async findInvoiceFull(id) {
     const invoice = await prisma.provider_invoices.findUnique({
       where: { id },
