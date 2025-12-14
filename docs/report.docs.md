@@ -319,7 +319,7 @@ GET http://localhost:3000/api/trans/services/reports/debt/providers/pdf
 ### 13. Reporte de proveedores
 **INFO:** Este reporte muestra los datos de todos los proveedores.
 **Método:** `GET`  
-**Endpoint:** `http://localhost:3000/api/trans/services/reports/pdf/providers`  
+**Endpoint:** `http://localhost:3000/api/trans/services/report/provider/pdf`  
 **Headers:**
 ```
 Authorization: Bearer {token}
@@ -327,7 +327,7 @@ Authorization: Bearer {token}
 
 **Ejemplo de la URL:**
 ```
-GET http://localhost:3000/api/trans/services/reports/pdf/providers
+GET http://localhost:3000/api/trans/services/reports/provider/pdf
 ```
 
 **Respuesta:** Es la descarga del pdf.

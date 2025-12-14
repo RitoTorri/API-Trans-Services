@@ -66,6 +66,7 @@ router.get('/reports/employees/pdf',
     controller.getPdfReportEmployees
 );
 
+// Muestra los datos de todos los proveedores
 router.get('/reports/provider/pdf',
     TokenValidation,
     authorization(['Invitado', 'Administrador', 'SuperUsuario']),
@@ -99,13 +100,6 @@ router.get('/reports/debt/providers/pdf',
     TokenValidation,
     authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     controller.getPdfReportProvidersDebt
-);
-
-// Este reporte muestra los datos de todos los proveedores
-router.get('/reports/pdf/providers',
-    TokenValidation,
-    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
-    controller.getPdfReportProviders
 );
 
 
