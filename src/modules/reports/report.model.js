@@ -136,20 +136,42 @@ class ReportsModel {
     async getPdfReportProvidersDebt() {
         try {
             return await prisma.$queryRaw`
+                -- Totales por factura pendiente
+            WITH facturas AS (
                 SELECT 
-                    p.name AS proveedor,
-                    p.rif,
-                    STRING_AGG(DISTINCT CASE WHEN pc.contact_info NOT LIKE '%@%' THEN pc.contact_info END, ', ') AS telefonos,
-                    STRING_AGG(DISTINCT CASE WHEN pc.contact_info LIKE '%@%' THEN pc.contact_info END, ', ') AS correos,
-                    SUM(pi.subtotal) AS subtotal_pendiente,
-                    SUM(it.amount) AS impuestos_pendientes,
-                    SUM(pi.subtotal + COALESCE(it.amount,0)) AS total_adeudado
-                FROM providers p
-                JOIN provider_invoices pi ON p.id = pi.provider_id
-                LEFT JOIN provider_contacts pc ON p.id = pc.provider_id
-                LEFT JOIN invoice_taxes it ON pi.id = it.provider_invoice_id
+                    pi.id,
+                    pi.provider_id,
+                    pi.subtotal,
+                    COALESCE(SUM(it.amount),0) AS impuestos,
+                    pi.subtotal + COALESCE(SUM(it.amount),0) AS total
+                FROM provider_invoices pi
+                LEFT JOIN invoice_taxes it 
+                    ON pi.id = it.provider_invoice_id
                 WHERE pi.status = 'pendiente'
-                GROUP BY p.id, p.name, p.rif;
+                GROUP BY pi.id, pi.provider_id, pi.subtotal
+            ),
+            -- Contactos únicos por proveedor
+            contactos AS (
+                SELECT 
+                    pc.provider_id,
+                    STRING_AGG(DISTINCT CASE WHEN pc.contact_info NOT LIKE '%@%' THEN pc.contact_info END, ', ') AS telefonos,
+                    STRING_AGG(DISTINCT CASE WHEN pc.contact_info LIKE '%@%' THEN pc.contact_info END, ', ') AS correos
+                FROM provider_contacts pc
+                GROUP BY pc.provider_id
+            )
+            SELECT 
+                p.name AS proveedor,
+                p.rif,
+                c.telefonos,
+                c.correos,
+                SUM(f.subtotal) AS subtotal_pendiente,
+                SUM(f.impuestos) AS impuestos_pendientes,
+                SUM(f.total) AS total_adeudado
+            FROM facturas f
+            JOIN providers p ON f.provider_id = p.id
+            LEFT JOIN contactos c ON p.id = c.provider_id
+            GROUP BY p.id, p.name, p.rif, c.telefonos, c.correos
+            ORDER BY total_adeudado DESC
             `
         } catch (error) { throw error; }
     }

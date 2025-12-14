@@ -3188,7 +3188,7 @@ const htmlProvidersReportDebt = (data) => {
                 <th>Correo</th>
                 <th>Teléfono</th>
                 <th>Subtotal</th>
-                <th>Retenciones</th>
+                <th>Impuestos</th>
                 <th>Total ($)</th>
                 <th>Total (Bs)</th>
             </tr>
@@ -3239,8 +3239,8 @@ const htmlProvidersReportDebt = (data) => {
                             <td>${item.rif || ''}</td>
                             <td>${item.correos || ''}</td>
                             <td>${item.telefonos || ''}</td>
-                            <td>${formatNumber(subtotal)} Bs</td>
-                            <td>${formatNumber(retenciones)} Bs</td>
+                            <td>${formatNumber(subtotal)} $</td>
+                            <td>${formatNumber(retenciones)} $</td>
                             <td>${formatNumber(totalDolar)} $</td>
                             <td>${formatNumber(totalBsItem)} Bs</td>
                         </tr>`;
@@ -3249,9 +3249,7 @@ const htmlProvidersReportDebt = (data) => {
             // Agregar fila del total
             filasHTML += `
                     <tr class="total-row">
-                        <td colspan="4" style="text-align: right;">TOTALES:</td>
-                        <td>${formatNumber(totalSubtotal)} Bs</td>
-                        <td>${formatNumber(totalRetenciones)} Bs</td>
+                        <td colspan="6" style="text-align: right;">TOTAL:</td>
                         <td>${formatNumber(totalDolares)} $</td>
                         <td>${formatNumber(totalBs)} Bs</td>
                     </tr>`;
