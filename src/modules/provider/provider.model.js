@@ -57,6 +57,13 @@ class ProviderModel {
     });
   }
 
+  // ✅ Nuevo método: buscar contacto por su info (para validar duplicados)
+  async findContactByInfo(contact_info) {
+    return await prisma.provider_contacts.findUnique({
+      where: { contact_info }
+    });
+  }
+
   // ✅ Actualización parcial con validación de contactos
   async updateProvider(object, idProvider, contacts = [], contactsToDelete = []) {
     return await prisma.$transaction(async (tx) => {
@@ -85,6 +92,14 @@ class ProviderModel {
           });
           contactsResult.push(updated);
         } else {
+          // 🔹 Validar duplicado antes de crear
+          const duplicate = await tx.provider_contacts.findUnique({
+            where: { contact_info: c.contact_info }
+          });
+          if (duplicate) {
+            throw new Error(`Contact info "${c.contact_info}" already exists in another provider.`);
+          }
+
           const created = await tx.provider_contacts.create({
             data: { provider_id: idProvider, contact_info: c.contact_info }
           });
