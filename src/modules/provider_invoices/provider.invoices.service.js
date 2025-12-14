@@ -162,10 +162,10 @@ class ProviderInvoicesService {
     });
 
     // Crear gasto automático solo si pasa a pagado
-    if (status === 'pagado') {
-      const descripcionGasto = invoice.description 
-        ? invoice.description 
-        : `Compra al ${invoice.provider.name} - Control ${invoice.control_number}`;
+  if (status === 'pagado') {
+    const descripcionGasto = invoice.description
+      ? `${invoice.description} - Control ${invoice.control_number}`
+      : `Compra al ${invoice.provider.name} - Control ${invoice.control_number}`;
 
       let expenseType = await prisma.expense_types.findFirst({
         where: { name: "compras" }
