@@ -96,7 +96,8 @@ router.get('/reports/revenue/pdf/:year/:month',
 
 // Este reporte muestra los proveedores a los que se les debe dinero
 router.get('/reports/debt/providers/pdf',
-
+    TokenValidation,
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     controller.getPdfReportProvidersDebt
 );
 
