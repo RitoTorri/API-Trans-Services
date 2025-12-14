@@ -61,36 +61,47 @@ model vehicle_types {
 }
 
 model vehicles {
-  id              Int      @id @default(autoincrement())
-  driver_id       Int
-  model           String   @db.VarChar(50)
-  license_plate   String   @unique @db.VarChar(10)
-  total_seats     Int
-  vehicle_type_id Int
-  is_active       Boolean  @default(true)
-  created_at      DateTime @default(now()) @map("created_at")
+// --- CAMPOS ÚNICOS SIN DUPLICAR ---
+  id                Int       @id @default(autoincrement())
+  driver_id         Int
+  license_plate     String    @unique @db.VarChar(10)
+  total_seats       Int
+  vehicle_type_id   Int
+  is_active         Boolean   @default(true)
+  created_at        DateTime  @default(now()) @map("created_at")
+  
+  // --- NUEVA LLAVE FORÁNEA (Normalización) ---
+  vehicle_model_id  Int 
+  vehicle_model     VehicleModel @relation(fields: [vehicle_model_id], references: [id])
 
-  employees     employees     @relation(fields: [driver_id], references: [id], onDelete: Cascade)
-  vehicle_types vehicle_types @relation(fields: [vehicle_type_id], references: [id], onDelete: Cascade)
-  services      services[]
-  repairs       repair[]
+  // --- RELACIONES ---
+  employees         employees     @relation(fields: [driver_id], references: [id], onDelete: Cascade)
+  vehicle_types     vehicle_types @relation(fields: [vehicle_type_id], references: [id], onDelete: Cascade)
+  services          services[]
+  repairs           repair[]
 
   @@map("vehicles")
 }
 
-model repair {
-  id            Int       @id @default(autoincrement())
-  createdAt     DateTime  @default(now())
-  vehicleId     Int
-  vehicle       vehicles  @relation(fields: [vehicleId], references: [id])
-  description   String    @db.Text
-  status        String    @default("Pending")
-  startDate     DateTime?
-  endDate       DateTime?
-  estimatedCost Float?
-  finalCost     Float?
+model VehicleModel {
+  id              Int     @id @default(autoincrement())
+  name            String  @unique @db.VarChar(100)
+  vehicles        vehicles[]
+}
 
-  @@map("repairs")
+model repair {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  vehicleId     Int
+  vehicle       vehicles  @relation(fields: [vehicleId], references: [id])
+  description   String    @db.Text
+  status        String    @default("Pending")
+  startDate     DateTime?
+  endDate       DateTime?
+  estimatedCost Float?
+  finalCost     Float?
+
+  @@map("repairs")
 }
 
 // Clientes

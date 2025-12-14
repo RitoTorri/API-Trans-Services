@@ -40,4 +40,10 @@ router.put(
     controller.reactivateVehicle.bind(controller)
 );
 
+router.get(
+  '/availableByDate',
+  // [authMiddleware.verifyToken, /* posibles validadores */], // Si usas middleware
+  controller.getAvailableVehicles.bind(controller)
+);
+
 export default router;

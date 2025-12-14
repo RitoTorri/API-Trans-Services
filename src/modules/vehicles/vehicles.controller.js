@@ -11,6 +11,7 @@ class vehiclesController {
         this.deleteVehicle = this.deleteVehicle.bind(this);
         this.listAll = this.listAll.bind(this);
         this.reactivateVehicle = this.reactivateVehicle.bind(this);
+        this.getAvailableVehicles = this.getAvailableVehicles.bind(this);
        
     }
 
@@ -168,6 +169,39 @@ class vehiclesController {
             
             console.error('Error al reactivar el vehículo:', error);
             return responses.ErrorInternal(res, { error: error.message || 'Error inesperado.' });
+        }
+    }
+
+    async getAvailableVehicles(req, res) {
+        // En tu router no usaste validadores de Express-validator,
+        // así que haremos la validación de fechas aquí.
+        const { startDate, endDate } = req.query;
+
+        if (!startDate || !endDate) {
+            return res.status(400).json({
+                success: false,
+                code: "MISSING_PARAMETERS",
+                message: "Faltan los parámetros 'startDate' y 'endDate' en la consulta (query).",
+            });
+        }
+
+        try {
+            const availableVehicles = await this.vehiclesService.findAvailableByDate(startDate, endDate);
+
+            return res.status(200).json({
+                success: true,
+                code: "REQUEST_SUCCESSFUL",
+                message: "Consulta de disponibilidad de vehículos exitosa.",
+                details: availableVehicles,
+            });
+        } catch (error) {
+            console.error('Error fetching available vehicles:', error);
+            // Respuesta genérica de error interno
+            res.status(500).json({
+                success: false,
+                code: "INTERNAL_SERVER_ERROR",
+                message: error.message || "Ocurrió un error inesperado al buscar la disponibilidad.",
+            });
         }
     }
 

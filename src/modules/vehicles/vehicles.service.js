@@ -114,6 +114,32 @@ class vehiclesServices{
         }
     }
 
+    async findAvailableByDate(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        try {
+            // 1. Delegar la consulta compleja al Model
+            const availableVehicles = await this.vehiclesModel.findAvailableVehiclesByDate(start, end);
+
+            // 2. Formatear la respuesta
+            return availableVehicles.map(vehicle => ({
+                id: vehicle.id,
+                license_plate: vehicle.license_plate,
+                model: vehicle.vehicle_model.name,
+                driver: {
+                    id: vehicle.employees.id,
+                    name: `${vehicle.employees.name} ${vehicle.employees.lastname}`,
+                    employee_code: vehicle.employees.ci, 
+                },
+            }));
+
+        } catch (error) {
+            console.error("Error en findAvailableByDate (Service):", error);
+            // Relanzar un error genérico para el Controller
+            throw new Error("Error al consultar la disponibilidad de vehículos.");
+        }
+    }
 }
 
 export default new vehiclesServices();

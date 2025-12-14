@@ -19,6 +19,7 @@ import reportsRoute from "./modules/reports/report.route.js";
 import providerRoute from "./modules/provider/provider.route.js";
 import providerInvoicesRoute from "./modules/provider_invoices/provider.invoices.route.js";
 import repairRoute from "./modules/repairs/repairs.route.js";
+import vehicleModelRouter from './modules/vehicle_model/vehicle_model.router.js';
 
 const app = express();
 
@@ -62,5 +63,6 @@ app.use(urlApiBase, reportsRoute);
 app.use(urlApiBase, providerRoute);
 app.use(urlApiBase, providerInvoicesRoute);
 app.use(urlApiBase, repairRoute);
+app.use(urlApiBase, vehicleModelRouter);
 
 export default app;
