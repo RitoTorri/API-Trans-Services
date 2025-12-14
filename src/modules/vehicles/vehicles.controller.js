@@ -186,7 +186,7 @@ class vehiclesController {
         }
 
         try {
-            const availableVehicles = await vehicleService.findAvailableByDate(startDate, endDate);
+            const availableVehicles = await this.vehiclesService.findAvailableByDate(startDate, endDate);
 
             return res.status(200).json({
                 success: true,
