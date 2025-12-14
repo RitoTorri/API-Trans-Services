@@ -26,7 +26,7 @@ El módulo Provider Invoices gestiona las facturas de proveedores: creación con
 ### Tabla expenses:
 - id (PK)
 - id_expense_type (FK → expense_types.id)
-- description (string, ≤255)
+- description (string, ≤255) → siempre incluye el control_number
 - total (decimal, 10,2)
 - total_bs (decimal, 14,2)
 - created_at (timestamp)
@@ -56,6 +56,10 @@ El módulo Provider Invoices gestiona las facturas de proveedores: creación con
 - description (si viene): texto válido, no vacío, ≤255, caracteres permitidos (letras, números, espacios, puntos, comas, paréntesis).
 - IVA: se obtiene de tax_parameters (code = "iva") y se aplica al subtotal.
 - Transiciones de estado: pendiente → pagado (genera gasto automático), pendiente → cancelado. No se permite modificar una factura en estado pagado o cancelado.
+- Al pasar a "pagado", se crea un gasto en expenses con descripción:  
+  `<factura.description> - Control CN-XXXX`  
+  o, si no hay descripción:  
+  `Compra al <proveedor> - Control CN-XXXX`.
 
 ## Autenticación y autorización
 - Header requerido: Authorization: Bearer <token>.
@@ -131,6 +135,6 @@ Headers: Authorization: Bearer <token>
 - control_number se genera automáticamente de forma consecutiva (prefijo CN- y padding).
 - invoice_date se convierte a Date en el controller antes de crear.
 - IVA y total_amount se calculan desde tax_parameters (code "iva") en el service/model.
-- Al cambiar a "pagado", se crea un gasto en expenses con expense_types "compras" (si no existe, se crea) y descripción basada en la factura.
+- Al cambiar a "pagado", se crea un gasto en expenses con expense_types "compras" (si no existe, se crea) y descripción basada en la factura + control_number.
 - Unicidad práctica del gasto: se usa la descripción con el control_number para evitar duplicados sin cambios de schema.
 - Seguridad: validateTokenAccess y authorization(['Administrador', 'SuperUsuario']) aplicados en todas las rutas.
