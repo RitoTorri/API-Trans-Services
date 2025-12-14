@@ -102,3 +102,44 @@ export const validateUpdateVehicleData = (req, res, next) => {
 
     next();
 };
+
+export const validateAvailabilityQuery = (req, res, next) => {
+    const { startDate, endDate } = req.query;
+
+    // 1. Verificar existencia de campos obligatorios (Usando responses.BadRequest)
+    if (!startDate || !endDate) {
+        return responses.BadRequest(res, { 
+            message: 'Faltan parámetros de consulta obligatorios.',
+            required: ['startDate', 'endDate']
+        });
+    }
+
+    // 2. Verificar formato de fecha (Usando validator.formatDateInvalid y responses.ParametersInvalid)
+    if (validator.formatDateInvalid(startDate)) {
+        return responses.ParametersInvalid(res, {
+            field: 'startDate',
+            message: 'El formato de startDate es incorrecto. Use YYYY-MM-DD.'
+        });
+    }
+    
+    if (validator.formatDateInvalid(endDate)) {
+        return responses.ParametersInvalid(res, {
+            field: 'endDate',
+            message: 'El formato de endDate es incorrecto. Use YYYY-MM-DD.'
+        });
+    }
+
+    // 3. (Lógica de Negocio): Verificar que startDate sea <= endDate
+    // Creamos objetos Date para comparar el valor temporal
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start > end) {
+        return responses.ParametersInvalid(res, {
+            field: 'startDate/endDate',
+            message: 'La fecha de inicio (startDate) no puede ser posterior a la fecha de fin (endDate).'
+        });
+    }
+
+    next();
+};

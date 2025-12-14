@@ -133,6 +133,42 @@ class vehicles {
             )
         `;
     }
+
+    async findAvailableVehiclesByDate(start, end) {
+        try {
+            // 1. IDENTIFICAR IDS OCUPADOS
+            const occupiedVehicleIds = await prisma.services.findMany({
+                where: {
+                    end_date: { gte: start },
+                    start_date: { lte: end },
+                },
+                select: { vehicle_id: true },
+                distinct: ['vehicle_id'],
+            });
+
+            const excludedIds = occupiedVehicleIds.map(service => service.vehicle_id);
+
+            // 2. CONSULTAR VEHÍCULOS DISPONIBLES (Prisma no necesita el formato de salida aquí)
+            return await prisma.vehicles.findMany({
+                where: {
+                    is_active: true,
+                    id: { notIn: excludedIds },
+                },
+                // Incluir relaciones para que el Service pueda formatear la respuesta
+                include: {
+                    employees: {
+                        select: { id: true, name: true, lastname: true, ci: true },
+                    },
+                    vehicle_model: {
+                        select: { name: true },
+                    },
+                },
+            });
+        } catch (error) {
+            console.error("Prisma Error in findAvailableVehiclesByDate:", error);
+            throw error; // El Service manejará el relanzamiento
+        }
+    }
 }
 
 export default new vehicles();
