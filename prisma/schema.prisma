@@ -31,15 +31,15 @@ model users {
 
 // Empleados
 model employees {
-  id         Int      @id @default(autoincrement())
-  name       String   @db.VarChar(40)
-  lastname   String   @db.VarChar(40)
-  ci         String   @unique @db.VarChar(13)
-  rol        String   @db.VarChar(30)
-  salary_monthly Decimal @db.Decimal(10, 2)
-  date_of_entry DateTime @default(now())
-  is_active  Boolean  @default(true)
-  created_at DateTime @default(now()) @map("created_at")
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(40)
+  lastname       String   @db.VarChar(40)
+  ci             String   @unique @db.VarChar(13)
+  rol            String   @db.VarChar(30)
+  salary_monthly Decimal  @db.Decimal(10, 2)
+  date_of_entry  DateTime @default(now())
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now()) @map("created_at")
 
   employee_contacts employee_contacts[]
   payrolls          payrolls[]
@@ -197,13 +197,13 @@ model expenses {
 
 // Retenciones
 model tax_parameters {
-  code        String   @id @db.VarChar(30)
-  name        String   @db.VarChar(50)
-  percentage  Decimal @db.Decimal(10, 3) // Procentaje
-  created_at  DateTime @default(now())
+  code       String   @id @db.VarChar(30)
+  name       String   @db.VarChar(50)
+  percentage Decimal  @db.Decimal(10, 3) // Procentaje
+  created_at DateTime @default(now())
 
-  payrolls_retentions          payrolls_retentions[]
-  invoice_taxes                invoice_taxes[]
+  payrolls_retentions payrolls_retentions[]
+  invoice_taxes       invoice_taxes[]
 
   @@map("tax_parameters")
 }
@@ -233,12 +233,11 @@ model services {
   payment_status String   @default("pending") @db.VarChar(20)
   created_at     DateTime @default(now())
 
-  vehicles            vehicles              @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
-  clients             clients               @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  vehicles vehicles @relation(fields: [vehicle_id], references: [id], onDelete: Cascade)
+  clients  clients  @relation(fields: [client_id], references: [id], onDelete: Cascade)
 
   @@map("services")
 }
-
 
 // Ingresos
 model revenue {
@@ -269,7 +268,7 @@ model payrolls {
   assignments     Decimal  @db.Decimal(10, 2) // Salario quincenal
   net_salary      Decimal  @db.Decimal(10, 2)
 
-  created_at      DateTime @default(now())
+  created_at          DateTime              @default(now())
   employee            employees             @relation(fields: [employee_id], references: [id], onDelete: Cascade)
   payrolls_retentions payrolls_retentions[]
 
@@ -281,7 +280,7 @@ model payrolls_retentions {
   payroll_id     Int
   retention_code String
 
-  rate_retention Decimal @db.Decimal(10, 3) // monto de referencia
+  rate_retention  Decimal @db.Decimal(10, 3) // monto de referencia
   base_amount     Decimal @db.Decimal(10, 2) // monto de referencia
   total_retention Decimal @db.Decimal(10, 3) // Total de retención
 
