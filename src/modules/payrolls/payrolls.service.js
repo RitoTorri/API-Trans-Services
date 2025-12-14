@@ -9,6 +9,9 @@ const model = new modelPayrolls();
 const employeeModel = new modelEmployee();
 const taxParametersModel = new modelTaxParameters();
 
+// Importacion de conversion
+import conversion from "../../shared/utils/dollar.methods.js";
+
 class PayrollsService {
     constructor() { }
 
@@ -61,49 +64,76 @@ class PayrollsService {
 
             const result = await model.getPayrolls(filter);
 
-            // Mensaje burda de grande. Pero retorna los necesario para el frontend
-            return result.map(result => {
-                let year = new Date().getFullYear() - new Date(result.employee.date_of_entry).getFullYear();
-                let month = new Date().getMonth() - new Date(result.employee.date_of_entry).getMonth();
-                let ssoResult = parseFloat(result.payrolls_retentions[0].total_retention);
-                let pieResult = parseFloat(result.payrolls_retentions[1].total_retention);
-                let faovResult = parseFloat(result.payrolls_retentions[2].total_retention);
-                let totalDeductions = ssoResult + pieResult + faovResult;
-                let netSalaryResult = parseFloat(result.assignments) - parseFloat(totalDeductions);
+            // Procesar todas las nóminas en paralelo
+            const processedPayrolls = await Promise.all(
+                result.map(async (payroll) => {
+                    let year = new Date().getFullYear() - new Date(payroll.employee.date_of_entry).getFullYear();
+                    let month = new Date().getMonth() - new Date(payroll.employee.date_of_entry).getMonth();
 
-                return {
-                    id: result.id,
-                    status: result.status,
-                    employee: {
-                        name: result.employee.name,
-                        ci: result.employee.ci,
-                        rol: result.employee.rol,
-                        old_date: `${year} años y ${month} meses`, // Antigüedad en años
-                        date_of_entry: result.employee.date_of_entry.toISOString().split('T')[0] // Año de ingreso
-                    },
-                    Payment_period: {
-                        from: result.period_start.toISOString().split('T')[0],
-                        to: result.period_end.toISOString().split('T')[0]
-                    },
-                    details: {
-                        salary_daily: result.daily_salary,
-                        total_days_paid: result.total_days_paid,
-                        integral_salary: result.integral_salary,
-                        annual_earnings: result.annual_earnings,
-                    },
-                    description: {
-                        salary_biweekly: result.assignments,
-                        monthly_salary: result.monthly_salary,
-                        deductions: {
-                            sso: ssoResult,
-                            pie: pieResult,
-                            faov: faovResult
-                        },
-                        totalDeductions: totalDeductions,
-                        net_salary: netSalaryResult
+                    // Asegurar que los cálculos de antigüedad sean correctos
+                    if (month < 0) {
+                        year--;
+                        month += 12;
                     }
-                };
-            });
+
+                    // Extraer retenciones de forma segura
+                    let ssoResult = 0, pieResult = 0, faovResult = 0;
+
+                    if (payroll.payrolls_retentions && payroll.payrolls_retentions.length >= 3) {
+                        ssoResult = parseFloat(payroll.payrolls_retentions[0]?.total_retention || 0);
+                        pieResult = parseFloat(payroll.payrolls_retentions[1]?.total_retention || 0);
+                        faovResult = parseFloat(payroll.payrolls_retentions[2]?.total_retention || 0);
+                    }
+
+                    let totalDeductions = ssoResult + pieResult + faovResult;
+
+                    // Obtener conversión a bolívares
+                    const netSalaryBs = await conversion.conversionDolarToBsToday(payroll.net_salary || 0);
+
+                    return {
+                        id: payroll.id,
+                        status: payroll.status,
+                        employee: {
+                            name: payroll.employee?.name || '',
+                            ci: payroll.employee?.ci || '',
+                            rol: payroll.employee?.rol || '',
+                            old_date: `${year} años y ${month} meses`,
+                            date_of_entry: payroll.employee?.date_of_entry
+                                ? payroll.employee.date_of_entry.toISOString().split('T')[0]
+                                : ''
+                        },
+                        Payment_period: {
+                            from: payroll.period_start
+                                ? payroll.period_start.toISOString().split('T')[0]
+                                : '',
+                            to: payroll.period_end
+                                ? payroll.period_end.toISOString().split('T')[0]
+                                : ''
+                        },
+                        details: {
+                            salary_daily: payroll.daily_salary || 0,
+                            total_days_paid: payroll.total_days_paid || 0,
+                            integral_salary: payroll.integral_salary || 0,
+                            annual_earnings: payroll.annual_earnings || 0,
+                        },
+                        description: {
+                            salary_biweekly: payroll.assignments || 0,
+                            monthly_salary: payroll.monthly_salary || 0,
+                            deductions: {
+                                sso: ssoResult,
+                                pie: pieResult,
+                                faov: faovResult
+                            },
+                            totalDeductions: totalDeductions,
+                            net_salary: payroll.net_salary || 0,
+                            net_salary_bs: netSalaryBs
+                        }
+                    };
+                })
+            );
+
+            // Mensaje burda de grande. Pero retorna lo necesario para el frontend
+            return processedPayrolls;
         } catch (error) { throw error; }
     }
 

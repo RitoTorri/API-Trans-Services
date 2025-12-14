@@ -133,6 +133,7 @@ Busqueda por estado:
                 },
                 "totalDeductions": "3.36",
                 "net_salary": "61.64"
+                "net_salary_bs": "6112.64"
             }
         }
     ]

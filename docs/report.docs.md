@@ -42,7 +42,7 @@ GET http://localhost:3000/api/trans/services/reports/expenses/annual/2025
 ---
 
 ### 2. Reporte de Ganancias Anuales
-**INFO:** Este reporte muestra las ganancias anualespor meses. Es decir ganancia total por mes y por año.  
+**INFO:** Este reporte muestra las ganancias anuales por meses. Es decir ganancia total por mes y por año.  
 **Método:** `GET`  
 **Endpoint:** `http://localhost:3000/api/trans/services/reports/revenue/annual/:year`  
 **Headers:**

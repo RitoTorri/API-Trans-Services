@@ -1,6 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+// Conversion de dolares a Bs
+import conversion from "../../shared/utils/dollar.methods.js";
+
 class ServicesModel {
     constructor() { }
 
@@ -33,7 +36,12 @@ class ServicesModel {
                 where: filter,
                 include: {
                     clients: { select: { name: true, rif: true } },
-                    vehicles: { select: { license_plate: true } }
+                    vehicles: {
+                        select: {
+                            license_plate: true,
+                            employees: true,
+                        }
+                    }
                 }
             });
         } catch (error) { throw error; }
@@ -57,8 +65,15 @@ class ServicesModel {
                 const revenue = {
                     description: `Servicio vendido a ${client.name}, ${client.rif}. Desde ${servicesUpdate.start_date.toISOString().split('T')[0]} hasta ${servicesUpdate.end_date.toISOString().split('T')[0]}`,
                     amount: servicesUpdate.price,
+                    amount_bs: await conversion.conversionDolarToBsToday(servicesUpdate.price),
                     date: new Date(),
                 };
+
+                // Agregamos valor a bolivares de servicio
+                await prisma.services.update({
+                    where: { id: id },
+                    data: { price_bs: revenue.amount_bs }
+                });
 
                 // Creamos la ganancia
                 await prisma.revenue.create({

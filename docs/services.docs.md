@@ -96,8 +96,11 @@ Busqueda por nombre del cliente:
             },
             "vehicle": {
                 "license_plate": "xxxx"
+                "name_driver": "Jesus",
+                "lastname_driver": "Cortez"
             },
             "totalAmount": 12740.88
+            "totalAmountBs": 12740.88
         }
 ```
 
