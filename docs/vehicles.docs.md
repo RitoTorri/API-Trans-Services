@@ -90,10 +90,33 @@
 ```json
 {
     "driver_id": "integer (ID del conductor)",
-    "model": "string",
+    "vehicle_model_id": "integer (ID del modelo)",
     "license_plate": "string (única)",
     "total_seats": "integer",
     "vehicle_type_id": "integer (ID del tipo de vehículo)"
+
+}
+
+**Response (200 OK):**
+```json
+
+{
+  "success": true,
+  "code": "ITEM_CREATED",
+  "message": "The item was created successfully.",
+  "details": {
+    "vehicle": {
+      "id": 4,
+      "driver_id": 2,
+      "license_plate": "ABC-123",
+      "total_seats": 40,
+      "vehicle_type_id": 1,
+      "is_active": true,
+      "created_at": "2025-12-15T01:37:04.831Z",
+      "vehicle_model_id": 2
+    },
+    "message": "Vehículo registrado exitosamente."
+  }
 }
 ```
 
@@ -112,7 +135,7 @@
     {
       "id": 4,
       "driver_id": 2,
-      "model": "Ford F-150",
+      "vehicle_type_id": 1,
       "license_plate": "ABC-123",
       "total_seats": 4,
       "vehicle_type_id": 1,
@@ -154,7 +177,7 @@
 ```json
 {
     "driver_id": "integer (opcional)",
-    "model": "string (opcional)",
+    "vehicle_type_id": "integer (opcional)",
     "total_seats": "integer (opcional)",
     "is_active": "boolean (opcional)"
 }
