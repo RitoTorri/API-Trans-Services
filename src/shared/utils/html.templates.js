@@ -1554,10 +1554,9 @@ const htmlVehiclesReport = (data) => {
                 <thead>
                     <tr>
                         <th>Conductor</th>
-                        <th>Modelo de transporte</th>
                         <th>Placa</th>
-                        <th>Asientos disponibles</th>
-                        <th>TIpo de vehiculo</th>
+                        <thTotal de asientos</th>
+                        <th>Tipo de vehiculo</th>
                     </tr>
                 </thead>
                 <tbody id="clientes-lista">
@@ -1567,7 +1566,6 @@ const htmlVehiclesReport = (data) => {
                             <td>${item.employees && item.employees.name && item.employees.lastname
                     ? `${item.employees.name} ${item.employees.lastname}`
                     : 'No asignado'}</td>
-                            <td>${item.model || 'N/A'}</td>
                             <td>${item.license_plate || 'N/A'}</td>
                             <td>${item.total_seats || '0'}</td>
                             <td>${item.vehicle_types && item.vehicle_types.type_name

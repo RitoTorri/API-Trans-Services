@@ -4,6 +4,8 @@ import validator from '../../shared/utils/format.data.js';
 export const validateCreateVehicleData = (req, res, next) => {
 
     const { driver_id, vehicle_model_id, license_plate, total_seats, vehicle_type_id, color } = req.body;
+
+    console.log(req.body)
     
     
     if (!driver_id || !vehicle_model_id || !license_plate || !total_seats || !vehicle_type_id) {

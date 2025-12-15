@@ -16,7 +16,7 @@ router.post('/clients',
 
 router.get('/clients/:filter',
     validationToken,
-    authorization(['Administrador', 'SuperUsuario']),
+    authorization(['Invitado', 'Administrador', 'SuperUsuario']),
     middlewares.getClientsMiddleware,
     controller.getClients
 );
